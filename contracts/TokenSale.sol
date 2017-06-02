@@ -19,4 +19,19 @@ contract TokenSale {
     startTime = _start;
   }
 
+  function phaseOneEnd()
+  constant returns (uint) {
+    return startTime + 1 weeks;
+  }
+
+  function phaseTwoEnd()
+  constant returns (uint) {
+    return startTime + 2 weeks;
+  }
+
+  function phaseThreeEnd()
+  constant returns (uint) {
+    return startTime + 4 weeks;
+  }
+
 }

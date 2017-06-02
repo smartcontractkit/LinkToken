@@ -24,4 +24,25 @@
       });
     });
   };
+
+  unixTime = function unixTime(time) {
+    return moment(time).unix();
+  }
+
+  seconds = function seconds(number) {
+    return number;
+  };
+
+  minutes = function minutes(number) {
+    return number * 60;
+  };
+
+  hours = function hours(number) {
+    return number * minutes(60);
+  };
+
+  days = function days(number) {
+    return number * hours(24);
+  };
+
 })();
