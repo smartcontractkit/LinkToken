@@ -1,0 +1,21 @@
+{
+  "name": "token_sale",
+  "authors": [
+    "Steve Ellis <steve@smartcontract.com>"
+  ],
+  "dependencies": {
+    "bignumber.js": "^2.0.0",
+    "ethereumjs-testrpc": "^3.0.0",
+    "moment": "^2.15.2",
+    "truffle": "^2.1.1"
+  },
+  "homepage": "",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
