@@ -27,7 +27,8 @@ global.provider = server.provider;
 
 var config = Truffle.config.detect({
   test_files: [
-    'test/TokenSale_spec.js'
+    'test/TokenSale_spec.js',
+    'test/SmartOracle_spec.js',
   ],
   provider: provider
 })
