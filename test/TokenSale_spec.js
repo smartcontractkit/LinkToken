@@ -1,11 +1,12 @@
 require('./support/helpers.js');
 
 contract('TokenSale', () => {
-  let limit, sale, owner, recipient;
+  let limit, purchaser, sale, owner, recipient;
 
   before(() => {
     owner = Accounts[0];
     recipient = Accounts[1];
+    purchaser = Accounts[2];
     limit = 1000000;
     startTime = unixTime("2020-06-01T00:00:00.000");
 
@@ -51,6 +52,24 @@ contract('TokenSale', () => {
         let expected = startTime + days(28);
         assert.equal(expected.toString(), fundingEnd.toString());
       });
+    });
+  });
+
+  describe("fallback function", () => {
+    it("forwards any value to the recipient", () => {
+      let value = 1234509876;
+      let params = {to: sale.address, from: purchaser, value: value};
+      let originalBalance;
+
+      return getBalance(recipient)
+        .then(response => {
+          originalBalance = response;
+          return sendTransaction(params)
+        })
+        .then(response => getBalance(recipient))
+        .then(newBalance => {
+          assert.equal(newBalance.toString(), originalBalance.add(value).toString());
+        });
     });
   });
 });

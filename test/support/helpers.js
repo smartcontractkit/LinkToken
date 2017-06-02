@@ -21,9 +21,22 @@
         } else {
           resolve(response.result);
         };
-      });
+      }, () => {}, () => {});
     });
   };
+
+  sendTransaction = function sendTransaction(params) {
+    return Eth('eth_sendTransaction', [params]);
+  }
+
+  getBalance = function getBalance(account) {
+    return Eth('eth_getBalance', [account])
+      .then(response => bigNum(response));
+  }
+
+  bigNum = function bigNum(number) {
+    return new BigNumber(number);
+  }
 
   unixTime = function unixTime(time) {
     return moment(time).unix();
