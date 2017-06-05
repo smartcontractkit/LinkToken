@@ -45,7 +45,13 @@ contract TokenSale {
 
   function amountReceived()
   private returns (uint) {
-    return (msg.value / 10**15);
+    if (block.timestamp <= phaseOneEnd()) {
+      return msg.value / 10**15;
+    } else if (block.timestamp <= phaseTwoEnd()) {
+      return (((msg.value * 75)/100) / 10**15);
+    } else {
+      return (((msg.value * 50)/100) / 10**15);
+    }
   }
 
 

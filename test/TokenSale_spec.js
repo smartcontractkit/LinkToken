@@ -136,10 +136,53 @@ contract('TokenSale', () => {
           .then(events => {
             assert.equal(events.length, 1);
             let event = events[0];
-            assert.equal(event.event, 'Purchase');
-            assert.equal(event.args.purchaser, purchaser);
-            assert.equal(event.args.paid, value);
             assert.equal(event.args.received.toString(), (1000 * ratio).toString());
+          });
+      });
+    });
+
+    context("when it is during the second phase", () => {
+      beforeEach(() => {
+        let phaseTwo = startTime + days(7);
+        return fastForwardTo(phaseTwo + 1)
+          .then(getLatestTimestamp)
+          .then(timestamp => assert.isAtLeast(timestamp, phaseTwo));
+      });
+
+      it("counts 750,000 tokens as released per Ether", () => {
+        ratio = 1.1;
+        value = toWei(ratio);
+        params['value'] = value;
+
+        return sendTransaction(params)
+          .then(() => getEvents(sale))
+          .then(events => {
+            assert.equal(events.length, 1);
+            let event = events[0];
+            assert.equal(event.args.received.toString(), parseInt(750 * ratio).toString());
+          });
+      });
+    });
+
+    context("when it is during the third phase", () => {
+      beforeEach(() => {
+        let phaseThree = startTime + days(14);
+        return fastForwardTo(phaseThree + 1)
+          .then(getLatestTimestamp)
+          .then(timestamp => assert.isAtLeast(timestamp, phaseThree));
+      });
+
+      it("counts 500,000 tokens as released per Ether", () => {
+        ratio = 1.1;
+        value = toWei(ratio);
+        params['value'] = value;
+
+        return sendTransaction(params)
+          .then(() => getEvents(sale))
+          .then(events => {
+            assert.equal(events.length, 1);
+            let event = events[0];
+            assert.equal(event.args.received.toString(), (500 * ratio).toString());
           });
       });
     });
