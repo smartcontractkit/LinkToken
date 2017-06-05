@@ -3,7 +3,7 @@ require('./support/helpers.js');
 contract('TokenSale', () => {
   let limit, purchaser, sale, owner, recipient;
 
-  before(() => {
+  beforeEach(() => {
     owner = Accounts[0];
     recipient = Accounts[1];
     purchaser = Accounts[2];
@@ -56,8 +56,9 @@ contract('TokenSale', () => {
   });
 
   describe("fallback function", () => {
+    let value = 1234509876;
+
     it("forwards any value to the recipient", () => {
-      let value = 1234509876;
       let params = {to: sale.address, from: purchaser, value: value};
       let originalBalance;
 
@@ -69,6 +70,24 @@ contract('TokenSale', () => {
         .then(response => getBalance(recipient))
         .then(newBalance => {
           assert.equal(newBalance.toString(), originalBalance.add(value).toString());
+        });
+    });
+
+    it("emits an event log when the payment is received", () => {
+      let params = {to: sale.address, from: purchaser, value: value};
+
+      return getEvents(sale)
+        .then(events => {
+          assert.equal(events.length, 0);
+          return sendTransaction(params);
+        })
+        .then(() => getEvents(sale))
+        .then(events => {
+          assert.equal(events.length, 1);
+          let event = events[0];
+          assert.equal(event.event, 'Purchase');
+          assert.equal(event.args.purchaser, purchaser);
+          assert.equal(event.args.amount, value);
         });
     });
   });

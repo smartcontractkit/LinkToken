@@ -58,4 +58,34 @@
     return number * hours(24);
   };
 
+  getEvents = function getEvents(contract) {
+    return new Promise((resolve, reject) => {
+      contract.allEvents().get((error, events) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(events);
+        };
+      });
+    });
+  };
+
+  eventsOfType = function eventsOfType(events, type) {
+    let filteredEvents = [];
+    for (event of events) {
+      if (event.event === type) filteredEvents.push(event);
+    }
+    return filteredEvents;
+  };
+
+  getEventsOfType = function getEventsOfType(contract, type) {
+    return getEvents(contract)
+      .then(events => eventsOfType(events, type));
+  };
+
+  getLatestEvent = function getLatestEvent(contract) {
+    return getEvents(contract)
+      .then(events => events[events.length - 1]);
+  };
+
 })();
