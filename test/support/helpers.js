@@ -46,6 +46,10 @@
     return new BigNumber(number);
   }
 
+  toWei = function toWei(number) {
+    return parseInt(web3.toWei(number));
+  }
+
   unixTime = function unixTime(time) {
     return moment(time).unix();
   }

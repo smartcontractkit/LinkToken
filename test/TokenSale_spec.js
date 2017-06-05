@@ -59,10 +59,11 @@ contract('TokenSale', () => {
   });
 
   describe("fallback function", () => {
-    let originalBalance, params, value;
+    let originalBalance, params, ratio, value;
 
     beforeEach(() => {
-      value = 1234509876;
+      ratio = 1;
+      value = toWei(ratio);
       params = {to: sale.address, from: purchaser, value: value};
     });
 
@@ -97,7 +98,8 @@ contract('TokenSale', () => {
             let event = events[0];
             assert.equal(event.event, 'Purchase');
             assert.equal(event.args.purchaser, purchaser);
-            assert.equal(event.args.amount, value);
+            assert.equal(event.args.paid.toString(), value.toString());
+            assert.equal(event.args.received.toString(), '1000');
           });
       });
     });
@@ -114,6 +116,31 @@ contract('TokenSale', () => {
         return assertActionThrows(() => {
           return sendTransaction(params);
         });
+      });
+    });
+
+    context("when it is during the first phase", () => {
+      beforeEach(() => {
+        return fastForwardTo(startTime)
+          .then(getLatestTimestamp)
+          .then(timestamp => assert.isAtLeast(timestamp, startTime));
+      });
+
+      it("counts 1,000,000 tokens as released per Ether", () => {
+        ratio = 1.1;
+        value = toWei(ratio);
+        params['value'] = value;
+
+        return sendTransaction(params)
+          .then(() => getEvents(sale))
+          .then(events => {
+            assert.equal(events.length, 1);
+            let event = events[0];
+            assert.equal(event.event, 'Purchase');
+            assert.equal(event.args.purchaser, purchaser);
+            assert.equal(event.args.paid, value);
+            assert.equal(event.args.received.toString(), (1000 * ratio).toString());
+          });
       });
     });
   });

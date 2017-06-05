@@ -6,7 +6,7 @@ contract TokenSale {
   uint public startTime;
   address public recipient;
 
-  event Purchase(address purchaser, uint amount);
+  event Purchase(address purchaser, uint paid, uint received);
 
   function TokenSale(
     address _recipient,
@@ -36,8 +36,16 @@ contract TokenSale {
   function ()
   payable ensureStarted {
     if (recipient.send(msg.value)) {
-      Purchase(msg.sender, msg.value);
+      Purchase(msg.sender, msg.value, amountReceived());
     }
+  }
+
+
+  // PRIVATE
+
+  function amountReceived()
+  private returns (uint) {
+    return (msg.value / 10**15);
   }
 
 
