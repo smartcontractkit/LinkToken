@@ -59,39 +59,62 @@ contract('TokenSale', () => {
   });
 
   describe("fallback function", () => {
-    let value = 1234509876;
+    let originalBalance, params, value;
 
-    it("forwards any value to the recipient", () => {
-      let params = {to: sale.address, from: purchaser, value: value};
-      let originalBalance;
-
-      return getBalance(recipient)
-        .then(response => {
-          originalBalance = response;
-          return sendTransaction(params)
-        })
-        .then(response => getBalance(recipient))
-        .then(newBalance => {
-          assert.equal(newBalance.toString(), originalBalance.add(value).toString());
-        });
+    beforeEach(() => {
+      value = 1234509876;
+      params = {to: sale.address, from: purchaser, value: value};
     });
 
-    it("emits an event log when the payment is received", () => {
-      let params = {to: sale.address, from: purchaser, value: value};
+    context("during the funding period", () => {
+      beforeEach(() => {
+        return fastForwardTo(startTime)
+          .then(getLatestTimestamp)
+          .then(timestamp => assert.isAtLeast(timestamp, startTime));
+      });
 
-      return getEvents(sale)
-        .then(events => {
-          assert.equal(events.length, 0);
+      it("forwards any value to the recipient", () => {
+        return getBalance(recipient)
+          .then(response => {
+            originalBalance = response;
+            return sendTransaction(params)
+          })
+          .then(response => getBalance(recipient))
+          .then(newBalance => {
+            assert.equal(newBalance.toString(), originalBalance.add(value).toString());
+          });
+      });
+
+      it("emits an event log when the payment is received", () => {
+        return getEvents(sale)
+          .then(events => {
+            assert.equal(events.length, 0);
+            return sendTransaction(params);
+          })
+          .then(() => getEvents(sale))
+          .then(events => {
+            assert.equal(events.length, 1);
+            let event = events[0];
+            assert.equal(event.event, 'Purchase');
+            assert.equal(event.args.purchaser, purchaser);
+            assert.equal(event.args.amount, value);
+          });
+      });
+    });
+
+    context("when it is during the first phase", () => {
+      beforeEach(() => {
+        return getLatestTimestamp()
+          .then(timestamp => assert.isBelow(timestamp, startTime));
+      });
+
+      it("throws an error", () => {
+        let params = {to: sale.address, from: purchaser, value: value};
+
+        return assertActionThrows(() => {
           return sendTransaction(params);
-        })
-        .then(() => getEvents(sale))
-        .then(events => {
-          assert.equal(events.length, 1);
-          let event = events[0];
-          assert.equal(event.event, 'Purchase');
-          assert.equal(event.args.purchaser, purchaser);
-          assert.equal(event.args.amount, value);
         });
+      });
     });
   });
 });

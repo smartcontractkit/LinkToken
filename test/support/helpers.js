@@ -113,4 +113,19 @@
       .then(events => events[events.length - 1]);
   };
 
+  assertActionThrows = function assertActionThrows(action) {
+    return Promise.resolve().then(action)
+      .catch(error => {
+        assert(error, "Expected an error to be raised");
+        assert(error.message, "Expected an error to be raised");
+        return error.message;
+      })
+      .then(errorMessage => {
+        assert(errorMessage, "Expected an error to be raised");
+        assert.include(errorMessage, "invalid JUMP", 'expected error message to include "invalid JUMP"');
+        // see https://github.com/ethereumjs/testrpc/issues/39
+        // for why the "invalid JUMP" is the throw related error when using TestRPC
+      })
+  };
+
 })();

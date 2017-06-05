@@ -33,9 +33,21 @@ contract TokenSale {
     return startTime + 4 weeks;
   }
 
-  function () payable {
+  function ()
+  payable ensureStarted {
     if (recipient.send(msg.value)) {
       Purchase(msg.sender, msg.value);
+    }
+  }
+
+
+  // MODIFIERS
+
+  modifier ensureStarted() {
+    if (block.timestamp < startTime) {
+      throw;
+    } else {
+      _;
     }
   }
 
