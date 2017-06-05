@@ -6,6 +6,10 @@
       });
   });
 
+  global.web3 = new Web3();
+  global.web3.setProvider(provider);
+  global.eth = web3.eth;
+
   Eth = function sendEth(method, params) {
     params = params || [];
 
@@ -23,6 +27,10 @@
         };
       }, () => {}, () => {});
     });
+  };
+
+  sealBlock = function sealBlock() {
+    return Eth('evm_mine');
   };
 
   sendTransaction = function sendTransaction(params) {
@@ -56,6 +64,23 @@
 
   days = function days(number) {
     return number * hours(24);
+  };
+
+  getLatestBlock = function getLatestBlock() {
+    return Eth('eth_getBlockByNumber', ['latest', false])
+  };
+
+  getLatestTimestamp = function getLatestTimestamp () {
+    return getLatestBlock().then(block => web3.toDecimal(block.timestamp));
+  };
+
+  fastForwardTo = function fastForwardTo(target) {
+    return getLatestTimestamp().then(now => {
+      assert.isAbove(target, now, "Cannot fast forward to the past");
+      let difference = target - now;
+      return Eth("evm_increaseTime", [difference])
+        .then(sealBlock);
+    });
   };
 
   getEvents = function getEvents(contract) {

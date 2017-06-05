@@ -2,6 +2,7 @@ BigNumber = require('bignumber.js');
 Truffle = require('truffle');
 TestRPC = require('ethereumjs-testrpc');
 moment = require('moment');
+Web3 = require('web3');
 
 var server = TestRPC.server({
   accounts: [

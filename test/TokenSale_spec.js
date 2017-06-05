@@ -1,17 +1,20 @@
 require('./support/helpers.js');
 
 contract('TokenSale', () => {
-  let limit, purchaser, sale, owner, recipient;
+  let limit, owner, purchaser, recipient, sale, starttime;
 
   beforeEach(() => {
     owner = Accounts[0];
     recipient = Accounts[1];
     purchaser = Accounts[2];
     limit = 1000000;
-    startTime = unixTime("2020-06-01T00:00:00.000");
 
-    return TokenSale.new(recipient, limit, startTime, {from: owner})
-      .then(response => sale = response);
+    return getLatestTimestamp()
+      .then(timestamp => {
+        startTime = timestamp + 1000;
+        return TokenSale.new(recipient, limit, startTime, {from: owner})
+      })
+      .then(response => sale = response)
   });
 
   describe("initialization", () => {
