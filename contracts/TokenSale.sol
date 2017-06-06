@@ -1,6 +1,9 @@
-pragma solidity ^0.4.2;
+pragma solidity ^0.4.8;
+
+import './SafeMath.sol';
 
 contract TokenSale {
+  using SafeMath for uint;
 
   uint public fundingLimit;
   uint public startTime;
@@ -46,11 +49,11 @@ contract TokenSale {
   function amountReceived()
   private returns (uint) {
     if (block.timestamp <= phaseOneEnd()) {
-      return msg.value / 10**15;
+      return msg.value.div(10**15);
     } else if (block.timestamp <= phaseTwoEnd()) {
-      return (((msg.value * 75)/100) / 10**15);
+      return msg.value.times(75).div(10**17);
     } else {
-      return (((msg.value * 50)/100) / 10**15);
+      return msg.value.times(50).div(10**17);
     }
   }
 
