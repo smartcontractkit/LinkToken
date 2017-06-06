@@ -104,7 +104,7 @@ contract('TokenSale', () => {
       });
     });
 
-    context("when it is during the first phase", () => {
+    context("when it is before the first phase", () => {
       beforeEach(() => {
         return getLatestTimestamp()
           .then(timestamp => assert.isBelow(timestamp, startTime));
@@ -126,7 +126,7 @@ contract('TokenSale', () => {
           .then(timestamp => assert.isAtLeast(timestamp, startTime));
       });
 
-      it("counts 1,000,000 tokens as released per Ether", () => {
+      it("counts 1,000 tokens as released per Ether", () => {
         ratio = 1.1;
         value = toWei(ratio);
         params['value'] = value;
@@ -149,7 +149,7 @@ contract('TokenSale', () => {
           .then(timestamp => assert.isAtLeast(timestamp, phaseTwo));
       });
 
-      it("counts 750,000 tokens as released per Ether", () => {
+      it("counts 750 tokens as released per Ether", () => {
         ratio = 1.1;
         value = toWei(ratio);
         params['value'] = value;
@@ -172,7 +172,7 @@ contract('TokenSale', () => {
           .then(timestamp => assert.isAtLeast(timestamp, phaseThree));
       });
 
-      it("counts 500,000 tokens as released per Ether", () => {
+      it("counts 500 tokens as released per Ether", () => {
         ratio = 1.1;
         value = toWei(ratio);
         params['value'] = value;
