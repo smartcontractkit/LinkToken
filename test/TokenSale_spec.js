@@ -51,7 +51,7 @@ contract('TokenSale', () => {
     });
 
     it("sets the end of phase three as four weeks after the start time", () => {
-      return sale.phaseThreeEnd.call().then(fundingEnd => {
+      return sale.endTime.call().then(fundingEnd => {
         let expected = startTime + days(28);
         assert.equal(expected.toString(), fundingEnd.toString());
       });
@@ -184,6 +184,21 @@ contract('TokenSale', () => {
             let event = events[0];
             assert.equal(event.args.received.toString(), (500 * ratio).toString());
           });
+      });
+    });
+
+    context("when it is during the third phase", () => {
+      beforeEach(() => {
+        let endTime = startTime + days(28);
+        return fastForwardTo(endTime + 1)
+          .then(getLatestTimestamp)
+          .then(timestamp => assert.isAtLeast(timestamp, endTime));
+      });
+
+      it("throws an error", () => {
+        return assertActionThrows(() => {
+          return sendTransaction(params);
+        });
       });
     });
   });

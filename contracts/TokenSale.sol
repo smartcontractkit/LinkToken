@@ -28,7 +28,7 @@ contract TokenSale {
     return startTime + 2 weeks;
   }
 
-  function phaseThreeEnd()
+  function endTime()
   constant returns (uint) {
     return startTime + 4 weeks;
   }
@@ -58,7 +58,7 @@ contract TokenSale {
   // MODIFIERS
 
   modifier ensureStarted() {
-    if (block.timestamp < startTime) {
+    if (block.timestamp < startTime || block.timestamp > endTime()) {
       throw;
     } else {
       _;
