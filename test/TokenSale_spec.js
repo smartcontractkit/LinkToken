@@ -7,7 +7,7 @@ contract('TokenSale', () => {
     owner = Accounts[0];
     recipient = Accounts[1];
     purchaser = Accounts[2];
-    limit = 1000000;
+    limit = toWei(1000);
 
     return getLatestTimestamp()
       .then(timestamp => {
@@ -64,7 +64,7 @@ contract('TokenSale', () => {
     beforeEach(() => {
       ratio = 1;
       value = toWei(ratio);
-      params = {to: sale.address, from: purchaser, value: value};
+      params = {to: sale.address, from: purchaser, value: parseInt(value)};
     });
 
     context("during the funding period", () => {
@@ -102,6 +102,18 @@ contract('TokenSale', () => {
             assert.equal(event.args.received.toString(), '1000');
           });
       });
+
+      context("if the funding limit is exceeded", () => {
+        beforeEach(() => {
+          params['value'] = limit.toNumber() * 2;
+        });
+
+        it("throws an error", () => {
+          return assertActionThrows(() => {
+            return sendTransaction(params);
+          });
+        });
+      });
     });
 
     context("when it is before the first phase", () => {
@@ -111,8 +123,6 @@ contract('TokenSale', () => {
       });
 
       it("throws an error", () => {
-        let params = {to: sale.address, from: purchaser, value: value};
-
         return assertActionThrows(() => {
           return sendTransaction(params);
         });
@@ -129,7 +139,7 @@ contract('TokenSale', () => {
       it("counts 1,000 tokens as released per Ether", () => {
         ratio = 1.1;
         value = toWei(ratio);
-        params['value'] = value;
+        params['value'] = parseInt(value);
 
         return sendTransaction(params)
           .then(() => getEvents(sale))
@@ -152,7 +162,7 @@ contract('TokenSale', () => {
       it("counts 750 tokens as released per Ether", () => {
         ratio = 1.1;
         value = toWei(ratio);
-        params['value'] = value;
+        params['value'] = parseInt(value);
 
         return sendTransaction(params)
           .then(() => getEvents(sale))
@@ -175,7 +185,7 @@ contract('TokenSale', () => {
       it("counts 500 tokens as released per Ether", () => {
         ratio = 1.1;
         value = toWei(ratio);
-        params['value'] = value;
+        params['value'] = parseInt(value);
 
         return sendTransaction(params)
           .then(() => getEvents(sale))

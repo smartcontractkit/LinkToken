@@ -47,7 +47,7 @@
   }
 
   toWei = function toWei(number) {
-    return parseInt(web3.toWei(number));
+    return bigNum(web3.toWei(number));
   }
 
   unixTime = function unixTime(time) {

@@ -7,6 +7,7 @@ contract TokenSale {
 
   uint public fundingLimit;
   uint public startTime;
+  uint public fundingReceived;
   address public recipient;
 
   event Purchase(address purchaser, uint paid, uint received);
@@ -38,8 +39,12 @@ contract TokenSale {
 
   function ()
   payable ensureStarted {
-    if (recipient.send(msg.value)) {
+    bool underLimit = msg.value + fundingReceived <= fundingLimit;
+    if (underLimit && recipient.send(msg.value)) {
+      fundingReceived += msg.value;
       Purchase(msg.sender, msg.value, amountReceived());
+    } else {
+      throw;
     }
   }
 
