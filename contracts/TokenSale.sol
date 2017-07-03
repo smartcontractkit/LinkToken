@@ -57,9 +57,9 @@ contract TokenSale is Ownable {
     if (block.timestamp <= phaseOneEnd()) {
       return msg.value.div(10**15);
     } else if (block.timestamp <= phaseTwoEnd()) {
-      return msg.value.times(75).div(10**17);
+      return msg.value.mul(75).div(10**17);
     } else {
-      return msg.value.times(50).div(10**17);
+      return msg.value.mul(50).div(10**17);
     }
   }
 
