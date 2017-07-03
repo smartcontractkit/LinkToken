@@ -2,6 +2,7 @@ pragma solidity ^0.4.8;
 
 import './Ownable.sol';
 import './SafeMath.sol';
+import './LinkToken.sol';
 
 contract TokenSale is Ownable {
   using SafeMath for uint;
@@ -10,6 +11,7 @@ contract TokenSale is Ownable {
   uint public startTime;
   uint public fundingReceived;
   address public recipient;
+  LinkToken public token;
 
   event Purchase(address purchaser, uint paid, uint received);
 
@@ -21,6 +23,7 @@ contract TokenSale is Ownable {
     fundingLimit = _limit;
     recipient = _recipient;
     startTime = _start;
+    token = new LinkToken();
   }
 
   function phaseOneEnd()

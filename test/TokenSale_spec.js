@@ -2,6 +2,7 @@ require('./support/helpers.js')
 
 contract('TokenSale', () => {
   let TokenSale = artifacts.require("./contracts/TokenSale.sol");
+  let LinkToken = artifacts.require("./contracts/LinkToken.sol");
   let limit, owner, purchaser, recipient, sale, startTime;
 
   beforeEach(async () => {
@@ -57,6 +58,14 @@ contract('TokenSale', () => {
       let saleOwner = await sale.owner.call();
 
       assert.equal(saleOwner, owner);
+    });
+
+    it("deploys a LinkToken contract", async () => {
+      let linkAddress = await sale.token.call();
+      let link = LinkToken.at(linkAddress);
+      let saleBalance = await link.balanceOf.call(sale.address);
+
+      assert.equal(saleBalance.toString(), bigNum(10**18).toString());
     });
   });
 
