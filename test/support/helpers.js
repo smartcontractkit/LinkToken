@@ -1,5 +1,4 @@
 BigNumber = require('bignumber.js');
-Truffle = require('truffle');
 TestRPC = require('ethereumjs-testrpc');
 moment = require('moment');
 Web3 = require('web3');
@@ -126,7 +125,7 @@ Web3 = require('web3');
       })
       .then(errorMessage => {
         assert(errorMessage, "Expected an error to be raised");
-        assert.include(errorMessage, "invalid JUMP", 'expected error message to include "invalid JUMP"');
+        assert.include(errorMessage, "invalid opcode", 'expected error message to include "invalid JUMP"');
         // see https://github.com/ethereumjs/testrpc/issues/39
         // for why the "invalid JUMP" is the throw related error when using TestRPC
       })
