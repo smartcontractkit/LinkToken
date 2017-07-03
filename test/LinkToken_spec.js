@@ -1,3 +1,5 @@
+'use strict';
+
 require('./support/helpers.js');
 
 contract('LinkToken', () => {

@@ -1,8 +1,9 @@
 pragma solidity ^0.4.8;
 
+import './Ownable.sol';
 import './SafeMath.sol';
 
-contract TokenSale {
+contract TokenSale is Ownable {
   using SafeMath for uint;
 
   uint public fundingLimit;

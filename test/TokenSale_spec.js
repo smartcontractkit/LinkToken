@@ -52,6 +52,12 @@ contract('TokenSale', () => {
 
       assert.equal(expected.toString(), fundingEnd.toString());
     });
+
+    it("saves the owner of the contract", async () => {
+      let saleOwner = await sale.owner.call();
+
+      assert.equal(saleOwner, owner);
+    });
   });
 
   describe("fallback function", () => {
