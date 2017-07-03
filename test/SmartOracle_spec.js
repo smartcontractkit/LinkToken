@@ -1,19 +1,17 @@
 require('./support/helpers.js');
 
 contract('SmartOracle', () => {
+  let SmartOracle = artifacts.require("./contracts/SmartOracle.sol");
   let oracle, owner;
 
-  before(() => {
+  before(async () => {
     owner = Accounts[0];
-
-    return SmartOracle.new({from: owner}).then(deployed => {
-      oracle = deployed;
-    });
+    oracle = await SmartOracle.new({from: owner});
   });
 
-  it("sets the deployer as the contract owner", () => {
-    oracle.owner.call().then((oracleOwner) => {
-      assert.equal(owner, accounts[0]);
-    });
+  it("sets the deployer as the contract owner", async () => {
+    oracleOwner = await oracle.owner.call();
+
+    assert.equal(owner, oracleOwner);
   });
 });

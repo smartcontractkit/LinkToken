@@ -1,60 +1,56 @@
-require('./support/helpers.js');
+require('./support/helpers.js')
 
 contract('TokenSale', () => {
-  let limit, owner, purchaser, recipient, sale, starttime;
+  let TokenSale = artifacts.require("./contracts/TokenSale.sol");
+  let limit, owner, purchaser, recipient, sale, startTime;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     owner = Accounts[0];
     recipient = Accounts[1];
     purchaser = Accounts[2];
     limit = toWei(1000);
-
-    return getLatestTimestamp()
-      .then(timestamp => {
-        startTime = timestamp + 1000;
-        return TokenSale.new(recipient, limit, startTime, {from: owner})
-      })
-      .then(response => sale = response)
+    startTime = await getLatestTimestamp() + 1000;
+    sale = await TokenSale.new(recipient, limit, startTime, {from: owner});
   });
 
   describe("initialization", () => {
-    it("sets the initial limit of the token sale", () => {
-      return sale.fundingLimit.call().then(fundingLimit => {
-        assert.equal(limit.toString(), fundingLimit.toString());
-      });
+    it("sets the initial limit of the token sale", async () => {
+      let fundingLimit = await sale.fundingLimit.call();
+
+      assert.equal(limit.toString(), fundingLimit.toString());
     });
 
-    it("sets the recipient of the funds", () => {
-      return sale.recipient.call().then(fundingRecipient => {
-        assert.equal(recipient, fundingRecipient);
-      });
+    it("sets the recipient of the funds", async () => {
+      let fundingRecipient = await sale.recipient.call();
+
+      assert.equal(recipient, fundingRecipient);
     });
 
-    it("sets the start date of the contract", () => {
-      return sale.startTime.call().then(fundingStart => {
-        assert.equal(startTime.toString(), fundingStart.toString());
-      });
+    it("sets the start date of the contract", async () => {
+      let fundingStart = await sale.startTime.call();
+
+      assert.equal(startTime.toString(), fundingStart.toString());
     });
 
-    it("sets the end of phase one as a week after the start time", () => {
-      return sale.phaseOneEnd.call().then(phaseTwo => {
-        let expected = startTime + days(7);
-        assert.equal(expected.toString(), phaseTwo.toString());
-      });
+    it("sets the end of phase one as a week after the start time", async () => {
+      let phaseTwo = await sale.phaseOneEnd.call();
+      let expected = startTime + days(7);
+
+      assert.equal(expected.toString(), phaseTwo.toString());
     });
 
-    it("sets the end of phase two as two weeks after the start time", () => {
-      return sale.phaseTwoEnd.call().then(phaseThree => {
-        let expected = startTime + days(14);
-        assert.equal(expected.toString(), phaseThree.toString());
-      });
+    it("sets the end of phase two as two weeks after the start time", async () => {
+      let phaseThree = await sale.phaseTwoEnd.call();
+      let expected = startTime + days(14);
+
+      assert.equal(expected.toString(), phaseThree.toString());
     });
 
-    it("sets the end of phase three as four weeks after the start time", () => {
-      return sale.endTime.call().then(fundingEnd => {
-        let expected = startTime + days(28);
-        assert.equal(expected.toString(), fundingEnd.toString());
-      });
+    it("sets the end of phase three as four weeks after the start time", async () => {
+      let fundingEnd = await sale.endTime.call();
+      let expected = startTime + days(28);
+
+      assert.equal(expected.toString(), fundingEnd.toString());
     });
   });
 
@@ -68,39 +64,33 @@ contract('TokenSale', () => {
     });
 
     context("during the funding period", () => {
-      beforeEach(() => {
-        return fastForwardTo(startTime)
-          .then(getLatestTimestamp)
-          .then(timestamp => assert.isAtLeast(timestamp, startTime));
+      beforeEach(async () => {
+        await fastForwardTo(startTime);
+        let timestamp = await getLatestTimestamp();
+
+        assert.isAtLeast(timestamp, startTime);
       });
 
-      it("forwards any value to the recipient", () => {
-        return getBalance(recipient)
-          .then(response => {
-            originalBalance = response;
-            return sendTransaction(params)
-          })
-          .then(response => getBalance(recipient))
-          .then(newBalance => {
-            assert.equal(newBalance.toString(), originalBalance.add(value).toString());
-          });
+      it("forwards any value to the recipient", async () => {
+        let originalBalance = await getBalance(recipient);
+        let response = await sendTransaction(params);
+        let newBalance = await getBalance(recipient);
+
+        assert.equal(newBalance.toString(), originalBalance.add(value).toString());
       });
 
-      it("emits an event log when the payment is received", () => {
-        return getEvents(sale)
-          .then(events => {
-            assert.equal(events.length, 0);
-            return sendTransaction(params);
-          })
-          .then(() => getEvents(sale))
-          .then(events => {
-            assert.equal(events.length, 1);
-            let event = events[0];
-            assert.equal(event.event, 'Purchase');
-            assert.equal(event.args.purchaser, purchaser);
-            assert.equal(event.args.paid.toString(), value.toString());
-            assert.equal(event.args.received.toString(), '1000');
-          });
+      it("emits an event log when the payment is received", async () => {
+        let events = await getEvents(sale)
+        assert.equal(events.length, 0);
+        await sendTransaction(params);
+
+        let events2 = await getEvents(sale);
+        assert.equal(events2.length, 1);
+        let event = events2[0];
+        assert.equal(event.event, 'Purchase');
+        assert.equal(event.args.purchaser, purchaser);
+        assert.equal(event.args.paid.toString(), value.toString());
+        assert.equal(event.args.received.toString(), '1000');
       });
 
       context("if the funding limit is exceeded", () => {
@@ -117,9 +107,10 @@ contract('TokenSale', () => {
     });
 
     context("when it is before the first phase", () => {
-      beforeEach(() => {
-        return getLatestTimestamp()
-          .then(timestamp => assert.isBelow(timestamp, startTime));
+      beforeEach(async () => {
+        let timestamp = await getLatestTimestamp();
+
+        assert.isBelow(timestamp, startTime);
       });
 
       it("throws an error", () => {
@@ -130,79 +121,83 @@ contract('TokenSale', () => {
     });
 
     context("when it is during the first phase", () => {
-      beforeEach(() => {
-        return fastForwardTo(startTime)
-          .then(getLatestTimestamp)
-          .then(timestamp => assert.isAtLeast(timestamp, startTime));
+      beforeEach(async () => {
+        await fastForwardTo(startTime);
+
+        let timestamp = await getLatestTimestamp();
+        assert.isAtLeast(timestamp, startTime);
       });
 
-      it("counts 1,000 tokens as released per Ether", () => {
+      it("counts 1,000 tokens as released per Ether", async () => {
         ratio = 1.1;
         value = toWei(ratio);
         params['value'] = parseInt(value);
 
-        return sendTransaction(params)
-          .then(() => getEvents(sale))
-          .then(events => {
-            assert.equal(events.length, 1);
-            let event = events[0];
-            assert.equal(event.args.received.toString(), (1000 * ratio).toString());
-          });
+        await sendTransaction(params);
+
+        let events = await getEvents(sale);
+        assert.equal(events.length, 1);
+
+        let event = events[0];
+        assert.equal(event.args.received.toString(), (1000 * ratio).toString());
       });
     });
 
     context("when it is during the second phase", () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         let phaseTwo = startTime + days(7);
-        return fastForwardTo(phaseTwo + 1)
-          .then(getLatestTimestamp)
-          .then(timestamp => assert.isAtLeast(timestamp, phaseTwo));
+        await fastForwardTo(phaseTwo + 1);
+
+        let timestamp = await getLatestTimestamp();
+        assert.isAtLeast(timestamp, phaseTwo);
       });
 
-      it("counts 750 tokens as released per Ether", () => {
+      it("counts 750 tokens as released per Ether", async () => {
         ratio = 1.1;
         value = toWei(ratio);
         params['value'] = parseInt(value);
 
-        return sendTransaction(params)
-          .then(() => getEvents(sale))
-          .then(events => {
-            assert.equal(events.length, 1);
-            let event = events[0];
-            assert.equal(event.args.received.toString(), parseInt(750 * ratio).toString());
-          });
+        await sendTransaction(params)
+
+        let events = await getEvents(sale);
+        assert.equal(events.length, 1);
+
+        let event = events[0];
+        assert.equal(event.args.received.toString(), parseInt(750 * ratio).toString());
       });
     });
 
     context("when it is during the third phase", () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         let phaseThree = startTime + days(14);
-        return fastForwardTo(phaseThree + 1)
-          .then(getLatestTimestamp)
-          .then(timestamp => assert.isAtLeast(timestamp, phaseThree));
+        await fastForwardTo(phaseThree + 1);
+
+        let timestamp = await getLatestTimestamp();
+        assert.isAtLeast(timestamp, phaseThree);
       });
 
-      it("counts 500 tokens as released per Ether", () => {
+      it("counts 500 tokens as released per Ether", async () => {
         ratio = 1.1;
         value = toWei(ratio);
         params['value'] = parseInt(value);
 
-        return sendTransaction(params)
-          .then(() => getEvents(sale))
-          .then(events => {
-            assert.equal(events.length, 1);
-            let event = events[0];
-            assert.equal(event.args.received.toString(), (500 * ratio).toString());
-          });
+        await sendTransaction(params)
+
+        let events = await getEvents(sale);
+        assert.equal(events.length, 1);
+
+        let event = events[0];
+        assert.equal(event.args.received.toString(), parseInt(500 * ratio).toString());
       });
     });
 
     context("when it is during the third phase", () => {
-      beforeEach(() => {
+      beforeEach(async () => {
         let endTime = startTime + days(28);
-        return fastForwardTo(endTime + 1)
-          .then(getLatestTimestamp)
-          .then(timestamp => assert.isAtLeast(timestamp, endTime));
+        await fastForwardTo(endTime + 1)
+
+        let timestamp = await getLatestTimestamp();
+        assert.isAtLeast(timestamp, endTime);
       });
 
       it("throws an error", () => {

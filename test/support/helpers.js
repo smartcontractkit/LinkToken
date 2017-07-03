@@ -1,20 +1,22 @@
-(() => {
-  before(() => {
-    return Eth('eth_accounts')
-      .then(accounts => {
-        Accounts = accounts.slice(1);
-      });
-  });
+BigNumber = require('bignumber.js');
+Truffle = require('truffle');
+TestRPC = require('ethereumjs-testrpc');
+moment = require('moment');
+Web3 = require('web3');
 
-  global.web3 = new Web3();
-  global.web3.setProvider(provider);
-  global.eth = web3.eth;
+(() => {
+  eth = web3.eth;
+
+  before(async function () {
+    accounts = await eth.accounts;
+    Accounts = accounts.slice(1);
+  });
 
   Eth = function sendEth(method, params) {
     params = params || [];
 
     return new Promise((resolve, reject) => {
-      provider.sendAsync({
+      web3.currentProvider.sendAsync({
         jsonrpc: "2.0",
         method: method,
         params: params || [],
@@ -29,17 +31,16 @@
     });
   };
 
-  sealBlock = function sealBlock() {
+  sealBlock = async function sealBlock() {
     return Eth('evm_mine');
   };
 
-  sendTransaction = function sendTransaction(params) {
-    return Eth('eth_sendTransaction', [params]);
+  sendTransaction = async function sendTransaction(params) {
+    return await eth.sendTransaction(params);
   }
 
-  getBalance = function getBalance(account) {
-    return Eth('eth_getBalance', [account])
-      .then(response => bigNum(response));
+  getBalance = async function getBalance(account) {
+    return bigNum(await eth.getBalance(account));
   }
 
   bigNum = function bigNum(number) {
@@ -70,21 +71,21 @@
     return number * hours(24);
   };
 
-  getLatestBlock = function getLatestBlock() {
-    return Eth('eth_getBlockByNumber', ['latest', false])
+  getLatestBlock = async function getLatestBlock() {
+    return await eth.getBlock('latest', false);
   };
 
-  getLatestTimestamp = function getLatestTimestamp () {
-    return getLatestBlock().then(block => web3.toDecimal(block.timestamp));
+  getLatestTimestamp = async function getLatestTimestamp () {
+    let latestBlock = await getLatestBlock()
+    return web3.toDecimal(latestBlock.timestamp);
   };
 
-  fastForwardTo = function fastForwardTo(target) {
-    return getLatestTimestamp().then(now => {
-      assert.isAbove(target, now, "Cannot fast forward to the past");
-      let difference = target - now;
-      return Eth("evm_increaseTime", [difference])
-        .then(sealBlock);
-    });
+  fastForwardTo = async function fastForwardTo(target) {
+    let now = await getLatestTimestamp();
+    assert.isAbove(target, now, "Cannot fast forward to the past");
+    let difference = target - now;
+    await Eth("evm_increaseTime", [difference]);
+    await sealBlock();
   };
 
   getEvents = function getEvents(contract) {
@@ -107,14 +108,13 @@
     return filteredEvents;
   };
 
-  getEventsOfType = function getEventsOfType(contract, type) {
-    return getEvents(contract)
-      .then(events => eventsOfType(events, type));
+  getEventsOfType = async function getEventsOfType(contract, type) {
+    return eventsOfType(await getEvents(contract), type);
   };
 
-  getLatestEvent = function getLatestEvent(contract) {
-    return getEvents(contract)
-      .then(events => events[events.length - 1]);
+  getLatestEvent = async function getLatestEvent(contract) {
+    let events = await getEvents(contract);
+    return events[events.length - 1];
   };
 
   assertActionThrows = function assertActionThrows(action) {
