@@ -10,6 +10,9 @@ contract TokenSale is Ownable {
   uint public fundingLimit;
   uint public startTime;
   uint public fundingReceived;
+  uint public phaseOneEnd;
+  uint public phaseTwoEnd;
+  uint public endTime;
   address public recipient;
   LinkToken public token;
 
@@ -23,22 +26,10 @@ contract TokenSale is Ownable {
     fundingLimit = _limit;
     recipient = _recipient;
     startTime = _start;
+    phaseOneEnd = _start + 1 weeks;
+    phaseTwoEnd = _start + 2 weeks;
+    endTime = _start + 4 weeks;
     token = new LinkToken();
-  }
-
-  function phaseOneEnd()
-  constant returns (uint) {
-    return startTime + 1 weeks;
-  }
-
-  function phaseTwoEnd()
-  constant returns (uint) {
-    return startTime + 2 weeks;
-  }
-
-  function endTime()
-  constant returns (uint) {
-    return startTime + 4 weeks;
   }
 
   function ()
@@ -57,9 +48,9 @@ contract TokenSale is Ownable {
 
   function amountReceived()
   private returns (uint) {
-    if (block.timestamp <= phaseOneEnd()) {
+    if (block.timestamp <= phaseOneEnd) {
       return msg.value.div(10**15);
-    } else if (block.timestamp <= phaseTwoEnd()) {
+    } else if (block.timestamp <= phaseTwoEnd) {
       return msg.value.mul(75).div(10**17);
     } else {
       return msg.value.mul(50).div(10**17);
@@ -70,7 +61,7 @@ contract TokenSale is Ownable {
   // MODIFIERS
 
   modifier ensureStarted() {
-    if (block.timestamp < startTime || block.timestamp > endTime()) {
+    if (block.timestamp < startTime || block.timestamp > endTime) {
       throw;
     } else {
       _;
