@@ -3,15 +3,14 @@ require('./support/helpers.js')
 contract('TokenSale', () => {
   let TokenSale = artifacts.require("./contracts/TokenSale.sol");
   let LinkToken = artifacts.require("./contracts/LinkToken.sol");
-  let limit, owner, purchaser, recipient, sale, startTime;
+  let limit, owner, purchaser, sale, startTime;
 
   beforeEach(async () => {
     owner = Accounts[0];
-    recipient = Accounts[1];
-    purchaser = Accounts[2];
+    purchaser = Accounts[1];
     limit = toWei(1000);
     startTime = await getLatestTimestamp() + 1000;
-    sale = await TokenSale.new(recipient, limit, startTime, {from: owner});
+    sale = await TokenSale.new(limit, startTime, {from: owner});
   });
 
   describe("initialization", () => {
@@ -21,10 +20,10 @@ contract('TokenSale', () => {
       assert.equal(limit.toString(), fundingLimit.toString());
     });
 
-    it("sets the recipient of the funds", async () => {
-      let fundingRecipient = await sale.recipient.call();
+    it("sets the the creator as the owner", async () => {
+      let saleOwner = await sale.owner.call();
 
-      assert.equal(recipient, fundingRecipient);
+      assert.equal(owner, saleOwner);
     });
 
     it("sets the start date of the contract", async () => {
@@ -88,10 +87,10 @@ contract('TokenSale', () => {
         assert.isAtLeast(timestamp, startTime);
       });
 
-      it("forwards any value to the recipient", async () => {
-        let originalBalance = await getBalance(recipient);
+      it("forwards any value to the owner", async () => {
+        let originalBalance = await getBalance(owner);
         let response = await sendTransaction(params);
-        let newBalance = await getBalance(recipient);
+        let newBalance = await getBalance(owner);
 
         assert.equal(newBalance.toString(), originalBalance.add(value).toString());
       });

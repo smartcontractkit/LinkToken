@@ -19,12 +19,10 @@ contract TokenSale is Ownable {
   event Purchase(address purchaser, uint paid, uint received);
 
   function TokenSale(
-    address _recipient,
     uint _limit,
     uint _start
   ) {
     fundingLimit = _limit;
-    recipient = _recipient;
     startTime = _start;
     phaseOneEnd = _start + 1 weeks;
     phaseTwoEnd = _start + 2 weeks;
@@ -35,7 +33,7 @@ contract TokenSale is Ownable {
   function ()
   payable ensureStarted {
     bool underLimit = msg.value + fundingReceived <= fundingLimit;
-    if (underLimit && recipient.send(msg.value)) {
+    if (underLimit && owner.send(msg.value)) {
       fundingReceived += msg.value;
       token.transfer(msg.sender, amountReceived());
     } else {
