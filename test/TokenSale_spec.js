@@ -3,14 +3,17 @@ require('./support/helpers.js')
 contract('TokenSale', () => {
   let TokenSale = artifacts.require("./contracts/TokenSale.sol");
   let LinkToken = artifacts.require("./contracts/LinkToken.sol");
-  let limit, owner, purchaser, sale, startTime;
+  let endTime, limit, link, owner, purchaser, sale, startTime;
 
   beforeEach(async () => {
     owner = Accounts[0];
     purchaser = Accounts[1];
     limit = toWei(1000);
     startTime = await getLatestTimestamp() + 1000;
+    endTime = startTime + days(28);
     sale = await TokenSale.new(limit, startTime, {from: owner});
+    let linkAddress = await sale.token.call();
+    link = LinkToken.at(linkAddress);
   });
 
   describe("initialization", () => {
@@ -60,8 +63,6 @@ contract('TokenSale', () => {
     });
 
     it("deploys a LinkToken contract", async () => {
-      let linkAddress = await sale.token.call();
-      let link = LinkToken.at(linkAddress);
       let saleBalance = await link.balanceOf.call(sale.address);
 
       assert.equal(saleBalance.toString(), bigNum(10**18).toString());
@@ -69,14 +70,12 @@ contract('TokenSale', () => {
   });
 
   describe("fallback function", () => {
-    let link, linkAddress, originalBalance, params, ratio, value;
+    let originalBalance, params, ratio, value;
 
     beforeEach(async () => {
       ratio = 1;
       value = toWei(ratio);
-      linkAddress = await sale.token.call();
-      link = LinkToken.at(linkAddress);
-      params = {to: sale.address, from: purchaser, value: parseInt(value)};
+      params = {to: sale.address, from: purchaser, value: intToHex(value)};
     });
 
     context("during the funding period", () => {
@@ -219,6 +218,84 @@ contract('TokenSale', () => {
       it("throws an error", () => {
         return assertActionThrows(() => {
           return sendTransaction(params);
+        });
+      });
+    });
+  });
+
+  describe("#closeOut", () => {
+    context("when it is called by someone other than the owner", () => {
+      it("throws an error", () => {
+        return assertActionThrows(() => {
+          return sale.closeOut({from: purchaser});
+        });
+      });
+    });
+
+    context("when it is called by the owner", () => {
+      context("before the sale starts", () => {
+        it("throws an error", () => {
+          return assertActionThrows(() => {
+            return sale.closeOut({from: owner});
+          });
+        });
+      });
+
+      context("during the sale period", () => {
+        beforeEach(async () => {
+          await fastForwardTo(startTime);
+        });
+
+        context("if all tokens have NOT been sold", () => {
+          it("throws an error", () => {
+            return assertActionThrows(() => {
+              return sale.closeOut({from: owner});
+            });
+          });
+        });
+
+        context("if all tokens have been sold", () => {
+          beforeEach(async () => {
+            await sendTransaction({
+              from: purchaser,
+              to: sale.address,
+              value: intToHex(limit)
+            });
+          });
+
+          it("transfers the remaining tokens to the owner", async () => {
+            let ownerPre = await link.balanceOf.call(owner);
+            let salePre = await link.balanceOf.call(sale.address);
+
+            await sale.closeOut({from: owner});
+
+            let ownerPost = await link.balanceOf.call(owner);
+            let salePost = await link.balanceOf.call(sale.address);
+
+            assert.equal(ownerPre.toString(), '0');
+            assert.equal(ownerPost.toString(), salePre.toString());
+            assert.equal(salePost.toString(), '0');
+          });
+        });
+
+        context("if the sale time has ended", () => {
+          beforeEach(async () => {
+            await fastForwardTo(endTime + 1);
+          });
+
+          it("transfers the remaining tokens to the owner", async () => {
+            let ownerPre = await link.balanceOf.call(owner);
+            let salePre = await link.balanceOf.call(sale.address);
+
+            await sale.closeOut({from: owner});
+
+            let ownerPost = await link.balanceOf.call(owner);
+            let salePost = await link.balanceOf.call(sale.address);
+
+            assert.equal(ownerPre.toString(), '0');
+            assert.equal(ownerPost.toString(), salePre.toString());
+            assert.equal(salePost.toString(), '0');
+          });
         });
       });
     });

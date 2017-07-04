@@ -16,8 +16,6 @@ contract TokenSale is Ownable {
   address public recipient;
   LinkToken public token;
 
-  event Purchase(address purchaser, uint paid, uint received);
-
   function TokenSale(
     uint _limit,
     uint _start
@@ -31,7 +29,7 @@ contract TokenSale is Ownable {
   }
 
   function ()
-  payable ensureStarted {
+  payable ensureStarted ensureNotEnded {
     bool underLimit = msg.value + fundingReceived <= fundingLimit;
     if (underLimit && owner.send(msg.value)) {
       fundingReceived += msg.value;
@@ -39,6 +37,11 @@ contract TokenSale is Ownable {
     } else {
       throw;
     }
+  }
+
+  function closeOut()
+  onlyOwner ensureStarted ensureCompleted {
+    token.transfer(owner, token.balanceOf(this));
   }
 
 
@@ -55,15 +58,48 @@ contract TokenSale is Ownable {
     }
   }
 
+  function started()
+  private returns (bool) {
+    return block.timestamp >= startTime;
+  }
+
+  function ended()
+  private returns (bool) {
+    return block.timestamp > endTime;
+  }
+
+  function funded()
+  private returns (bool) {
+    return fundingReceived == fundingLimit;
+  }
+
+  function completed()
+  private returns (bool) {
+    return ended() || funded();
+  }
+
 
   // MODIFIERS
 
   modifier ensureStarted() {
-    if (block.timestamp < startTime || block.timestamp > endTime) {
+    if (!started()) {
       throw;
-    } else {
-      _;
     }
+    _;
+  }
+
+  modifier ensureNotEnded() {
+    if (ended()) {
+      throw;
+    }
+    _;
+  }
+
+  modifier ensureCompleted() {
+    if (!completed()) {
+      throw;
+    }
+    _;
   }
 
 }
