@@ -46,7 +46,7 @@ contract TokenSale is Ownable {
     bool underLimit = msg.value + fundingReceived <= fundingLimit;
     if (underLimit && recipient.send(msg.value)) {
       fundingReceived += msg.value;
-      Purchase(msg.sender, msg.value, amountReceived());
+      token.transfer(msg.sender, amountReceived());
     } else {
       throw;
     }

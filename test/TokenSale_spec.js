@@ -70,11 +70,13 @@ contract('TokenSale', () => {
   });
 
   describe("fallback function", () => {
-    let originalBalance, params, ratio, value;
+    let link, linkAddress, originalBalance, params, ratio, value;
 
-    beforeEach(() => {
+    beforeEach(async () => {
       ratio = 1;
       value = toWei(ratio);
+      linkAddress = await sale.token.call();
+      link = LinkToken.at(linkAddress);
       params = {to: sale.address, from: purchaser, value: parseInt(value)};
     });
 
@@ -95,17 +97,17 @@ contract('TokenSale', () => {
       });
 
       it("emits an event log when the payment is received", async () => {
-        let events = await getEvents(sale)
+        let events = await getEvents(link)
         assert.equal(events.length, 0);
         await sendTransaction(params);
 
-        let events2 = await getEvents(sale);
+        let events2 = await getEvents(link);
         assert.equal(events2.length, 1);
         let event = events2[0];
-        assert.equal(event.event, 'Purchase');
-        assert.equal(event.args.purchaser, purchaser);
-        assert.equal(event.args.paid.toString(), value.toString());
-        assert.equal(event.args.received.toString(), '1000');
+        assert.equal(event.event, 'Transfer');
+        assert.equal(event.args.from, sale.address);
+        assert.equal(event.args.to, purchaser);
+        assert.equal(event.args.value.toString(), '1000');
       });
 
       context("if the funding limit is exceeded", () => {
@@ -150,11 +152,11 @@ contract('TokenSale', () => {
 
         await sendTransaction(params);
 
-        let events = await getEvents(sale);
+        let events = await getEvents(link);
         assert.equal(events.length, 1);
 
         let event = events[0];
-        assert.equal(event.args.received.toString(), (1000 * ratio).toString());
+        assert.equal(event.args.value.toString(), (1000 * ratio).toString());
       });
     });
 
@@ -174,11 +176,11 @@ contract('TokenSale', () => {
 
         await sendTransaction(params)
 
-        let events = await getEvents(sale);
+        let events = await getEvents(link);
         assert.equal(events.length, 1);
 
         let event = events[0];
-        assert.equal(event.args.received.toString(), parseInt(750 * ratio).toString());
+        assert.equal(event.args.value.toString(), parseInt(750 * ratio).toString());
       });
     });
 
@@ -198,11 +200,11 @@ contract('TokenSale', () => {
 
         await sendTransaction(params)
 
-        let events = await getEvents(sale);
+        let events = await getEvents(link);
         assert.equal(events.length, 1);
 
         let event = events[0];
-        assert.equal(event.args.received.toString(), parseInt(500 * ratio).toString());
+        assert.equal(event.args.value.toString(), parseInt(500 * ratio).toString());
       });
     });
 
