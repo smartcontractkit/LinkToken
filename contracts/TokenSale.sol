@@ -29,13 +29,10 @@ contract TokenSale is Ownable {
   }
 
   function ()
-  payable ensureStarted ensureNotEnded {
-    bool underLimit = msg.value + fundingReceived <= fundingLimit;
-    if (underLimit && owner.send(msg.value)) {
+  payable ensureStarted ensureNotEnded underLimit {
+    if (owner.send(msg.value)) {
       fundingReceived += msg.value;
       token.transfer(msg.sender, amountReceived());
-    } else {
-      throw;
     }
   }
 
@@ -97,6 +94,13 @@ contract TokenSale is Ownable {
 
   modifier ensureCompleted() {
     if (!completed()) {
+      throw;
+    }
+    _;
+  }
+
+  modifier underLimit() {
+    if (msg.value + fundingReceived > fundingLimit) {
       throw;
     }
     _;
