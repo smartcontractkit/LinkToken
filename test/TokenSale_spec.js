@@ -147,7 +147,7 @@ contract('TokenSale', () => {
       it("counts 1,000 tokens as released per Ether", async () => {
         ratio = 1.1;
         value = toWei(ratio);
-        params['value'] = parseInt(value);
+        params['value'] = intToHex(value);
 
         await sendTransaction(params);
 
@@ -171,7 +171,7 @@ contract('TokenSale', () => {
       it("counts 750 tokens as released per Ether", async () => {
         ratio = 1.1;
         value = toWei(ratio);
-        params['value'] = parseInt(value);
+        params['value'] = intToHex(value);
 
         await sendTransaction(params)
 
@@ -195,7 +195,7 @@ contract('TokenSale', () => {
       it("counts 500 tokens as released per Ether", async () => {
         ratio = 1.1;
         value = toWei(ratio);
-        params['value'] = parseInt(value);
+        params['value'] = intToHex(value);
 
         await sendTransaction(params)
 
