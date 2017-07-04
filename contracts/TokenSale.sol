@@ -79,31 +79,19 @@ contract TokenSale is Ownable {
   // MODIFIERS
 
   modifier ensureStarted() {
-    if (!started()) {
-      throw;
-    }
-    _;
+    if (!started()) throw; _;
   }
 
   modifier ensureNotEnded() {
-    if (ended()) {
-      throw;
-    }
-    _;
+    if (ended()) throw; _;
   }
 
   modifier ensureCompleted() {
-    if (!completed()) {
-      throw;
-    }
-    _;
+    if (!completed()) throw; _;
   }
 
   modifier underLimit() {
-    if (msg.value + fundingReceived > fundingLimit) {
-      throw;
-    }
-    _;
+    if (msg.value + fundingReceived > fundingLimit) throw; _;
   }
 
 }
