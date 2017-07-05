@@ -8,7 +8,7 @@ contract('TokenSale', () => {
   beforeEach(async () => {
     owner = Accounts[0];
     purchaser = Accounts[1];
-    limit = toWei(1000);
+    limit = toWei(0.2);
     startTime = await getLatestTimestamp() + 1000;
     endTime = startTime + days(28);
     sale = await TokenSale.new(limit, startTime, {from: owner});
@@ -18,9 +18,9 @@ contract('TokenSale', () => {
 
   describe("initialization", () => {
     it("sets the initial limit of the token sale", async () => {
-      let fundingLimit = await sale.fundingLimit.call();
+      let tokenLimit = await sale.limit.call();
 
-      assert.equal(limit.toString(), fundingLimit.toString());
+      assert.equal(limit.toString(), tokenLimit.toString());
     });
 
     it("sets the the creator as the owner", async () => {
@@ -110,7 +110,7 @@ contract('TokenSale', () => {
 
       context("if the funding limit is exceeded", () => {
         beforeEach(() => {
-          params['value'] = limit.toNumber() * 2;
+          params['value'] = limit.add(1).times(10**15);
         });
 
         it("throws an error", () => {
@@ -206,7 +206,7 @@ contract('TokenSale', () => {
       });
     });
 
-    context("when it is during the third phase", () => {
+    context("when it is after the third phase", () => {
       beforeEach(async () => {
         let endTime = startTime + days(28);
         await fastForwardTo(endTime + 1)

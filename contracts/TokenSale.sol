@@ -7,9 +7,9 @@ import './LinkToken.sol';
 contract TokenSale is Ownable {
   using SafeMath for uint;
 
-  uint public fundingLimit;
+  uint public limit;
   uint public startTime;
-  uint public fundingReceived;
+  uint public distributed;
   uint public phaseOneEnd;
   uint public phaseTwoEnd;
   uint public endTime;
@@ -20,19 +20,19 @@ contract TokenSale is Ownable {
     uint _limit,
     uint _start
   ) {
-    fundingLimit = _limit;
+    token = new LinkToken();
+    limit = _limit;
     startTime = _start;
     phaseOneEnd = _start + 1 weeks;
     phaseTwoEnd = _start + 2 weeks;
     endTime = _start + 4 weeks;
-    token = new LinkToken();
   }
 
   function ()
   payable ensureStarted ensureNotEnded underLimit {
     if (owner.send(msg.value)) {
-      fundingReceived += msg.value;
-      token.transfer(msg.sender, amountReceived());
+      distributed += msg.value;
+      token.transfer(msg.sender, purchased());
     }
   }
 
@@ -44,7 +44,7 @@ contract TokenSale is Ownable {
 
   // PRIVATE
 
-  function amountReceived()
+  function purchased()
   private returns (uint) {
     if (block.timestamp <= phaseOneEnd) {
       return msg.value.div(10**15);
@@ -67,7 +67,7 @@ contract TokenSale is Ownable {
 
   function funded()
   private returns (bool) {
-    return fundingReceived == fundingLimit;
+    return distributed == limit;
   }
 
   function completed()
@@ -91,7 +91,7 @@ contract TokenSale is Ownable {
   }
 
   modifier underLimit() {
-    if (msg.value + fundingReceived > fundingLimit) throw; _;
+    if (purchased() + distributed > limit) throw; _;
   }
 
 }
