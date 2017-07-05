@@ -20,12 +20,14 @@ contract TokenSale is Ownable {
     uint _limit,
     uint _start
   ) {
-    token = new LinkToken();
     limit = _limit;
     startTime = _start;
     phaseOneEnd = _start + 1 weeks;
     phaseTwoEnd = _start + 2 weeks;
     endTime = _start + 4 weeks;
+    token = new LinkToken();
+
+    if (limit > token.totalSupply()) throw;
   }
 
   function ()

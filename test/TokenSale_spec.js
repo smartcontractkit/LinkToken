@@ -67,6 +67,15 @@ contract('TokenSale', () => {
 
       assert.equal(saleBalance.toString(), bigNum(10**18).toString());
     });
+
+    context("if the token sale limit is set too high", () => {
+      it("throws an error", () => {
+        return assertActionThrows(() => {
+          let newLimit = toWei(1).add(1);
+          return TokenSale.new(newLimit, startTime, {from: owner});
+        });
+      });
+    });
   });
 
   describe("fallback function", () => {
