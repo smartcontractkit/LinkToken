@@ -3,15 +3,16 @@ require('./support/helpers.js')
 contract('TokenSale', () => {
   let TokenSale = artifacts.require("./contracts/TokenSale.sol");
   let LinkToken = artifacts.require("./contracts/LinkToken.sol");
-  let endTime, limit, link, owner, purchaser, sale, startTime;
+  let endTime, limit, link, owner, prePurchased, purchaser, sale, startTime;
 
   beforeEach(async () => {
     owner = Accounts[0];
     purchaser = Accounts[1];
     limit = toWei(0.2);
+    prePurchased = toWei(0.01);
     startTime = await getLatestTimestamp() + 1000;
     endTime = startTime + days(28);
-    sale = await TokenSale.new(limit, startTime, {from: owner});
+    sale = await TokenSale.new(limit, prePurchased, startTime, {from: owner});
     let linkAddress = await sale.token.call();
     link = LinkToken.at(linkAddress);
   });
@@ -72,7 +73,7 @@ contract('TokenSale', () => {
       it("throws an error", () => {
         return assertActionThrows(() => {
           let newLimit = toWei(1).add(1);
-          return TokenSale.new(newLimit, startTime, {from: owner});
+          return TokenSale.new(newLimit, prePurchased, startTime, {from: owner});
         });
       });
     });
@@ -119,7 +120,7 @@ contract('TokenSale', () => {
 
       context("if the funding limit is exceeded", () => {
         beforeEach(() => {
-          params['value'] = limit.add(1).times(10**15);
+          params['value'] = limit.minus(prePurchased).add(1).times(10**15);
         });
 
         it("throws an error", () => {
@@ -268,7 +269,7 @@ contract('TokenSale', () => {
             await sendTransaction({
               from: purchaser,
               to: sale.address,
-              value: intToHex(limit)
+              value: intToHex(limit.minus(prePurchased))
             });
           });
 

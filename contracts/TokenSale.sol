@@ -18,9 +18,11 @@ contract TokenSale is Ownable {
 
   function TokenSale(
     uint _limit,
+    uint _prePurchased,
     uint _start
   ) {
     limit = _limit;
+    distributed = _prePurchased;
     startTime = _start;
     phaseOneEnd = _start + 1 weeks;
     phaseTwoEnd = _start + 2 weeks;
