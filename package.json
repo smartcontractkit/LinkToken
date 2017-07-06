@@ -7,6 +7,7 @@
     "bignumber.js": "^2.0.0",
     "ethereumjs-testrpc": "^3.0.0",
     "moment": "^2.15.2",
+    "solc": "^0.4.11",
     "truffle": "^3.2.2",
     "truffle-config": "^1.0.0",
     "web3": "^0.19.1"
