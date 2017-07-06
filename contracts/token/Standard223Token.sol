@@ -20,18 +20,6 @@ contract Standard223Token is ERC223, StandardToken {
     transfer(_to, _value, new bytes(0));
   }
 
-  function transferFrom(address _from, address _to, uint _value, bytes _data)
-  {
-    super.transferFrom(_from, _to, _value);
-    if (isContract(_to))
-      contractFallback(_to, _value, _data);
-  }
-
-  function transferFrom(address _from, address _to, uint _value)
-  {
-    transferFrom(_from, _to, _value, new bytes(0));
-  }
-
   // PRIVATE
 
   function contractFallback(address _to, uint _value, bytes _data)
