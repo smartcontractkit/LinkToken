@@ -14,19 +14,9 @@ contract Ownable {
    * @dev The Ownable constructor sets the original `owner` of the contract to the sender
    * account.
    */
-  function Ownable() {
+  function Ownable()
+  {
     owner = msg.sender;
-  }
-
-
-  /**
-   * @dev Throws if called by any account other than the owner. 
-   */
-  modifier onlyOwner() {
-    if (msg.sender != owner) {
-      throw;
-    }
-    _;
   }
 
 
@@ -34,10 +24,25 @@ contract Ownable {
    * @dev Allows the current owner to transfer control of the contract to a newOwner.
    * @param newOwner The address to transfer ownership to. 
    */
-  function transferOwnership(address newOwner) onlyOwner {
+  function transferOwnership(address newOwner)
+  onlyOwner
+  {
     if (newOwner != address(0)) {
       owner = newOwner;
     }
   }
 
+
+  // MODIFIERS
+
+  /**
+   * @dev Throws if called by any account other than the owner. 
+   */
+  modifier onlyOwner()
+  {
+    if (msg.sender != owner) {
+      throw;
+    }
+    _;
+  }
 }

@@ -1,10 +1,13 @@
 pragma solidity ^0.4.8;
 
+
 import './Ownable.sol';
 import './SafeMath.sol';
 import './LinkToken.sol';
 
+
 contract TokenSale is Ownable {
+
   using SafeMath for uint;
 
   uint public limit;
@@ -33,7 +36,8 @@ contract TokenSale is Ownable {
   }
 
   function ()
-  payable ensureStarted ensureNotEnded underLimit {
+  payable ensureStarted ensureNotEnded underLimit
+  {
     if (owner.send(msg.value)) {
       distributed += msg.value;
       token.transfer(msg.sender, purchased());
@@ -41,7 +45,8 @@ contract TokenSale is Ownable {
   }
 
   function closeOut()
-  onlyOwner ensureStarted ensureCompleted {
+  onlyOwner ensureStarted ensureCompleted
+  {
     token.transfer(owner, token.balanceOf(this));
   }
 
@@ -49,7 +54,8 @@ contract TokenSale is Ownable {
   // PRIVATE
 
   function purchased()
-  private returns (uint) {
+  private returns (uint)
+  {
     if (block.timestamp <= phaseOneEnd) {
       return msg.value.div(10**15);
     } else if (block.timestamp <= phaseTwoEnd) {
@@ -60,41 +66,49 @@ contract TokenSale is Ownable {
   }
 
   function started()
-  private returns (bool) {
+  private returns (bool)
+  {
     return block.timestamp >= startTime;
   }
 
   function ended()
-  private returns (bool) {
+  private returns (bool)
+  {
     return block.timestamp > endTime;
   }
 
   function funded()
-  private returns (bool) {
+  private returns (bool)
+  {
     return distributed == limit;
   }
 
   function completed()
-  private returns (bool) {
+  private returns (bool)
+  {
     return ended() || funded();
   }
 
 
   // MODIFIERS
 
-  modifier ensureStarted() {
+  modifier ensureStarted()
+  {
     if (!started()) throw; _;
   }
 
-  modifier ensureNotEnded() {
+  modifier ensureNotEnded()
+  {
     if (ended()) throw; _;
   }
 
-  modifier ensureCompleted() {
+  modifier ensureCompleted()
+  {
     if (!completed()) throw; _;
   }
 
-  modifier underLimit() {
+  modifier underLimit()
+  {
     if (purchased() + distributed > limit) throw; _;
   }
 
