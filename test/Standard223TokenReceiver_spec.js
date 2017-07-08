@@ -9,6 +9,7 @@ contract('Standard223Token', (accounts) => {
   beforeEach(async function() {
     receiver = await Standard223TokenReceiver.new();
     token = await Standard223TokenExample.new(1000);
+    assert.equal(await receiver.sentValue(), 0);
   });
 
   describe("#transfer(address, uint)", () => {
@@ -53,6 +54,34 @@ contract('Standard223Token', (accounts) => {
         await assertActionThrows(async () => {
           await token.transfer(token.address, 100, new ArrayBuffer(4));
         });
+      });
+    });
+  });
+
+  describe("#unsafeTransfer(address, uint)", () => {
+    it("does not call the fallback on transfer", async () => {
+      await token.unsafeTransfer(receiver.address, 100);
+
+      let tokenSender = await receiver.tokenSender();
+      assert.equal(tokenSender, '0x0000000000000000000000000000000000000000');
+      assert.equal(await receiver.sentValue(), 0);
+      let calledFallback = await receiver.calledFallback();
+      assert(!calledFallback);
+
+      let newBalance = await token.balanceOf.call(receiver.address);
+      assert.equal(newBalance, 100);
+    });
+
+    context("when sending to a contract that is not ERC223 compatible", () => {
+      it("still transfers the token", async () => {
+        await token.unsafeTransfer(receiver.address, 100);
+
+        let tokenSender = await receiver.tokenSender();
+        assert.equal(tokenSender, '0x0000000000000000000000000000000000000000');
+        assert.equal(await receiver.sentValue(), 0);
+
+        let newBalance = await token.balanceOf.call(receiver.address);
+        assert.equal(newBalance, 100);
       });
     });
   });

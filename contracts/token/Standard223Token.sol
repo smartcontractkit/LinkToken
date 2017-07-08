@@ -8,14 +8,24 @@ import "./StandardToken.sol";
 
 contract Standard223Token is ERC223, StandardToken {
 
-  function transfer(address _to, uint _value, bytes _data)
+  event Log(address to, uint amount);
+
+  function unsafeTransfer(address _to, uint _value)
+  public
   {
     super.transfer(_to, _value);
+  }
+
+  function transfer(address _to, uint _value, bytes _data)
+  public
+  {
+    unsafeTransfer(_to, _value);
     if (isContract(_to))
       contractFallback(_to, _value, _data);
   }
 
   function transfer(address _to, uint _value)
+  public
   {
     transfer(_to, _value, new bytes(0));
   }
