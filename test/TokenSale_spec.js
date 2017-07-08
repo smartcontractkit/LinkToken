@@ -115,7 +115,7 @@ contract('TokenSale', () => {
         assert.equal(event.event, 'Transfer');
         assert.equal(event.args.from, sale.address);
         assert.equal(event.args.to, purchaser);
-        assert.equal(event.args.value.toString(), '1000');
+        assert.equal(event.args.value.toString(), '1000000000000');
       });
 
       context("if the funding limit is exceeded", () => {
@@ -164,7 +164,7 @@ contract('TokenSale', () => {
         assert.equal(events.length, 1);
 
         let event = events[0];
-        assert.equal(event.args.value.toString(), (1000 * ratio).toString());
+        assert.equal(event.args.value.toString(), (1000000000000 * ratio).toString());
       });
     });
 
@@ -188,7 +188,7 @@ contract('TokenSale', () => {
         assert.equal(events.length, 1);
 
         let event = events[0];
-        assert.equal(event.args.value.toString(), parseInt(750 * ratio).toString());
+        assert.equal(event.args.value.toString(), parseInt(750000000000 * ratio).toString());
       });
     });
 
@@ -212,7 +212,7 @@ contract('TokenSale', () => {
         assert.equal(events.length, 1);
 
         let event = events[0];
-        assert.equal(event.args.value.toString(), parseInt(500 * ratio).toString());
+        assert.equal(event.args.value.toString(), parseInt(500000000000 * ratio).toString());
       });
     });
 
