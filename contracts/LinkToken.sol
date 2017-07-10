@@ -18,4 +18,19 @@ contract LinkToken is StandardToken, Standard223Token {
     balances[msg.sender] = totalSupply;
   }
 
+  function transfer(address _to, uint _value)
+  public validRecipient(_to)
+  {
+    super.transfer(_to, _value);
+  }
+
+
+  // MODIFIERS
+
+  modifier validRecipient(address _recipient) {
+    if (_recipient == address(0) || _recipient == address(this))
+      throw;
+    _;
+  }
+
 }
