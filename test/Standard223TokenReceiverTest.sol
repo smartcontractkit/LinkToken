@@ -2,7 +2,7 @@ pragma solidity ^0.4.8;
 
 import "truffle/Assert.sol";
 import "../contracts/token/examples/Standard223TokenExample.sol";
-import "../contracts/token/mocks/Standard223TokenReceiverMock.sol";
+import "../contracts/mocks/Standard223TokenReceiverMock.sol";
 
 contract Standard223TokenReceiverTest {
     Standard223TokenExample token;

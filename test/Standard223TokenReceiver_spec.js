@@ -2,7 +2,7 @@ require('./support/helpers.js')
 
 contract('Standard223Token', (accounts) => {
   let Standard223TokenExample = artifacts.require("../contracts/token/examples/Standard223TokenExample.sol");
-  let Standard223TokenReceiver = artifacts.require("../contracts/token/mocks/Standard223TokenReceiverMock.sol");
+  let Standard223TokenReceiver = artifacts.require("../contracts/mocks/Standard223TokenReceiverMock.sol");
 
   let receiver, token;
 

@@ -1,7 +1,7 @@
 pragma solidity ^0.4.8;
 
 
-import '../StandardToken.sol';
+import '../token/StandardToken.sol';
 
 
 contract StandardTokenMock is StandardToken {
