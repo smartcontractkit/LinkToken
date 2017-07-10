@@ -63,7 +63,7 @@ contract('Standard223Token', (accounts) => {
       await token.unsafeTransfer(receiver.address, 100);
 
       let tokenSender = await receiver.tokenSender();
-      assert.equal(tokenSender, '0x0000000000000000000000000000000000000000');
+      assert.equal(tokenSender, emptyAddress);
       assert.equal(await receiver.sentValue(), 0);
       let calledFallback = await receiver.calledFallback();
       assert(!calledFallback);
@@ -77,7 +77,7 @@ contract('Standard223Token', (accounts) => {
         await token.unsafeTransfer(receiver.address, 100);
 
         let tokenSender = await receiver.tokenSender();
-        assert.equal(tokenSender, '0x0000000000000000000000000000000000000000');
+        assert.equal(tokenSender, emptyAddress);
         assert.equal(await receiver.sentValue(), 0);
 
         let newBalance = await token.balanceOf.call(receiver.address);

@@ -30,6 +30,8 @@ Web3 = require('web3');
     });
   };
 
+  emptyAddress = '0x0000000000000000000000000000000000000000';
+
   sealBlock = async function sealBlock() {
     return Eth('evm_mine');
   };
