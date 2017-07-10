@@ -137,4 +137,10 @@ Web3 = require('web3');
       })
   };
 
+  encodeUint256 = function encodeUint256(int) {
+    let zeros = "0000000000000000000000000000000000000000000000000000000000000000";
+    let payload = int.toString(16);
+    return (zeros + payload).slice(payload.length);
+  }
+
 })();

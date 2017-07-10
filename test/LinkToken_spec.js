@@ -4,10 +4,12 @@ require('./support/helpers.js');
 
 contract('LinkToken', () => {
   let LinkToken = artifacts.require("./contracts/LinkToken.sol");
-  let token, owner;
+  let LinkReceiver = artifacts.require("./contracts/mocks/LinkReceiver.sol");
+  let allowance, owner, recipient, token;
 
   before(async () => {
     owner = Accounts[0];
+    recipient = Accounts[1];
     token = await LinkToken.new({from: owner});
   });
 
@@ -28,6 +30,46 @@ contract('LinkToken', () => {
       await assertActionThrows(async () => {
         await token.transfer(token.address, 1000, {from: owner});
       });
+    });
+  });
+
+  describe("#approveAndCall", () => {
+    let value = 1000;
+
+    beforeEach(async () => {
+      recipient = await LinkReceiver.new({from: owner});
+
+      allowance = await token.allowance.call(owner, recipient.address);
+      assert.equal(allowance, 0);
+    });
+
+    it("sets the approved withdrawl amount", async () => {
+      let callNoWithdrawl = "0x043e94bd";   // callbackWithoutWithdrawl()
+      await token.approveAndCall(recipient.address, value, callNoWithdrawl, {from: owner});
+
+      allowance = await token.allowance(owner, recipient.address);
+      assert.equal(allowance, value);
+
+      let balance = await token.balanceOf(recipient.address);
+      assert.equal(balance, 0);
+
+      let called = await recipient.callbackCalled.call();
+      assert.equal(called, true);
+    });
+
+    it("calls the specified contract and allows it to withdraw", async () => {
+      let callAndWithdrawl = "0x025ca895";  // callbackWithWithdrawl(uint256)
+      let data = callAndWithdrawl + encodeUint256(value);
+      await token.approveAndCall(recipient.address, value, data, {from: owner});
+
+      allowance = await token.allowance(owner, recipient.address);
+      assert.equal(allowance, 0);
+
+      let balance = await token.balanceOf(recipient.address);
+      assert.equal(balance, value);
+
+      let called = await recipient.callbackCalled.call();
+      assert.equal(called, true);
     });
   });
 });

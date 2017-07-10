@@ -13,6 +13,7 @@ contract LinkToken is StandardToken, Standard223Token {
   uint8 public constant decimals = 9;
   string public constant symbol = 'LINK';
 
+
   function LinkToken()
   {
     balances[msg.sender] = totalSupply;
@@ -22,6 +23,14 @@ contract LinkToken is StandardToken, Standard223Token {
   public validRecipient(_to)
   {
     super.transfer(_to, _value);
+  }
+
+  function approveAndCall(address _to, uint _value, bytes _data)
+  public
+  {
+    approve(_to, _value);
+    if (!_to.call(_data))
+      throw;
   }
 
 
