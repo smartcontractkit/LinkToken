@@ -1,4 +1,4 @@
-pragma solidity ^0.4.8;
+pragma solidity ^0.4.11;
 
 
 import './token/StandardToken.sol';
@@ -39,16 +39,14 @@ contract LinkToken is StandardToken, Standard223Token {
   public
   {
     approve(_recipient, _value);
-    if (!_recipient.call(_data))
-      throw;
+    require(_recipient.call(_data));
   }
 
 
   // MODIFIERS
 
   modifier validRecipient(address _recipient) {
-    if (_recipient == address(0) || _recipient == address(this))
-      throw;
+    require(_recipient != address(0) && _recipient != address(this));
     _;
   }
 

@@ -1,4 +1,4 @@
-pragma solidity ^0.4.8;
+pragma solidity ^0.4.11;
 
 
 /**
@@ -13,7 +13,7 @@ library SafeMath {
   internal returns (uint256)
   {
     uint256 c = a * b;
-    assert(a == 0 || c / a == b);
+    require(a == 0 || c / a == b);
     return c;
   }
 
@@ -29,7 +29,7 @@ library SafeMath {
   function sub(uint256 a, uint256 b)
   internal returns (uint256)
   {
-    assert(b <= a);
+    require(b <= a);
     return a - b;
   }
 
@@ -37,7 +37,7 @@ library SafeMath {
   internal returns (uint256)
   {
     uint256 c = a + b;
-    assert(c >= a);
+    require(c >= a);
     return c;
   }
 }

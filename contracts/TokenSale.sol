@@ -1,4 +1,4 @@
-pragma solidity ^0.4.8;
+pragma solidity ^0.4.11;
 
 
 import './Ownable.sol';
@@ -32,7 +32,7 @@ contract TokenSale is Ownable {
     endTime = _start + 4 weeks;
     token = new LinkToken();
 
-    if (limit > token.totalSupply()) throw;
+    require(limit <= token.totalSupply());
   }
 
   function ()
@@ -94,22 +94,26 @@ contract TokenSale is Ownable {
 
   modifier ensureStarted()
   {
-    if (!started()) throw; _;
+    require(started());
+    _;
   }
 
   modifier ensureNotEnded()
   {
-    if (ended()) throw; _;
+    require(!ended());
+    _;
   }
 
   modifier ensureCompleted()
   {
-    if (!completed()) throw; _;
+    require(completed());
+    _;
   }
 
   modifier underLimit()
   {
-    if (purchased() + distributed > limit) throw; _;
+    require(purchased() + distributed <= limit);
+    _;
   }
 
 }
