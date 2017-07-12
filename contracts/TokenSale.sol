@@ -19,7 +19,7 @@ contract TokenSale is Ownable {
   address public recipient;
   LinkToken public token;
 
-  function TokenSale(uint _limit, uint _prePurchased, uint _start)
+  function TokenSale(uint _limit, uint _prePurchased, uint _start, address _owner)
   public
   {
     limit = _limit;
@@ -29,6 +29,7 @@ contract TokenSale is Ownable {
     phaseTwoEnd = _start + 2 weeks;
     endTime = _start + 4 weeks;
     token = new LinkToken();
+    owner = _owner;
 
     require(limit <= token.totalSupply());
   }

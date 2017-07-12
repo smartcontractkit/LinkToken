@@ -6,13 +6,14 @@ contract('TokenSale', () => {
   let endTime, limit, link, owner, prePurchased, purchaser, sale, startTime;
 
   beforeEach(async () => {
-    owner = Accounts[0];
+    deployer = Accounts[0];
     purchaser = Accounts[1];
+    owner = Accounts[2];
     limit = toWei(0.2);
     prePurchased = toWei(0.01);
     startTime = await getLatestTimestamp() + 1000;
     endTime = startTime + days(28);
-    sale = await TokenSale.new(limit, prePurchased, startTime, {from: owner});
+    sale = await TokenSale.new(limit, prePurchased, startTime, owner, {from: deployer});
     let linkAddress = await sale.token.call();
     link = LinkToken.at(linkAddress);
   });
@@ -73,7 +74,7 @@ contract('TokenSale', () => {
       it("throws an error", () => {
         return assertActionThrows(() => {
           let newLimit = toWei(1).add(1);
-          return TokenSale.new(newLimit, prePurchased, startTime, {from: owner});
+          return TokenSale.new(newLimit, prePurchased, startTime, owner, {from: deployer});
         });
       });
     });
