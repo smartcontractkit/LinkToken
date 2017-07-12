@@ -13,6 +13,7 @@ contract LinkToken is StandardToken {
   string public constant symbol = 'LINK';
 
   function LinkToken()
+  public
   {
     balances[msg.sender] = totalSupply;
   }

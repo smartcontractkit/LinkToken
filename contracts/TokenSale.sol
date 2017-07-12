@@ -19,11 +19,9 @@ contract TokenSale is Ownable {
   address public recipient;
   LinkToken public token;
 
-  function TokenSale(
-    uint _limit,
-    uint _prePurchased,
-    uint _start
-  ) {
+  function TokenSale(uint _limit, uint _prePurchased, uint _start)
+  public
+  {
     limit = _limit;
     distributed = _prePurchased;
     startTime = _start;
@@ -36,7 +34,7 @@ contract TokenSale is Ownable {
   }
 
   function ()
-  payable ensureStarted ensureNotEnded underLimit
+  public payable ensureStarted ensureNotEnded underLimit
   {
     if (owner.send(msg.value)) {
       distributed += msg.value;
@@ -45,7 +43,7 @@ contract TokenSale is Ownable {
   }
 
   function closeOut()
-  onlyOwner ensureStarted ensureCompleted
+  public onlyOwner ensureStarted ensureCompleted
   {
     token.transfer(owner, token.balanceOf(this));
   }
