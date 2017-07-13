@@ -11,23 +11,24 @@ contract Standard223Token is ERC223, StandardToken {
   event Log(address to, uint amount);
 
   function unsafeTransfer(address _to, uint _value)
-  public
+  public returns (bool success)
   {
-    super.transfer(_to, _value);
+    return super.transfer(_to, _value);
   }
 
   function transfer(address _to, uint _value, bytes _data)
-  public
+  public returns (bool success)
   {
     unsafeTransfer(_to, _value);
     if (isContract(_to))
       contractFallback(_to, _value, _data);
+    return true;
   }
 
   function transfer(address _to, uint _value)
-  public
+  public returns (bool success)
   {
-    transfer(_to, _value, new bytes(0));
+    return transfer(_to, _value, new bytes(0));
   }
 
   // PRIVATE

@@ -10,13 +10,14 @@ contract Standard223TokenReceiverMock is Standard223Receiver {
     bytes public tokenData;
     bool public calledFallback = false;
 
-    function tokenFallback(address from, uint value, bytes data)
-    {
-        calledFallback = true;
+    function tokenFallback(address _sender, uint _value, bytes _data)
+    public returns (bool success) {
+      calledFallback = true;
 
-        tokenSender = from;
-        sentValue = value;
-        tokenData = data;
+      tokenSender = _sender;
+      sentValue = _value;
+      tokenData = _data;
+      return true;
     }
 
 }

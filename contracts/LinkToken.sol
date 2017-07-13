@@ -24,7 +24,7 @@ contract LinkToken is StandardToken {
   * @param _value The amount to be transferred.
   */
   function transfer(address _to, uint _value)
-  public validRecipient(_to)
+  public validRecipient(_to) returns (bool success)
   {
     super.transfer(_to, _value);
   }
@@ -36,7 +36,7 @@ contract LinkToken is StandardToken {
    * @param _data The bytes to be executed at the recipient's address after transfer approval.
    */
   function approveAndCall(address _recipient, uint _value, bytes _data)
-  public
+  public returns (bool success)
   {
     approve(_recipient, _value);
     require(_recipient.call(_data));
