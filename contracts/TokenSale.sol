@@ -15,6 +15,7 @@ contract TokenSale is Ownable {
   uint public distributed;
   uint public phaseOneEnd;
   uint public phaseTwoEnd;
+  uint public phaseThreeEnd;
   uint public endTime;
   address public recipient;
   LinkToken public token;
@@ -25,8 +26,9 @@ contract TokenSale is Ownable {
     limit = _limit;
     distributed = _prePurchased;
     startTime = _start;
-    phaseOneEnd = _start + 1 weeks;
-    phaseTwoEnd = _start + 2 weeks;
+    phaseOneEnd = _start + 1 days;
+    phaseTwoEnd = _start + 1 weeks;
+    phaseThreeEnd = _start + 2 weeks;
     endTime = _start + 4 weeks;
     token = new LinkToken();
     owner = _owner;
@@ -56,11 +58,13 @@ contract TokenSale is Ownable {
   private returns (uint)
   {
     if (block.timestamp <= phaseOneEnd) {
-      return msg.value.div(10**6);
+      return msg.value.div(10**6).mul(2);
     } else if (block.timestamp <= phaseTwoEnd) {
-      return msg.value.mul(75).div(10**8);
+      return msg.value.mul(18).div(10**7);
+    } else if (block.timestamp <= phaseThreeEnd) {
+      return msg.value.mul(15).div(10**7);
     } else {
-      return msg.value.mul(50).div(10**8);
+      return msg.value.mul(12).div(10**7);
     }
   }
 
