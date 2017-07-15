@@ -38,29 +38,29 @@ contract('TokenSale', () => {
     });
 
     it("sets the end of phase one as one day after the start time", async () => {
-      let phaseTwo = await sale.phaseOneEnd.call();
-      let expected = startTime + days(1);
+      let phaseOneEnd = await sale.phaseOneEnd.call();
+      let expected = days(1);
 
-      assert.equal(expected.toString(), phaseTwo.toString());
+      assert.equal(expected.toString(), phaseOneEnd.toString());
     });
 
     it("sets the end of phase two as one week after the start time", async () => {
-      let phaseThree = await sale.phaseTwoEnd.call();
-      let expected = startTime + days(7);
+      let phaseTwoEnd = await sale.phaseTwoEnd.call();
+      let expected = days(7);
 
-      assert.equal(expected.toString(), phaseThree.toString());
+      assert.equal(expected.toString(), phaseTwoEnd.toString());
     });
 
     it("sets the end of phase three as two weeks after the start time", async () => {
-      let fundingEnd = await sale.phaseThreeEnd.call();
-      let expected = startTime + days(14);
+      let phaseThreeEnd = await sale.phaseThreeEnd.call();
+      let expected = days(14);
 
-      assert.equal(expected.toString(), fundingEnd.toString());
+      assert.equal(expected.toString(), phaseThreeEnd.toString());
     });
 
     it("sets the end of phase four as four weeks after the start time", async () => {
       let fundingEnd = await sale.endTime.call();
-      let expected = startTime + days(28);
+      let expected = days(28);
 
       assert.equal(expected.toString(), fundingEnd.toString());
     });
@@ -238,7 +238,7 @@ contract('TokenSale', () => {
         value = toWei(ratio);
         params['value'] = intToHex(value);
 
-        await sendTransaction(params)
+        await sendTransaction(params);
 
         let events = await getEvents(link);
         assert.equal(events.length, 1);
