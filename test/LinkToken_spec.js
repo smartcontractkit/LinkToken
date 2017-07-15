@@ -13,6 +13,25 @@ contract('LinkToken', () => {
     token = await LinkToken.new({from: owner});
   });
 
+  it("has a limited public ABI", () => {
+    let expectedABI = [
+      //public attributes
+      'decimals',
+      'name',
+      'symbol',
+      'totalSupply',
+      //public functions
+      'allowance',
+      'approve',
+      'approveAndCall',
+      'balanceOf',
+      'transfer',
+      'transferFrom',
+    ];
+
+    checkPublicABI(LinkToken, expectedABI);
+  });
+
   it("assigns all of the balance to the owner", async () => {
     let balance = await token.balanceOf.call(owner);
 

@@ -18,6 +18,27 @@ contract('TokenSale', () => {
     link = LinkToken.at(linkAddress);
   });
 
+  it("has a limited public ABI", () => {
+    let expectedABI = [
+      //public attributes
+      'distributed',
+      'endTime',
+      'limit',
+      'owner',
+      'phaseOneEnd',
+      'phaseThreeEnd',
+      'phaseTwoEnd',
+      'recipient',
+      'startTime',
+      'token',
+      //public functions
+      'closeOut',
+      'transferOwnership',
+    ];
+
+    checkPublicABI(TokenSale, expectedABI);
+  });
+
   describe("initialization", () => {
     it("sets the initial limit of the token sale", async () => {
       let tokenLimit = await sale.limit.call();
