@@ -2,7 +2,7 @@ pragma solidity ^0.4.11;
 
 
 import './Ownable.sol';
-import './SafeMath.sol';
+import './math/SafeMath.sol';
 import './LinkToken.sol';
 
 
