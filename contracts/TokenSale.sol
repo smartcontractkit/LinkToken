@@ -33,7 +33,7 @@ contract TokenSale is Ownable {
   }
 
   function ()
-  public payable ensureStarted ensureNotEnded underLimit
+  public payable ensureStarted ensureNotCompleted underLimit
   {
     if (owner.send(msg.value)) {
       uint purchaseAmount = purchased();
@@ -42,20 +42,28 @@ contract TokenSale is Ownable {
     }
   }
 
+  function completed()
+  public constant returns (bool)
+  {
+    return ended() || funded() || finalized;
+  }
+
   function closeOut()
   public onlyOwner ensureStarted ensureCompleted
   {
     token.transfer(owner, token.balanceOf(this));
   }
 
-  function completed()
-  public constant returns (bool)
+  function finalize()
+  public onlyOwner ensureStarted
   {
-    return ended() || funded();
+    finalized = true;
   }
 
 
   // PRIVATE
+
+  bool finalized;
 
   function purchased()
   private returns (uint)
@@ -99,9 +107,9 @@ contract TokenSale is Ownable {
     _;
   }
 
-  modifier ensureNotEnded()
+  modifier ensureNotCompleted()
   {
-    require(!ended());
+    require(!completed());
     _;
   }
 

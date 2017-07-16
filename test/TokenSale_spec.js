@@ -34,6 +34,7 @@ contract('TokenSale', () => {
       //public functions
       'closeOut',
       'completed',
+      'finalize',
       'transferOwnership',
     ];
 
@@ -274,9 +275,19 @@ contract('TokenSale', () => {
       beforeEach(async () => {
         let endTime = startTime + days(28);
         await fastForwardTo(endTime + 1)
+      });
 
-        let timestamp = await getLatestTimestamp();
-        assert.isAtLeast(timestamp, endTime);
+      it("throws an error", () => {
+        return assertActionThrows(() => {
+          return sendTransaction(params);
+        });
+      });
+    });
+
+    context("when it is during the sale period but the contract has been finalized by the owner", () => {
+      beforeEach(async () => {
+        await fastForwardTo(startTime);
+        await sale.finalize({from: owner});
       });
 
       it("throws an error", () => {
@@ -289,6 +300,10 @@ contract('TokenSale', () => {
 
   describe("#closeOut", () => {
     context("when it is called by someone other than the owner", () => {
+      beforeEach(async () => {
+        await fastForwardTo(startTime);
+      });
+
       it("throws an error", () => {
         return assertActionThrows(() => {
           return sale.closeOut({from: purchaser});
@@ -406,6 +421,59 @@ contract('TokenSale', () => {
         it("returns true", async () => {
           assert(await sale.completed.call());
         });
+      });
+    });
+  });
+
+  describe("#finalize", () => {
+    context("when it is called by someone other than the owner", () => {
+      beforeEach(async () => {
+        await fastForwardTo(startTime);
+      });
+
+      it("throws an error", () => {
+        return assertActionThrows(() => {
+          return sale.finalize({from: purchaser});
+        });
+      });
+    });
+
+    context("when it is called by the owner", () => {
+      context("before the sale starts", () => {
+        it("throws an error", () => {
+          return assertActionThrows(() => {
+            return sale.finalize({from: owner});
+          });
+        });
+      });
+
+      context("during the sale period", () => {
+        beforeEach(async () => {
+          await fastForwardTo(startTime);
+        });
+
+        it("changes the contract to completed", async () => {
+          assert(!await sale.completed.call());
+
+          await sale.finalize({from: owner});
+
+          assert(await sale.completed.call());
+        });
+      });
+    });
+
+    context("when it is after the fourth phase", () => {
+      beforeEach(async () => {
+        let endTime = startTime + days(28);
+        await fastForwardTo(endTime + 1)
+      });
+
+      it("does not change the completed status", async () => {
+        assert(await sale.completed.call());
+
+        await sale.finalize({from: owner});
+
+        assert(await sale.completed.call());
       });
     });
   });
