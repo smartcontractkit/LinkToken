@@ -33,6 +33,7 @@ contract('TokenSale', () => {
       'token',
       //public functions
       'closeOut',
+      'completed',
       'transferOwnership',
     ];
 
@@ -359,6 +360,51 @@ contract('TokenSale', () => {
             assert.equal(ownerPost.toString(), salePre.toString());
             assert.equal(salePost.toString(), '0');
           });
+        });
+      });
+    });
+  });
+
+  describe("#completed", () => {
+    context("before the sale starts", () => {
+      it("returns false", async () => {
+        assert(!await sale.completed.call());
+      });
+    });
+
+    context("during the sale period", () => {
+      beforeEach(async () => {
+        await fastForwardTo(startTime);
+      });
+
+
+      context("if all tokens have NOT been sold", () => {
+        it("returns false", async () => {
+          assert(!await sale.completed.call());
+        });
+      });
+
+      context("if all tokens have been sold", () => {
+        beforeEach(async () => {
+          await sendTransaction({
+            from: purchaser,
+            to: sale.address,
+            value: intToHex(limit.minus(prePurchased).times(10**6 * 0.5))
+          });
+        });
+
+        it("returns true", async () => {
+          assert(await sale.completed.call());
+        });
+      });
+
+      context("if the sale time has ended", () => {
+        beforeEach(async () => {
+          await fastForwardTo(endTime + 1);
+        });
+
+        it("returns true", async () => {
+          assert(await sale.completed.call());
         });
       });
     });

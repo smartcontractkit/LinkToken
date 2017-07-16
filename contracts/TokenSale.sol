@@ -48,6 +48,12 @@ contract TokenSale is Ownable {
     token.transfer(owner, token.balanceOf(this));
   }
 
+  function completed()
+  public constant returns (bool)
+  {
+    return ended() || funded();
+  }
+
 
   // PRIVATE
 
@@ -82,12 +88,6 @@ contract TokenSale is Ownable {
   private returns (bool)
   {
     return distributed == limit;
-  }
-
-  function completed()
-  private returns (bool)
-  {
-    return ended() || funded();
   }
 
 
