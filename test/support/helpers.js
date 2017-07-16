@@ -52,6 +52,10 @@ Web3 = require('web3');
     return bigNum(web3.toWei(number));
   }
 
+  tokens = function tokens(number) {
+    return bigNum(number * 10**9);
+  }
+
   intToHex = function intToHex(number) {
     return '0x' + bigNum(number).toString(16);
   }

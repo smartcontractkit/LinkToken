@@ -9,8 +9,8 @@ contract('TokenSale', () => {
     deployer = Accounts[0];
     purchaser = Accounts[1];
     owner = Accounts[2];
-    limit = toWei(0.2);
-    prePurchased = toWei(0.01);
+    limit = tokens(10**9);
+    prePurchased = tokens(10**8);
     startTime = await getLatestTimestamp() + 1000;
     endTime = startTime + days(28);
     sale = await TokenSale.new(limit, prePurchased, startTime, owner, {from: deployer});
@@ -149,7 +149,7 @@ contract('TokenSale', () => {
 
       context("if the funding limit is exceeded", () => {
         beforeEach(() => {
-          params['value'] = limit.minus(prePurchased).add(1).times(10**15);
+          params['value'] = tokens(limit.minus(prePurchased)).add(1).times(10**6 * 0.5);
         });
 
         it("throws an error", () => {
@@ -322,7 +322,7 @@ contract('TokenSale', () => {
             await sendTransaction({
               from: purchaser,
               to: sale.address,
-              value: intToHex(limit.minus(prePurchased))
+              value: intToHex(limit.minus(prePurchased).times(10**6 * 0.5))
             });
           });
 
