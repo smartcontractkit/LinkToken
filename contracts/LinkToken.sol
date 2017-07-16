@@ -3,6 +3,7 @@ pragma solidity ^0.4.11;
 
 import './token/StandardToken.sol';
 import './token/ERC20.sol';
+import './token/ApproveAndCallReceiver.sol';
 
 
 contract LinkToken is StandardToken {
@@ -31,15 +32,16 @@ contract LinkToken is StandardToken {
 
   /**
    * @dev Aprove the passed address to transfer the specified amount of tokens, and then call the address with the given bytes.
-   * @param _recipient The address which will be allowed access to transfer the tokens.
+   * @param _receiver The address which will be allowed access to transfer the tokens.
    * @param _value The amount of tokens allowed to be transfered from the transaction sender.
    * @param _data The bytes to be executed at the recipient's address after transfer approval.
    */
-  function approveAndCall(address _recipient, uint _value, bytes _data)
+  function approveAndCall(address _receiver, uint _value, bytes _data)
   public returns (bool success)
   {
-    approve(_recipient, _value);
-    require(_recipient.call(_data));
+    approve(_receiver, _value);
+    ApproveAndCallReceiver receiver = ApproveAndCallReceiver(_receiver);
+    return receiver.receiveApproval(msg.sender, _value, this, _data);
   }
 
 

@@ -2,27 +2,40 @@ pragma solidity ^0.4.11;
 
 
 import '../token/ERC20.sol';
+import '../token/ApproveAndCallReceiver.sol';
 
 
-contract LinkReceiver {
+contract LinkReceiver is ApproveAndCallReceiver {
 
   bool public callbackCalled;
+  bool public callDataCalled;
   uint public tokensReceived;
+
+  function receiveApproval(
+    address _from, uint256 _amount, address _token, bytes _data)
+  public returns (bool _success)
+  {
+    callbackCalled = true;
+    if (_data.length > 0) {
+      require(this.call(_data));
+    }
+    return true;
+  }
 
 
   function callbackWithoutWithdrawl()
   public
   {
-    callbackCalled = true;
+    callDataCalled = true;
   }
 
-  function callbackWithWithdrawl(uint _value)
+  function callbackWithWithdrawl(uint _value, address _from, address _token)
   public
   {
-    callbackCalled = true;
+    callDataCalled = true;
+    ERC20 token = ERC20(_token);
+    token.transferFrom(_from, this, _value);
     tokensReceived = _value;
-    ERC20 token = ERC20(msg.sender);
-    token.transferFrom(tx.origin, this, _value);
   }
 
 

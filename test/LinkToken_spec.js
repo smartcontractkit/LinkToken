@@ -74,11 +74,15 @@ contract('LinkToken', () => {
 
       let called = await recipient.callbackCalled.call();
       assert.equal(called, true);
+
+      let dataCalled = await recipient.callDataCalled.call();
+      assert.equal(dataCalled, true);
     });
 
     it("calls the specified contract and allows it to withdraw", async () => {
-      let callAndWithdrawl = "0x025ca895";  // callbackWithWithdrawl(uint256)
-      let data = callAndWithdrawl + encodeUint256(value);
+      let callAndWithdrawl = "0x082017ea";  // callbackWithWithdrawl(uint256,address,address)
+      let data = callAndWithdrawl + encodeUint256(value) +
+        encodeAddress(owner) + encodeAddress(token.address);
       await token.approveAndCall(recipient.address, value, data, {from: owner});
 
       allowance = await token.allowance(owner, recipient.address);
@@ -89,6 +93,25 @@ contract('LinkToken', () => {
 
       let called = await recipient.callbackCalled.call();
       assert.equal(called, true);
+
+      let dataCalled = await recipient.callDataCalled.call();
+      assert.equal(dataCalled, true);
+    });
+
+    it("does not blow up if no data is passed", async () => {
+      await token.approveAndCall(recipient.address, value, '', {from: owner});
+
+      allowance = await token.allowance(owner, recipient.address);
+      assert.equal(allowance, value);
+
+      let balance = await token.balanceOf(recipient.address);
+      assert.equal(balance, 0);
+
+      let called = await recipient.callbackCalled.call();
+      assert.equal(called, true);
+
+      let dataCalled = await recipient.callDataCalled.call();
+      assert.equal(dataCalled, false);
     });
   });
 });
