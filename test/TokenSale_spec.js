@@ -35,6 +35,7 @@ contract('TokenSale', () => {
       'closeOut',
       'completed',
       'finalize',
+      'purchase',
       'transferOwnership',
     ];
 
@@ -110,13 +111,35 @@ contract('TokenSale', () => {
     });
   });
 
-  describe("fallback function", () => {
+  describe("the fallback function", () => {
+    let originalBalance, params, value;
+
+    beforeEach(async () => {
+      value = toWei(1);
+      await fastForwardTo(startTime);
+      let timestamp = await getLatestTimestamp();
+      assert.isAtLeast(timestamp, startTime);
+      params = {from: purchaser, to: sale.address, value: intToHex(value)};
+    });
+
+    it("calls the purchase function with the message sender", async () => {
+      let originalBalance = await getBalance(owner);
+      await sendTransaction(params);
+      let newBalance = await getBalance(owner);
+      assert.equal(newBalance.toString(), originalBalance.add(value).toString());
+
+      let tokenBalance = await link.balanceOf.call(purchaser)
+      assert.equal(tokenBalance.toString(), '2000000000000');
+    });
+  });
+
+  describe("#purchase", () => {
     let originalBalance, params, ratio, value;
 
     beforeEach(async () => {
       ratio = 1;
       value = toWei(ratio);
-      params = {to: sale.address, from: purchaser, value: intToHex(value)};
+      params = {from: purchaser, value: intToHex(value)};
     });
 
     context("during the funding period", () => {
@@ -129,7 +152,7 @@ contract('TokenSale', () => {
 
       it("forwards any value to the owner", async () => {
         let originalBalance = await getBalance(owner);
-        let response = await sendTransaction(params);
+        await sale.purchase(purchaser, params);
         let newBalance = await getBalance(owner);
 
         assert.equal(newBalance.toString(), originalBalance.add(value).toString());
@@ -138,7 +161,7 @@ contract('TokenSale', () => {
       it("emits an event log when the payment is received", async () => {
         let events = await getEvents(link)
         assert.equal(events.length, 0);
-        await sendTransaction(params);
+        await sale.purchase(purchaser, params);
 
         let events2 = await getEvents(link);
         assert.equal(events2.length, 1);
@@ -156,7 +179,7 @@ contract('TokenSale', () => {
 
         it("throws an error", () => {
           return assertActionThrows(() => {
-            return sendTransaction(params);
+            return sale.purchase(purchaser, params);
           });
         });
       });
@@ -171,7 +194,7 @@ contract('TokenSale', () => {
 
       it("throws an error", () => {
         return assertActionThrows(() => {
-          return sendTransaction(params);
+          return sale.purchase(purchaser, params);
         });
       });
     });
@@ -189,8 +212,9 @@ contract('TokenSale', () => {
         value = toWei(ratio);
         params['value'] = intToHex(value);
 
-        await sendTransaction(params);
+        await sale.purchase(purchaser, params);
 
+        sale.purchase(purchaser, params);
         let events = await getEvents(link);
         assert.equal(events.length, 1);
 
@@ -213,7 +237,7 @@ contract('TokenSale', () => {
         value = toWei(ratio);
         params['value'] = intToHex(value);
 
-        await sendTransaction(params)
+        await sale.purchase(purchaser, params);
 
         let events = await getEvents(link);
         assert.equal(events.length, 1);
@@ -237,7 +261,7 @@ contract('TokenSale', () => {
         value = toWei(ratio);
         params['value'] = intToHex(value);
 
-        await sendTransaction(params)
+        await sale.purchase(purchaser, params);
 
         let events = await getEvents(link);
         assert.equal(events.length, 1);
@@ -261,7 +285,7 @@ contract('TokenSale', () => {
         value = toWei(ratio);
         params['value'] = intToHex(value);
 
-        await sendTransaction(params);
+        await sale.purchase(purchaser, params);
 
         let events = await getEvents(link);
         assert.equal(events.length, 1);
@@ -279,7 +303,7 @@ contract('TokenSale', () => {
 
       it("throws an error", () => {
         return assertActionThrows(() => {
-          return sendTransaction(params);
+          return sale.purchase(purchaser, params);
         });
       });
     });
@@ -292,7 +316,7 @@ contract('TokenSale', () => {
 
       it("throws an error", () => {
         return assertActionThrows(() => {
-          return sendTransaction(params);
+          return sale.purchase(purchaser, params);
         });
       });
     });
@@ -335,9 +359,8 @@ contract('TokenSale', () => {
 
         context("if all tokens have been sold", () => {
           beforeEach(async () => {
-            await sendTransaction({
+            await sale.purchase(purchaser, {
               from: purchaser,
-              to: sale.address,
               value: intToHex(limit.minus(prePurchased).times(10**6 * 0.5))
             });
           });
@@ -401,9 +424,8 @@ contract('TokenSale', () => {
 
       context("if all tokens have been sold", () => {
         beforeEach(async () => {
-          await sendTransaction({
+          await sale.purchase(purchaser, {
             from: purchaser,
-            to: sale.address,
             value: intToHex(limit.minus(prePurchased).times(10**6 * 0.5))
           });
         });

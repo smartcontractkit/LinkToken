@@ -33,12 +33,18 @@ contract TokenSale is Ownable {
   }
 
   function ()
+  public payable
+  {
+    purchase(msg.sender);
+  }
+
+  function purchase(address _recipient)
   public payable ensureStarted ensureNotCompleted underLimit
   {
     if (owner.send(msg.value)) {
       uint purchaseAmount = purchased();
       distributed = distributed.add(purchaseAmount);
-      token.transfer(msg.sender, purchaseAmount);
+      token.transfer(_recipient, purchaseAmount);
     }
   }
 
