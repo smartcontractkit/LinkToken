@@ -3,7 +3,7 @@ pragma solidity ^0.4.11;
 
 import './token/StandardToken.sol';
 import './token/ERC20.sol';
-import './token/ApproveAndCallReceiver.sol';
+import './token/ERC677Receiver.sol';
 
 
 contract LinkToken is StandardToken {
@@ -40,7 +40,7 @@ contract LinkToken is StandardToken {
   public returns (bool success)
   {
     approve(_receiver, _value);
-    ApproveAndCallReceiver receiver = ApproveAndCallReceiver(_receiver);
+    ERC677Receiver receiver = ERC677Receiver(_receiver);
     return receiver.receiveApproval(msg.sender, _value, this, _data);
   }
 

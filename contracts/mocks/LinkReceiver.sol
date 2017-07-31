@@ -2,10 +2,10 @@ pragma solidity ^0.4.11;
 
 
 import '../token/ERC20.sol';
-import '../token/ApproveAndCallReceiver.sol';
+import '../token/ERC677Receiver.sol';
 
 
-contract LinkReceiver is ApproveAndCallReceiver {
+contract LinkReceiver is ERC677Receiver {
 
   bool public callbackCalled;
   bool public callDataCalled;
