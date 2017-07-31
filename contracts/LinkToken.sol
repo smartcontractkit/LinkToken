@@ -44,6 +44,14 @@ contract LinkToken is StandardToken {
     return receiver.receiveApproval(msg.sender, _value, this, _data);
   }
 
+  function transferAndCall(address _receiver, uint _value, bytes _data)
+  public returns (bool success)
+  {
+    transfer(_receiver, _value);
+    ERC677Receiver receiver = ERC677Receiver(_receiver);
+    return receiver.receiveTokenTransfer(msg.sender, _value, _data);
+  }
+
 
   // MODIFIERS
 

@@ -26,6 +26,7 @@ contract('LinkToken', () => {
       'approveAndCall',
       'balanceOf',
       'transfer',
+      'transferAndCall',
       'transferFrom',
     ];
 
@@ -58,25 +59,18 @@ contract('LinkToken', () => {
     beforeEach(async () => {
       recipient = await LinkReceiver.new({from: owner});
 
-      allowance = await token.allowance.call(owner, recipient.address);
-      assert.equal(allowance, 0);
+      assert.equal(await token.allowance.call(owner, recipient.address), 0);
+      assert.equal(await token.balanceOf.call(recipient.address), 0);
     });
 
     it("sets the approved withdrawl amount", async () => {
       let callNoWithdrawl = "0x043e94bd";   // callbackWithoutWithdrawl()
       await token.approveAndCall(recipient.address, value, callNoWithdrawl, {from: owner});
 
-      allowance = await token.allowance(owner, recipient.address);
-      assert.equal(allowance, value);
-
-      let balance = await token.balanceOf(recipient.address);
-      assert.equal(balance, 0);
-
-      let called = await recipient.callbackCalled.call();
-      assert.equal(called, true);
-
-      let dataCalled = await recipient.callDataCalled.call();
-      assert.equal(dataCalled, true);
+      assert.equal(await token.allowance(owner, recipient.address), value);
+      assert.equal(await token.balanceOf(recipient.address), 0);
+      assert.equal(await recipient.callbackCalled.call(), true);
+      assert.equal(await recipient.callDataCalled.call(), true);
     });
 
     it("calls the specified contract and allows it to withdraw", async () => {
@@ -85,33 +79,49 @@ contract('LinkToken', () => {
         encodeAddress(owner) + encodeAddress(token.address);
       await token.approveAndCall(recipient.address, value, data, {from: owner});
 
-      allowance = await token.allowance(owner, recipient.address);
-      assert.equal(allowance, 0);
-
-      let balance = await token.balanceOf(recipient.address);
-      assert.equal(balance, value);
-
-      let called = await recipient.callbackCalled.call();
-      assert.equal(called, true);
-
-      let dataCalled = await recipient.callDataCalled.call();
-      assert.equal(dataCalled, true);
+      assert.equal(await token.allowance(owner, recipient.address), 0);
+      assert.equal(await token.balanceOf(recipient.address), value);
+      assert.equal(await recipient.callbackCalled.call(), true);
+      assert.equal(await recipient.callDataCalled.call(), true);
     });
 
     it("does not blow up if no data is passed", async () => {
       await token.approveAndCall(recipient.address, value, '', {from: owner});
 
-      allowance = await token.allowance(owner, recipient.address);
-      assert.equal(allowance, value);
+      assert.equal(await token.allowance(owner, recipient.address), value);
+      assert.equal(await token.balanceOf(recipient.address), 0);
+      assert.equal(await recipient.callbackCalled.call(), true);
+      assert.equal(await recipient.callDataCalled.call(), false);
+    });
+  });
 
-      let balance = await token.balanceOf(recipient.address);
-      assert.equal(balance, 0);
+  describe("#transferAndCall", () => {
+    let value = 1000;
 
-      let called = await recipient.callbackCalled.call();
-      assert.equal(called, true);
+    beforeEach(async () => {
+      recipient = await LinkReceiver.new({from: owner});
 
-      let dataCalled = await recipient.callDataCalled.call();
-      assert.equal(dataCalled, false);
+      assert.equal(await token.allowance.call(owner, recipient.address), 0);
+      assert.equal(await token.balanceOf.call(recipient.address), 0);
+    });
+
+    it("transfers the amount to the contract and calls the contract", async () => {
+      let callNoWithdrawl = "0x043e94bd";   // callbackWithoutWithdrawl()
+      await token.transferAndCall(recipient.address, value, callNoWithdrawl, {from: owner});
+
+      assert.equal(await recipient.lastTransferSender.call(), owner);
+      assert.equal(await recipient.lastTransferAmount.call(), value);
+      assert.equal(await token.balanceOf(recipient.address), value);
+      assert.equal(await token.allowance(owner, recipient.address), 0);
+      assert.equal(await recipient.callbackCalled.call(), true);
+      assert.equal(await recipient.callDataCalled.call(), true);
+    });
+
+    it("does not blow up if no data is passed", async () => {
+      await token.transferAndCall(recipient.address, value, '', {from: owner});
+
+      assert.equal(await recipient.callbackCalled.call(), true);
+      assert.equal(await recipient.callDataCalled.call(), false);
     });
   });
 });
