@@ -39,12 +39,14 @@ contract TokenSale is Ownable {
   }
 
   function purchase(address _recipient)
-  public payable ensureStarted ensureNotCompleted underLimit
+  public payable ensureStarted ensureNotCompleted
   {
-    if (owner.send(msg.value)) {
-      uint purchaseAmount = purchased();
+    uint purchaseAmount = calculatePurchased();
+    if (underLimit(purchaseAmount) && owner.send(msg.value)) {
       distributed = distributed.add(purchaseAmount);
       token.transfer(_recipient, purchaseAmount);
+    } else {
+      throw;
     }
   }
 
@@ -71,7 +73,7 @@ contract TokenSale is Ownable {
 
   bool finalized;
 
-  function purchased()
+  function calculatePurchased()
   private returns (uint)
   {
     uint start = startTime;
@@ -104,6 +106,12 @@ contract TokenSale is Ownable {
     return distributed == limit;
   }
 
+  function underLimit(uint _purchasedAmount)
+  private returns (bool)
+  {
+    return (_purchasedAmount + distributed <= limit);
+  }
+
 
   // MODIFIERS
 
@@ -122,12 +130,6 @@ contract TokenSale is Ownable {
   modifier ensureCompleted()
   {
     require(completed());
-    _;
-  }
-
-  modifier underLimit()
-  {
-    require(purchased() + distributed <= limit);
     _;
   }
 
