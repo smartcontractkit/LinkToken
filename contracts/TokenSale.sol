@@ -18,9 +18,16 @@ contract TokenSale is Ownable {
   uint constant public phaseThreeEnd = 14 days;
   uint constant public endTime = 28 days;
   address public recipient;
+  address public distributionUpdater;
   LinkToken public token;
 
-  function TokenSale(uint _limit, uint _prePurchased, uint _start, address _owner)
+  function TokenSale(
+    uint _limit,
+    uint _prePurchased,
+    uint _start,
+    address _owner,
+    address _distributionUpdater
+  )
   public
   {
     limit = _limit;
@@ -28,6 +35,7 @@ contract TokenSale is Ownable {
     startTime = _start;
     token = new LinkToken();
     owner = _owner;
+    distributionUpdater = _distributionUpdater;
 
     require(limit <= token.totalSupply());
   }
@@ -42,12 +50,11 @@ contract TokenSale is Ownable {
   public payable ensureStarted ensureNotCompleted
   {
     uint purchaseAmount = calculatePurchased();
-    if (underLimit(purchaseAmount) && owner.send(msg.value)) {
-      distributed = distributed.add(purchaseAmount);
-      token.transfer(_recipient, purchaseAmount);
-    } else {
-      throw;
-    }
+
+    require(underLimit(purchaseAmount) && owner.send(msg.value));
+
+    distributed = distributed.add(purchaseAmount);
+    token.transfer(_recipient, purchaseAmount);
   }
 
   function completed()
@@ -66,6 +73,12 @@ contract TokenSale is Ownable {
   public onlyOwner ensureStarted
   {
     finalized = true;
+  }
+
+  function updateDistributed(uint amountChanged)
+  public onlyDistributionUpdater
+  {
+    distributed = distributed.add(amountChanged);
   }
 
 
@@ -130,6 +143,12 @@ contract TokenSale is Ownable {
   modifier ensureCompleted()
   {
     require(completed());
+    _;
+  }
+
+  modifier onlyDistributionUpdater()
+  {
+    require(msg.sender == distributionUpdater);
     _;
   }
 

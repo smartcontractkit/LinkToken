@@ -3,17 +3,18 @@ require('./support/helpers.js')
 contract('TokenSale', () => {
   let TokenSale = artifacts.require("./contracts/TokenSale.sol");
   let LinkToken = artifacts.require("./contracts/LinkToken.sol");
-  let endTime, limit, link, owner, prePurchased, purchaser, sale, startTime;
+  let distributionUpdater, endTime, limit, link, owner, prePurchased, purchaser, sale, startTime;
 
   beforeEach(async () => {
     deployer = Accounts[0];
     purchaser = Accounts[1];
     owner = Accounts[2];
+    distributionUpdater = Accounts[3];
     limit = tokens(10**9);
     prePurchased = tokens(10**8);
     startTime = await getLatestTimestamp() + 1000;
     endTime = startTime + days(28);
-    sale = await TokenSale.new(limit, prePurchased, startTime, owner, {from: deployer});
+    sale = await TokenSale.new(limit, prePurchased, startTime, owner, distributionUpdater, {from: deployer});
     let linkAddress = await sale.token.call();
     link = LinkToken.at(linkAddress);
   });
@@ -22,6 +23,7 @@ contract('TokenSale', () => {
     let expectedABI = [
       //public attributes
       'distributed',
+      'distributionUpdater',
       'endTime',
       'limit',
       'owner',
@@ -37,6 +39,7 @@ contract('TokenSale', () => {
       'finalize',
       'purchase',
       'transferOwnership',
+      'updateDistributed',
     ];
 
     checkPublicABI(TokenSale, expectedABI);
@@ -95,6 +98,12 @@ contract('TokenSale', () => {
       assert.equal(saleOwner, owner);
     });
 
+    it("saves the distribution updater of the contract", async () => {
+      let saleUpdater = await sale.distributionUpdater.call();
+
+      assert.equal(saleUpdater, distributionUpdater);
+    });
+
     it("deploys a LinkToken contract", async () => {
       let saleBalance = await link.balanceOf.call(sale.address);
 
@@ -105,7 +114,7 @@ contract('TokenSale', () => {
       it("throws an error", () => {
         return assertActionThrows(() => {
           let newLimit = toWei(1).add(1);
-          return TokenSale.new(newLimit, prePurchased, startTime, owner, {from: deployer});
+          return TokenSale.new(newLimit, prePurchased, startTime, owner, distributionUpdater, {from: deployer});
         });
       });
     });
@@ -487,6 +496,30 @@ contract('TokenSale', () => {
         await sale.finalize({from: owner});
 
         assert(await sale.completed.call());
+      });
+    });
+  });
+
+  describe("#updateDistributed", () => {
+    let updatedAmount = 1000000000;
+
+    context("when it is invoked by someone other than the trusted updater", () => {
+      it("throws an error", async () => {
+        await assertActionThrows(async () => {
+          await sale.updateDistributed(updatedAmount, {from: owner});
+        });
+      });
+    });
+
+    context("when it is invoked by the trusted updater", () => {
+      it("updates the distributed amount", async () => {
+        let originalDistribution = await sale.distributed.call();
+
+        await sale.updateDistributed(updatedAmount, {from: distributionUpdater});
+
+        let laterDistribution = await sale.distributed.call();
+
+        assert.equal(originalDistribution.add(updatedAmount).toString(), laterDistribution.toString());
       });
     });
   });
