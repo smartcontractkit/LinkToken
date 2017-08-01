@@ -207,19 +207,16 @@ contract('TokenSale', () => {
         assert.isAtLeast(timestamp, startTime);
       });
 
-      it("counts 1,000 tokens as released per Ether", async () => {
+      it("counts 2,000 tokens as released per Ether", async () => {
         ratio = 1.1;
         value = toWei(ratio);
         params['value'] = intToHex(value);
 
         await sale.purchase(purchaser, params);
 
-        sale.purchase(purchaser, params);
-        let events = await getEvents(link);
-        assert.equal(events.length, 1);
-
-        let event = events[0];
-        assert.equal(event.args.value.toString(), (2000000000000 * ratio).toString());
+        let tokenBalance = await link.balanceOf.call(purchaser)
+        let expectedBalance = parseInt(2000000000000 * ratio).toString();
+        assert.equal(tokenBalance.toString(), expectedBalance);
       });
     });
 
@@ -232,18 +229,16 @@ contract('TokenSale', () => {
         assert.isAtLeast(timestamp, phaseTwo);
       });
 
-      it("counts 750 tokens as released per Ether", async () => {
+      it("counts 1800 tokens as released per Ether", async () => {
         ratio = 1.1;
         value = toWei(ratio);
         params['value'] = intToHex(value);
 
         await sale.purchase(purchaser, params);
 
-        let events = await getEvents(link);
-        assert.equal(events.length, 1);
-
-        let event = events[0];
-        assert.equal(event.args.value.toString(), parseInt(1800000000000 * ratio).toString());
+        let tokenBalance = await link.balanceOf.call(purchaser)
+        let expectedBalance = parseInt(1800000000000 * ratio).toString()
+        assert.equal(tokenBalance.toString(), expectedBalance);
       });
     });
 
@@ -256,18 +251,16 @@ contract('TokenSale', () => {
         assert.isAtLeast(timestamp, phaseThree);
       });
 
-      it("counts 500 tokens as released per Ether", async () => {
+      it("counts 1500 tokens as released per Ether", async () => {
         ratio = 1.1;
         value = toWei(ratio);
         params['value'] = intToHex(value);
 
         await sale.purchase(purchaser, params);
 
-        let events = await getEvents(link);
-        assert.equal(events.length, 1);
-
-        let event = events[0];
-        assert.equal(event.args.value.toString(), parseInt(1500000000000 * ratio).toString());
+        let tokenBalance = await link.balanceOf.call(purchaser)
+        let expectedBalance = parseInt(1500000000000 * ratio).toString();
+        assert.equal(tokenBalance.toString(), expectedBalance);
       });
     });
 
@@ -280,18 +273,16 @@ contract('TokenSale', () => {
         assert.isAtLeast(timestamp, phaseThree);
       });
 
-      it("releases 600 tokens per Ether", async () => {
+      it("releases 1200 tokens per Ether", async () => {
         ratio = 1.1;
         value = toWei(ratio);
         params['value'] = intToHex(value);
 
         await sale.purchase(purchaser, params);
 
-        let events = await getEvents(link);
-        assert.equal(events.length, 1);
-
-        let event = events[0];
-        assert.equal(event.args.value.toString(), parseInt(1200000000000 * ratio).toString());
+        let tokenBalance = await link.balanceOf.call(purchaser)
+        let expectedBalance = parseInt(1200000000000 * ratio).toString();
+        assert.equal(tokenBalance.toString(), expectedBalance);
       });
     });
 
