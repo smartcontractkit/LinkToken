@@ -37,7 +37,7 @@ contract('Standard223Token', (accounts) => {
 
   describe("#transfer(address, uint, bytes)", () => {
     it("calls the correct function on transfer", async () => {
-      await token.transfer(receiver.address, 100, new ArrayBuffer(4));
+      await token.transfer(receiver.address, 100, "0xdeadbeef", {});
 
       let tokenSender = await receiver.tokenSender();
       assert.equal(tokenSender, accounts[0]);
@@ -52,36 +52,8 @@ contract('Standard223Token', (accounts) => {
     context("when sending to a contract that is not ERC223 compatible", () => {
       it("throws an error", async () => {
         await assertActionThrows(async () => {
-          await token.transfer(token.address, 100, new ArrayBuffer(4));
+          await token.transfer(token.address, 100, "0xdeadbeef", {});
         });
-      });
-    });
-  });
-
-  describe("#unsafeTransfer(address, uint)", () => {
-    it("does not call the fallback on transfer", async () => {
-      await token.unsafeTransfer(receiver.address, 100);
-
-      let tokenSender = await receiver.tokenSender();
-      assert.equal(tokenSender, emptyAddress);
-      assert.equal(await receiver.sentValue(), 0);
-      let calledFallback = await receiver.calledFallback();
-      assert(!calledFallback);
-
-      let newBalance = await token.balanceOf.call(receiver.address);
-      assert.equal(newBalance, 100);
-    });
-
-    context("when sending to a contract that is not ERC223 compatible", () => {
-      it("still transfers the token", async () => {
-        await token.unsafeTransfer(receiver.address, 100);
-
-        let tokenSender = await receiver.tokenSender();
-        assert.equal(tokenSender, emptyAddress);
-        assert.equal(await receiver.sentValue(), 0);
-
-        let newBalance = await token.balanceOf.call(receiver.address);
-        assert.equal(newBalance, 100);
       });
     });
   });
