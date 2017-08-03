@@ -1,16 +1,16 @@
 pragma solidity ^0.4.8;
 
 import "truffle/Assert.sol";
-import "../contracts/token/examples/Standard223TokenExample.sol";
-import "../contracts/mocks/Standard223TokenReceiverMock.sol";
+import "../contracts/mocks/Token223.sol";
+import "../contracts/mocks/Token223ReceiverMock.sol";
 
 contract Standard223TokenReceiverTest {
-    Standard223TokenExample token;
-    Standard223TokenReceiverMock receiver;
+    Token223 token;
+    Token223ReceiverMock receiver;
 
     function beforeEach() {
-        token = new Standard223TokenExample(100);
-        receiver = new Standard223TokenReceiverMock();
+        token = new Token223(100);
+        receiver = new Token223ReceiverMock();
     }
 
     function testFallbackIsCalledOnTransfer() {

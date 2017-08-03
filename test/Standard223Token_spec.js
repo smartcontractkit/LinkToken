@@ -1,14 +1,14 @@
 require('./support/helpers.js')
 
 contract('Standard223Token', (accounts) => {
-  let Standard223TokenExample = artifacts.require("../contracts/token/examples/Standard223TokenExample.sol");
-  let Standard223TokenReceiver = artifacts.require("../contracts/mocks/Standard223TokenReceiverMock.sol");
+  let Token223 = artifacts.require("../contracts/mocks/Token223.sol");
+  let Token223ReceiverMock = artifacts.require("../contracts/mocks/Token223ReceiverMock.sol");
 
   let receiver, token;
 
   beforeEach(async function() {
-    receiver = await Standard223TokenReceiver.new();
-    token = await Standard223TokenExample.new(1000);
+    receiver = await Token223ReceiverMock.new();
+    token = await Token223.new(1000);
     assert.equal(await receiver.sentValue(), 0);
   });
 
