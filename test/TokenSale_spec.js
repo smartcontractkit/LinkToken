@@ -30,6 +30,7 @@ contract('TokenSale', () => {
       'phase1End',
       'phase2End',
       'phase3End',
+      'phase4End',
       'recipient',
       'startTime',
       'token',
@@ -85,7 +86,14 @@ contract('TokenSale', () => {
       assert.equal(expected.toString(), phase3.toString());
     });
 
-    it("sets the end of phase four as four weeks after the start time", async () => {
+    it("sets the end of phase four as three weeks after the start time", async () => {
+      let phase4 = await sale.phase4End.call();
+      let expected = days(21);
+
+      assert.equal(expected.toString(), phase4.toString());
+    });
+
+    it("sets the end of phase five as four weeks after the start time", async () => {
       let fundingEnd = await sale.endTime.call();
       let expected = days(28);
 
@@ -238,7 +246,7 @@ contract('TokenSale', () => {
         assert.isAtLeast(timestamp, phase2);
       });
 
-      it("counts 1800 tokens as released per Ether", async () => {
+      it("counts 1,750 tokens as released per Ether", async () => {
         ratio = 1.1;
         value = toWei(ratio);
         params['value'] = intToHex(value);
@@ -246,7 +254,7 @@ contract('TokenSale', () => {
         await sale.purchase(purchaser, params);
 
         let tokenBalance = await link.balanceOf.call(purchaser)
-        let expectedBalance = parseInt(1800000000000 * ratio).toString()
+        let expectedBalance = parseInt(1750000000000 * ratio).toString()
         assert.equal(tokenBalance.toString(), expectedBalance);
       });
     });
@@ -260,7 +268,7 @@ contract('TokenSale', () => {
         assert.isAtLeast(timestamp, phase3);
       });
 
-      it("counts 1500 tokens as released per Ether", async () => {
+      it("counts 1,650 tokens as released per Ether", async () => {
         ratio = 1.1;
         value = toWei(ratio);
         params['value'] = intToHex(value);
@@ -268,21 +276,21 @@ contract('TokenSale', () => {
         await sale.purchase(purchaser, params);
 
         let tokenBalance = await link.balanceOf.call(purchaser)
-        let expectedBalance = parseInt(1500000000000 * ratio).toString();
+        let expectedBalance = parseInt(1650000000000 * ratio).toString();
         assert.equal(tokenBalance.toString(), expectedBalance);
       });
     });
 
-    context("when it is during the fourth phase(weeks three and four)", () => {
+    context("when it is during the fourth phase(third week)", () => {
       beforeEach(async () => {
-        let phase3 = startTime + days(14);
-        await fastForwardTo(phase3 + 1);
+        let phase4 = startTime + days(14);
+        await fastForwardTo(phase4 + 1);
 
         let timestamp = await getLatestTimestamp();
-        assert.isAtLeast(timestamp, phase3);
+        assert.isAtLeast(timestamp, phase4);
       });
 
-      it("releases 1200 tokens per Ether", async () => {
+      it("counts 1,550 tokens as released per Ether", async () => {
         ratio = 1.1;
         value = toWei(ratio);
         params['value'] = intToHex(value);
@@ -290,12 +298,34 @@ contract('TokenSale', () => {
         await sale.purchase(purchaser, params);
 
         let tokenBalance = await link.balanceOf.call(purchaser)
-        let expectedBalance = parseInt(1200000000000 * ratio).toString();
+        let expectedBalance = parseInt(1550000000000 * ratio).toString();
         assert.equal(tokenBalance.toString(), expectedBalance);
       });
     });
 
-    context("when it is after the fourth phase", () => {
+    context("when it is during the fifth phase(fourth week)", () => {
+      beforeEach(async () => {
+        let phase5 = startTime + days(21);
+        await fastForwardTo(phase5 + 1);
+
+        let timestamp = await getLatestTimestamp();
+        assert.isAtLeast(timestamp, phase5);
+      });
+
+      it("releases 1,450 tokens per Ether", async () => {
+        ratio = 1.1;
+        value = toWei(ratio);
+        params['value'] = intToHex(value);
+
+        await sale.purchase(purchaser, params);
+
+        let tokenBalance = await link.balanceOf.call(purchaser)
+        let expectedBalance = parseInt(1450000000000 * ratio).toString();
+        assert.equal(tokenBalance.toString(), expectedBalance);
+      });
+    });
+
+    context("when it is after the final phase", () => {
       beforeEach(async () => {
         let endTime = startTime + days(28);
         await fastForwardTo(endTime + 1)
