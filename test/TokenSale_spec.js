@@ -183,10 +183,10 @@ contract('TokenSale', () => {
         let events2 = await getEvents(link);
         assert.equal(events2.length, 1);
         let event = events2[0];
-        assert.equal(event.event, 'Transfer');
-        assert.equal(event.args.from, sale.address);
-        assert.equal(event.args.to, purchaser);
-        assert.equal(event.args.value.toString(), '2000000000000');
+        assert.equal(hexToAddress(event.topics[0]), logTopic('Transfer(address,address,uint256)'));
+        assert.equal(hexToAddress(event.topics[1]), sale.address);
+        assert.equal(hexToAddress(event.topics[2]), purchaser);
+        assert.equal(hexToInt(event.data).toString(), bigNum(2000000000000).toString());
       });
 
       context("if the funding limit is exceeded", () => {

@@ -60,6 +60,14 @@ Web3 = require('web3');
     return '0x' + bigNum(number).toString(16);
   }
 
+  hexToInt = function hexToInt(string) {
+    return web3.toBigNumber(string);
+  }
+
+  hexToAddress = function hexToAddress(string) {
+    return '0x' + string.slice(string.length - 40);
+  }
+
   unixTime = function unixTime(time) {
     return moment(time).unix();
   }
@@ -79,6 +87,15 @@ Web3 = require('web3');
   days = function days(number) {
     return number * hours(24);
   };
+
+  keccak256 = function keccak256(string) {
+    return web3.sha3(string);
+  }
+
+  logTopic = function logTopic(string) {
+    let hash = keccak256(string);
+    return '0x' + hash.slice(26);
+  }
 
   getLatestBlock = async function getLatestBlock() {
     return await eth.getBlock('latest', false);
