@@ -18,9 +18,7 @@ contract Standard223Receiver is ERC223Receiver {
   function tokenFallback(address _sender, uint _value, bytes _data)
   public returns (bool success) {
     __isTokenFallback = true;
-    receivedToken = ReceivedToken(msg.sender, _sender, _value, _data, getSig(_data));
     if (!address(this).delegatecall(_data)) throw;
-    /* receivedToken = ReceivedToken(); */
     __isTokenFallback = false;
     return true;
   }

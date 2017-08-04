@@ -13,6 +13,16 @@ contract LinkReceiver is ERC677Receiver {
   uint public lastTransferAmount;
   address public lastTransferSender;
 
+
+  function tokenFallback(address _from, uint _amount, bytes _data)
+  public returns (bool success) {
+    fallbackCalled = true;
+    if (_data.length > 0) {
+      require(address(this).delegatecall(_data, msg.sender, _from, _amount));
+    }
+    return true;
+  }
+
   function receiveApproval(
     address _from,
     uint256 _amount,
@@ -45,6 +55,10 @@ contract LinkReceiver is ERC677Receiver {
   }
 
   function callbackWithoutWithdrawl() {
+    callDataCalled = true;
+  }
+
+  function callbackWithoutWithdrawl(address _token, address _from, uint _amount) {
     callDataCalled = true;
   }
 

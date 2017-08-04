@@ -151,6 +151,13 @@ Web3 = require('web3');
     return '000000000000000000000000' + address.slice(2);
   }
 
+  encodeBytes = function encodeBytes(bytes) {
+    let zeros = "0000000000000000000000000000000000000000000000000000000000000000";
+    let padded = bytes.padEnd(64, 0);
+    let length = encodeUint256(bytes.length / 2);
+    return length + padded;
+  }
+
   checkPublicABI = function checkPublicABI(contract, expectedPublic) {
     let actualPublic = [];
     for (method of contract.abi) {

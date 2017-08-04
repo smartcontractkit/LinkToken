@@ -1,12 +1,12 @@
 pragma solidity ^0.4.11;
 
 
-import './token/StandardToken.sol';
 import './token/ERC20.sol';
 import './ERC677Receiver.sol';
+import './token/Standard223Token.sol';
 
 
-contract LinkToken is StandardToken {
+contract LinkToken is Standard223Token {
 
   uint public constant totalSupply = 10**18;
   string public constant name = 'ChainLink Token';
@@ -56,7 +56,7 @@ contract LinkToken is StandardToken {
   // MODIFIERS
 
   modifier validRecipient(address _recipient) {
-    require(_recipient != address(0) && _recipient != address(this));
+    require(_recipient != address(0));
     _;
   }
 
