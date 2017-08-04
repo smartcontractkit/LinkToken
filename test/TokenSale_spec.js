@@ -27,9 +27,9 @@ contract('TokenSale', () => {
       'endTime',
       'limit',
       'owner',
-      'phaseOneEnd',
-      'phaseThreeEnd',
-      'phaseTwoEnd',
+      'phase1End',
+      'phase2End',
+      'phase3End',
       'recipient',
       'startTime',
       'token',
@@ -65,24 +65,24 @@ contract('TokenSale', () => {
     });
 
     it("sets the end of phase one as one day after the start time", async () => {
-      let phaseOneEnd = await sale.phaseOneEnd.call();
+      let phase1 = await sale.phase1End.call();
       let expected = days(1);
 
-      assert.equal(expected.toString(), phaseOneEnd.toString());
+      assert.equal(expected.toString(), phase1.toString());
     });
 
     it("sets the end of phase two as one week after the start time", async () => {
-      let phaseTwoEnd = await sale.phaseTwoEnd.call();
+      let phase2 = await sale.phase2End.call();
       let expected = days(7);
 
-      assert.equal(expected.toString(), phaseTwoEnd.toString());
+      assert.equal(expected.toString(), phase2.toString());
     });
 
     it("sets the end of phase three as two weeks after the start time", async () => {
-      let phaseThreeEnd = await sale.phaseThreeEnd.call();
+      let phase3 = await sale.phase3End.call();
       let expected = days(14);
 
-      assert.equal(expected.toString(), phaseThreeEnd.toString());
+      assert.equal(expected.toString(), phase3.toString());
     });
 
     it("sets the end of phase four as four weeks after the start time", async () => {
@@ -231,11 +231,11 @@ contract('TokenSale', () => {
 
     context("when it is during the second phase(first week)", () => {
       beforeEach(async () => {
-        let phaseTwo = startTime + days(1);
-        await fastForwardTo(phaseTwo + 1);
+        let phase2 = startTime + days(1);
+        await fastForwardTo(phase2 + 1);
 
         let timestamp = await getLatestTimestamp();
-        assert.isAtLeast(timestamp, phaseTwo);
+        assert.isAtLeast(timestamp, phase2);
       });
 
       it("counts 1800 tokens as released per Ether", async () => {
@@ -253,11 +253,11 @@ contract('TokenSale', () => {
 
     context("when it is during the third phase(second week)", () => {
       beforeEach(async () => {
-        let phaseThree = startTime + days(7);
-        await fastForwardTo(phaseThree + 1);
+        let phase3 = startTime + days(7);
+        await fastForwardTo(phase3 + 1);
 
         let timestamp = await getLatestTimestamp();
-        assert.isAtLeast(timestamp, phaseThree);
+        assert.isAtLeast(timestamp, phase3);
       });
 
       it("counts 1500 tokens as released per Ether", async () => {
@@ -275,11 +275,11 @@ contract('TokenSale', () => {
 
     context("when it is during the fourth phase(weeks three and four)", () => {
       beforeEach(async () => {
-        let phaseThree = startTime + days(14);
-        await fastForwardTo(phaseThree + 1);
+        let phase3 = startTime + days(14);
+        await fastForwardTo(phase3 + 1);
 
         let timestamp = await getLatestTimestamp();
-        assert.isAtLeast(timestamp, phaseThree);
+        assert.isAtLeast(timestamp, phase3);
       });
 
       it("releases 1200 tokens per Ether", async () => {

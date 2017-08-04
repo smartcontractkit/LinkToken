@@ -13,9 +13,9 @@ contract TokenSale is Ownable {
   uint public limit;
   uint public startTime;
   uint public distributed;
-  uint constant public phaseOneEnd = 1 days;
-  uint constant public phaseTwoEnd = 7 days;
-  uint constant public phaseThreeEnd = 14 days;
+  uint constant public phase1End = 1 days;
+  uint constant public phase2End = 7 days;
+  uint constant public phase3End = 14 days;
   uint constant public endTime = 28 days;
   address public recipient;
   address public distributionUpdater;
@@ -90,11 +90,11 @@ contract TokenSale is Ownable {
   private returns (uint)
   {
     uint start = startTime;
-    if (block.timestamp <= start + phaseOneEnd) {
+    if (block.timestamp <= start + phase1End) {
       return msg.value.div(10**6).mul(2);
-    } else if (block.timestamp <= start + phaseTwoEnd) {
+    } else if (block.timestamp <= start + phase2End) {
       return msg.value.mul(18).div(10**7);
-    } else if (block.timestamp <= start + phaseThreeEnd) {
+    } else if (block.timestamp <= start + phase3End) {
       return msg.value.mul(15).div(10**7);
     } else {
       return msg.value.mul(12).div(10**7);
