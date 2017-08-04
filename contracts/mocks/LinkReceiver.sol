@@ -7,7 +7,7 @@ import '../ERC677Receiver.sol';
 
 contract LinkReceiver is ERC677Receiver {
 
-  bool public callbackCalled;
+  bool public fallbackCalled;
   bool public callDataCalled;
   uint public tokensReceived;
   uint public lastTransferAmount;
@@ -21,7 +21,7 @@ contract LinkReceiver is ERC677Receiver {
   )
   public returns (bool _success)
   {
-    callbackCalled = true;
+    fallbackCalled = true;
     if (_data.length > 0) {
       require(this.call(_data));
     }
@@ -35,7 +35,7 @@ contract LinkReceiver is ERC677Receiver {
   )
   public returns (bool _success)
   {
-    callbackCalled = true;
+    fallbackCalled = true;
     lastTransferSender = _from;
     lastTransferAmount = _amount;
     if (_data.length > 0) {

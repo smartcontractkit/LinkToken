@@ -69,7 +69,7 @@ contract('LinkToken', () => {
 
       assert.equal(await token.allowance(owner, recipient.address), value);
       assert.equal(await token.balanceOf(recipient.address), 0);
-      assert.equal(await recipient.callbackCalled.call(), true);
+      assert.equal(await recipient.fallbackCalled.call(), true);
       assert.equal(await recipient.callDataCalled.call(), true);
     });
 
@@ -81,7 +81,7 @@ contract('LinkToken', () => {
 
       assert.equal(await token.allowance(owner, recipient.address), 0);
       assert.equal(await token.balanceOf(recipient.address), value);
-      assert.equal(await recipient.callbackCalled.call(), true);
+      assert.equal(await recipient.fallbackCalled.call(), true);
       assert.equal(await recipient.callDataCalled.call(), true);
     });
 
@@ -90,7 +90,7 @@ contract('LinkToken', () => {
 
       assert.equal(await token.allowance(owner, recipient.address), value);
       assert.equal(await token.balanceOf(recipient.address), 0);
-      assert.equal(await recipient.callbackCalled.call(), true);
+      assert.equal(await recipient.fallbackCalled.call(), true);
       assert.equal(await recipient.callDataCalled.call(), false);
     });
   });
@@ -113,7 +113,7 @@ contract('LinkToken', () => {
       assert.equal(await recipient.lastTransferAmount.call(), value);
       assert.equal(await token.balanceOf(recipient.address), value);
       assert.equal(await token.allowance(owner, recipient.address), 0);
-      assert.equal(await recipient.callbackCalled.call(), true);
+      assert.equal(await recipient.fallbackCalled.call(), true);
       assert.equal(await recipient.callDataCalled.call(), true);
     });
 
