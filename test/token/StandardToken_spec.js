@@ -1,6 +1,6 @@
 'use strict';
 
-require('./support/zeppelinHelpers.js');
+require('../support/zeppelinHelpers.js');
 
 contract('StandardToken', function(accounts) {
   var StandardTokenMock = artifacts.require('./helpers/StandardTokenMock.sol');

@@ -2,7 +2,7 @@ pragma solidity ^0.4.8;
 
  /* ERC223 additions to ERC20 */
 
-import "./ERC223Receiver.sol";
+import "./token/ERC223Receiver.sol";
 
 contract Standard223Receiver is ERC223Receiver {
   ReceivedToken receivedToken;

@@ -2,7 +2,7 @@ pragma solidity ^0.4.11;
 
 
 import './token/ERC20.sol';
-import './token/Standard223Token.sol';
+import './Standard223Token.sol';
 
 
 contract LinkToken is Standard223Token {

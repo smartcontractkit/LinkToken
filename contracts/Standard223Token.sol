@@ -1,9 +1,9 @@
 pragma solidity ^0.4.8;
 
 
-import "./ERC223.sol";
-import "./ERC223Receiver.sol";
-import "./StandardToken.sol";
+import "./token/ERC223.sol";
+import "./token/ERC223Receiver.sol";
+import "./token/StandardToken.sol";
 
 
 contract Standard223Token is ERC223, StandardToken {

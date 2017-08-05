@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
 
-import "../token/Standard223Receiver.sol";
+import "../Standard223Receiver.sol";
 
 
 contract Token223Receiver is Standard223Receiver {
