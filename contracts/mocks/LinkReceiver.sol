@@ -2,7 +2,7 @@ pragma solidity ^0.4.11;
 
 
 import '../token/ERC20.sol';
-import '../token/ERC677Receiver.sol';
+import '../ERC677Receiver.sol';
 
 
 contract LinkReceiver is ERC677Receiver {
