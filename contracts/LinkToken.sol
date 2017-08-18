@@ -1,12 +1,11 @@
 pragma solidity ^0.4.11;
 
 
-import './token/StandardToken.sol';
 import './token/ERC20.sol';
-import './ERC677Receiver.sol';
+import './Standard223Token.sol';
 
 
-contract LinkToken is StandardToken {
+contract LinkToken is Standard223Token {
 
   uint public constant totalSupply = 10**18;
   string public constant name = 'ChainLink Token';
@@ -30,33 +29,11 @@ contract LinkToken is StandardToken {
     super.transfer(_to, _value);
   }
 
-  /**
-   * @dev Aprove the passed address to transfer the specified amount of tokens, and then call the address with the given bytes.
-   * @param _receiver The address which will be allowed access to transfer the tokens.
-   * @param _value The amount of tokens allowed to be transfered from the transaction sender.
-   * @param _data The bytes to be executed at the recipient's address after transfer approval.
-   */
-  function approveAndCall(address _receiver, uint _value, bytes _data)
-  public returns (bool success)
-  {
-    approve(_receiver, _value);
-    ERC677Receiver receiver = ERC677Receiver(_receiver);
-    return receiver.receiveApproval(msg.sender, _value, this, _data);
-  }
-
-  function transferAndCall(address _receiver, uint _value, bytes _data)
-  public returns (bool success)
-  {
-    transfer(_receiver, _value);
-    ERC677Receiver receiver = ERC677Receiver(_receiver);
-    return receiver.receiveTokenTransfer(msg.sender, _value, _data);
-  }
-
 
   // MODIFIERS
 
   modifier validRecipient(address _recipient) {
-    require(_recipient != address(0) && _recipient != address(this));
+    require(_recipient != address(0));
     _;
   }
 

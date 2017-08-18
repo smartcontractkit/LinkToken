@@ -60,6 +60,14 @@ Web3 = require('web3');
     return '0x' + bigNum(number).toString(16);
   }
 
+  hexToInt = function hexToInt(string) {
+    return web3.toBigNumber(string);
+  }
+
+  hexToAddress = function hexToAddress(string) {
+    return '0x' + string.slice(string.length - 40);
+  }
+
   unixTime = function unixTime(time) {
     return moment(time).unix();
   }
@@ -79,6 +87,15 @@ Web3 = require('web3');
   days = function days(number) {
     return number * hours(24);
   };
+
+  keccak256 = function keccak256(string) {
+    return web3.sha3(string);
+  }
+
+  logTopic = function logTopic(string) {
+    let hash = keccak256(string);
+    return '0x' + hash.slice(26);
+  }
 
   getLatestBlock = async function getLatestBlock() {
     return await eth.getBlock('latest', false);
@@ -149,6 +166,13 @@ Web3 = require('web3');
 
   encodeAddress = function encodeAddress(address) {
     return '000000000000000000000000' + address.slice(2);
+  }
+
+  encodeBytes = function encodeBytes(bytes) {
+    let zeros = "0000000000000000000000000000000000000000000000000000000000000000";
+    let padded = bytes.padEnd(64, 0);
+    let length = encodeUint256(bytes.length / 2);
+    return length + padded;
   }
 
   checkPublicABI = function checkPublicABI(contract, expectedPublic) {
