@@ -7,9 +7,9 @@ import './Standard223Token.sol';
 
 contract LinkToken is Standard223Token {
 
-  uint public constant totalSupply = 10**18;
+  uint public constant totalSupply = 10**27;
   string public constant name = 'ChainLink Token';
-  uint8 public constant decimals = 9;
+  uint8 public constant decimals = 18;
   string public constant symbol = 'LINK';
 
   function LinkToken()

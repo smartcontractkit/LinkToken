@@ -34,7 +34,7 @@ contract('LinkToken', () => {
   it("assigns all of the balance to the owner", async () => {
     let balance = await token.balanceOf.call(owner);
 
-    assert.equal(balance.toString(), bigNum(10**18).toString());
+    assert.equal(balance.toString(), '1e+27');
   });
 
   describe("#transfer(address,uint256)", () => {
