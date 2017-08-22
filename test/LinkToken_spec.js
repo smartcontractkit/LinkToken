@@ -24,6 +24,8 @@ contract('LinkToken', () => {
       'allowance',
       'approve',
       'balanceOf',
+      'decreaseApproval',
+      'increaseApproval',
       'transfer',
       'transferFrom',
     ];
