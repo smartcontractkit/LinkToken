@@ -12,8 +12,8 @@ contract Standard223Token is ERC223, StandardToken {
   public returns (bool success)
   {
     super.transfer(_to, _value);
+    Transfer(msg.sender, _to, _value, _data);
     if (isContract(_to)) {
-      Transfer(msg.sender, _to, _value, _data);
       contractFallback(_to, _value, _data);
     }
     return true;
