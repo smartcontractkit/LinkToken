@@ -26,6 +26,17 @@ contract('Standard223Token', (accounts) => {
       assert(calledFallback);
     });
 
+    it("returns true when the transfer succeeds", async () => {
+      let success = await token.transfer.call(receiver.address, 100);
+      assert(success);
+    });
+
+    it("throws when the transfer fails", async () => {
+      await assertActionThrows(async () => {
+        await token.transfer.call(receiver.address, 100000);
+      });
+    });
+
     context("when sending to a contract that is not ERC223 compatible", () => {
       it("throws an error", async () => {
         await assertActionThrows(async () => {
@@ -47,6 +58,17 @@ contract('Standard223Token', (accounts) => {
 
       let calledFallback = await receiver.calledFallback();
       assert(calledFallback);
+    });
+
+    it("returns true when the transfer succeeds", async () => {
+      let success = await token.transfer(receiver.address, 100, "0xdeadbeef", {});
+      assert(success);
+    });
+
+    it("throws when the transfer fails", async () => {
+      await assertActionThrows(async () => {
+        await token.transfer(receiver.address, 100000, "0xdeadbeef", {});
+      });
     });
 
     context("when sending to a contract that is not ERC223 compatible", () => {

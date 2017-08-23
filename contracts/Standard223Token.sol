@@ -8,6 +8,12 @@ import "./token/StandardToken.sol";
 
 contract Standard223Token is ERC223, StandardToken {
 
+  /**
+  * @dev transfer token to a specified address with data.
+  * @param _to The address to transfer to.
+  * @param _value The amount to be transferred.
+  * @param _data The extra data to be passed to the receiving contract.
+  */
   function transfer(address _to, uint _value, bytes _data)
   public returns (bool success)
   {
@@ -19,6 +25,11 @@ contract Standard223Token is ERC223, StandardToken {
     return true;
   }
 
+  /**
+  * @dev transfer token to a specified address.
+  * @param _to The address to transfer to.
+  * @param _value The amount to be transferred.
+  */
   function transfer(address _to, uint _value)
   public returns (bool success)
   {
