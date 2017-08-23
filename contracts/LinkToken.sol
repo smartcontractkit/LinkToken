@@ -19,14 +19,26 @@ contract LinkToken is Standard223Token {
   }
 
   /**
-  * @dev transfer token for a specified address.
+  * @dev transfer token to a specified address with data.
+  * @param _to The address to transfer to.
+  * @param _value The amount to be transferred.
+  * @param _data The extra data to be passed to the receiving contract.
+  */
+  function transfer(address _to, uint _value, bytes _data)
+  public validRecipient(_to) returns (bool success)
+  {
+    return super.transfer(_to, _value, _data);
+  }
+
+  /**
+  * @dev transfer token to a specified address.
   * @param _to The address to transfer to.
   * @param _value The amount to be transferred.
   */
   function transfer(address _to, uint _value)
   public validRecipient(_to) returns (bool success)
   {
-    super.transfer(_to, _value);
+    return super.transfer(_to, _value);
   }
 
 

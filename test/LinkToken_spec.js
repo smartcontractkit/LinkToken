@@ -63,6 +63,38 @@ contract('LinkToken', () => {
       assert.equal(await token.balanceOf.call(recipient.address), 0);
     });
 
+    it("does not let you transfer to an empty address", async () => {
+      await assertActionThrows(async () => {
+        let data = "be45fd62" + // transfer(address,uint256,bytes)
+          encodeAddress(token.address) +
+          encodeUint256(value) +
+          encodeUint256(96) +
+          encodeBytes("");
+
+        await sendTransaction({
+          from: owner,
+          to: token.address,
+          data: data,
+        });
+      });
+    });
+
+    it("does not let you transfer to the contract itself", async () => {
+      await assertActionThrows(async () => {
+        let data = "be45fd62" + // transfer(address,uint256,bytes)
+          encodeAddress(emptyAddress) +
+          encodeUint256(value) +
+          encodeUint256(96) +
+          encodeBytes("");
+
+        await sendTransaction({
+          from: owner,
+          to: token.address,
+          data: data,
+        });
+      });
+    });
+
     it("transfers the amount to the contract and calls the contract", async () => {
       let data = "be45fd62" + // transfer(address,uint256,bytes)
         encodeAddress(recipient.address) +
