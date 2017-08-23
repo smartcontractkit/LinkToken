@@ -78,8 +78,6 @@ contract('LinkToken', () => {
 
       assert.equal(await token.balanceOf.call(recipient.address), value);
       assert.equal(await token.allowance.call(owner, recipient.address), 0);
-      // assert.equal(await recipient.lastTransferSender.call(), owner);
-      // assert.equal(await recipient.lastTransferAmount.call(), value);
       assert.equal(await recipient.fallbackCalled.call(), true);
       assert.equal(await recipient.callDataCalled.call(), true);
     });

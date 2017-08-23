@@ -1,10 +1,7 @@
 pragma solidity ^0.4.8;
 
 
-import "../Standard223Receiver.sol";
-
-
-contract Token223ReceiverMock is Standard223Receiver {
+contract Token223ReceiverMock {
     address public tokenSender;
     uint public sentValue;
     bytes public tokenData;
