@@ -46,7 +46,7 @@ contract Standard223Token is ERC223, StandardToken {
   }
 
   function isContract(address _addr)
-  private returns (bool isContract)
+  private returns (bool hasCode)
   {
     uint length;
     assembly { length := extcodesize(_addr) }
