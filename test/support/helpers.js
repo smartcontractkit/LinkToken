@@ -53,7 +53,7 @@ Web3 = require('web3');
   }
 
   tokens = function tokens(number) {
-    return bigNum(number * 10**9);
+    return bigNum(number * 10**18);
   }
 
   intToHex = function intToHex(number) {
