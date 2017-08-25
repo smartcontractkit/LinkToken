@@ -100,7 +100,7 @@ contract('LinkToken', () => {
         encodeAddress(recipient.address) +
         encodeUint256(value) +
         encodeUint256(96) +
-        encodeBytes("fce929c3"); // callbackWithoutWithdrawl(address,address,uint256)
+        encodeBytes("043e94bd"); // callbackWithoutWithdrawl()
 
       await sendTransaction({
         from: owner,

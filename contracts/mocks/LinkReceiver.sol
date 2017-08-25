@@ -9,8 +9,6 @@ contract LinkReceiver {
   bool public fallbackCalled;
   bool public callDataCalled;
   uint public tokensReceived;
-  uint public lastTransferAmount;
-  address public lastTransferSender;
 
 
   function tokenFallback(address _from, uint _amount, bytes _data)
@@ -23,10 +21,6 @@ contract LinkReceiver {
   }
 
   function callbackWithoutWithdrawl() {
-    callDataCalled = true;
-  }
-
-  function callbackWithoutWithdrawl(address _token, address _from, uint _amount) {
     callDataCalled = true;
   }
 
