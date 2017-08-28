@@ -8,13 +8,12 @@ contract Token223ReceiverMock {
     bool public calledFallback = false;
 
     function tokenFallback(address _sender, uint _value, bytes _data)
-    public returns (bool success) {
+    public {
       calledFallback = true;
 
       tokenSender = _sender;
       sentValue = _value;
       tokenData = _data;
-      return true;
     }
 
 }

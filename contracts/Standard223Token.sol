@@ -25,17 +25,6 @@ contract Standard223Token is ERC223, StandardToken {
     return true;
   }
 
-  /**
-  * @dev transfer token to a specified address.
-  * @param _to The address to transfer to.
-  * @param _value The amount to be transferred.
-  */
-  function transfer(address _to, uint _value)
-  public returns (bool success)
-  {
-    return transfer(_to, _value, new bytes(0));
-  }
-
   // PRIVATE
 
   function contractFallback(address _to, uint _value, bytes _data)

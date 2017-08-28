@@ -45,7 +45,7 @@ contract LinkToken is Standard223Token {
   // MODIFIERS
 
   modifier validRecipient(address _recipient) {
-    require(_recipient != address(0));
+    require(_recipient != address(0) && _recipient != address(this));
     _;
   }
 
