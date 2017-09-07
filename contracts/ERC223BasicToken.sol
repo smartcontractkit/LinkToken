@@ -3,10 +3,9 @@ pragma solidity ^0.4.11;
 
 import "./token/ERC223.sol";
 import "./token/ERC223Receiver.sol";
-import "./token/StandardToken.sol";
 
 
-contract Standard223Token is ERC223, StandardToken {
+contract ERC223BasicToken is ERC223 {
 
   /**
   * @dev transfer token to a specified address with data.
@@ -24,6 +23,7 @@ contract Standard223Token is ERC223, StandardToken {
     }
     return true;
   }
+
 
   // PRIVATE
 

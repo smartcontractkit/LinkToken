@@ -1,6 +1,6 @@
 require('./support/helpers.js')
 
-contract('Standard223Token', (accounts) => {
+contract('ERC223BasicToken', (accounts) => {
   let Token223 = artifacts.require("../contracts/mocks/Token223.sol");
   let Token223ReceiverMock = artifacts.require("../contracts/mocks/Token223ReceiverMock.sol");
   let NotERC223Compatible = artifacts.require("../contracts/mocks/NotERC223Compatible.sol");

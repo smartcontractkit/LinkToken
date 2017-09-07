@@ -1,11 +1,11 @@
 pragma solidity ^0.4.11;
 
 
-import './token/ERC20.sol';
-import './Standard223Token.sol';
+import './ERC223BasicToken.sol';
+import './token/StandardToken.sol';
 
 
-contract LinkToken is Standard223Token {
+contract LinkToken is StandardToken, ERC223BasicToken {
 
   uint public constant totalSupply = 10**27;
   string public constant name = 'ChainLink Token';
