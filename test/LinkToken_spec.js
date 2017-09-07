@@ -7,7 +7,7 @@ contract('LinkToken', () => {
   let LinkReceiver = artifacts.require("./contracts/mocks/LinkReceiver.sol");
   let allowance, owner, recipient, token;
 
-  before(async () => {
+  beforeEach(async () => {
     owner = Accounts[0];
     recipient = Accounts[1];
     token = await LinkToken.new({from: owner});
@@ -129,6 +129,20 @@ contract('LinkToken', () => {
 
       assert.equal(await recipient.fallbackCalled.call(), true);
       assert.equal(await recipient.callDataCalled.call(), false);
+    });
+  });
+
+  describe("#approve", () => {
+    it("allows token approval amounts to be updated without first resetting to zero", async () => {
+      let originalApproval = bigNum(1000);
+      await token.approve(recipient, originalApproval, {from: owner});
+      let approvedAmount = await token.allowance.call(owner, recipient);
+      assert.equal(approvedAmount.toString(), originalApproval.toString());
+
+      let laterApproval = bigNum(2000);
+      await token.approve(recipient, laterApproval, {from: owner});
+      approvedAmount = await token.allowance.call(owner, recipient);
+      assert.equal(approvedAmount.toString(), laterApproval.toString());
     });
   });
 });
