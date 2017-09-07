@@ -30,8 +30,8 @@ contract Standard223Token is ERC223, StandardToken {
   function contractFallback(address _to, uint _value, bytes _data)
   private
   {
-    ERC223Receiver reciever = ERC223Receiver(_to);
-    reciever.tokenFallback(msg.sender, _value, _data);
+    ERC223Receiver receiver = ERC223Receiver(_to);
+    receiver.tokenFallback(msg.sender, _value, _data);
   }
 
   function isContract(address _addr)
