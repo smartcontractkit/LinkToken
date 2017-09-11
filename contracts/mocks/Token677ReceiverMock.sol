@@ -1,7 +1,7 @@
 pragma solidity ^0.4.8;
 
 
-contract Token223ReceiverMock {
+contract Token677ReceiverMock {
     address public tokenSender;
     uint public sentValue;
     bytes public tokenData;

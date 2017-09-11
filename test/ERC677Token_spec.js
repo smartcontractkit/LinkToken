@@ -1,16 +1,16 @@
 require('./support/helpers.js')
 
-contract('ERC223BasicToken', (accounts) => {
-  let Token223 = artifacts.require("../contracts/mocks/Token223.sol");
-  let Token223ReceiverMock = artifacts.require("../contracts/mocks/Token223ReceiverMock.sol");
-  let NotERC223Compatible = artifacts.require("../contracts/mocks/NotERC223Compatible.sol");
+contract('ERC677Token', (accounts) => {
+  let Token677 = artifacts.require("../contracts/mocks/Token677.sol");
+  let Token677ReceiverMock = artifacts.require("../contracts/mocks/Token677ReceiverMock.sol");
+  let NotERC677Compatible = artifacts.require("../contracts/mocks/NotERC677Compatible.sol");
 
   let receiver, sender, token, transferAmount;
 
   beforeEach(async () => {
-    receiver = await Token223ReceiverMock.new();
+    receiver = await Token677ReceiverMock.new();
     sender = Accounts[0];
-    token = await Token223.new(1000);
+    token = await Token677.new(1000);
     transferAmount = 100;
 
     await token.transfer(sender, transferAmount);
@@ -46,20 +46,20 @@ contract('ERC223BasicToken', (accounts) => {
       });
     });
 
-    context("when sending to a contract that is not ERC223 compatible", () => {
-      let nonERC223;
+    context("when sending to a contract that is not ERC677 compatible", () => {
+      let nonERC677;
 
       beforeEach(async () => {
-        nonERC223 = await NotERC223Compatible.new();
+        nonERC677 = await NotERC677Compatible.new();
       });
 
       it("transfers the token", async () => {
-        let balance = await token.balanceOf(nonERC223.address);
+        let balance = await token.balanceOf(nonERC677.address);
         assert.equal(balance, 0);
 
-        await token.transfer(nonERC223.address, transferAmount);
+        await token.transfer(nonERC677.address, transferAmount);
 
-        balance = await token.balanceOf(nonERC223.address);
+        balance = await token.balanceOf(nonERC677.address);
         assert.equal(balance.toString(), transferAmount.toString());
       });
     });
@@ -130,14 +130,14 @@ contract('ERC223BasicToken', (accounts) => {
       });
     });
 
-    context("when sending to a contract that is not ERC223 compatible", () => {
-      let nonERC223;
+    context("when sending to a contract that is not ERC677 compatible", () => {
+      let nonERC677;
 
       beforeEach(async () => {
-        nonERC223 = await NotERC223Compatible.new();
+        nonERC677 = await NotERC677Compatible.new();
 
         let data = "be45fd62" + // transfer(address,uint256,bytes)
-          encodeAddress(nonERC223.address) +
+          encodeAddress(nonERC677.address) +
           encodeUint256(100000) +
           encodeUint256(96) +
           encodeBytes("deadbeef");
@@ -155,7 +155,7 @@ contract('ERC223BasicToken', (accounts) => {
           await sendTransaction(params);
         });
 
-        let balance = await token.balanceOf(nonERC223.address);
+        let balance = await token.balanceOf(nonERC677.address);
         assert.equal(balance.toString(), '0');
       });
     });
