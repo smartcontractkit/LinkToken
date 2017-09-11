@@ -5,6 +5,8 @@ require('./support/helpers.js');
 contract('LinkToken', () => {
   let LinkToken = artifacts.require("./contracts/LinkToken.sol");
   let LinkReceiver = artifacts.require("./contracts/mocks/LinkReceiver.sol");
+  let Token677ReceiverMock = artifacts.require("../contracts/mocks/Token677ReceiverMock.sol");
+  let NotERC677Compatible = artifacts.require("../contracts/mocks/NotERC677Compatible.sol");
   let allowance, owner, recipient, token;
 
   beforeEach(async () => {
@@ -41,15 +43,72 @@ contract('LinkToken', () => {
   });
 
   describe("#transfer(address,uint256)", () => {
+    let receiver, sender, transferAmount;
+
+    beforeEach(async () => {
+      receiver = await Token677ReceiverMock.new();
+      sender = Accounts[1];
+      transferAmount = 100;
+
+      await token.transfer(sender, transferAmount, {from: owner});
+      assert.equal(await receiver.sentValue(), 0);
+    });
+
     it("does not let you transfer to an empty address", async () => {
       await assertActionThrows(async () => {
-        await token.transfer(emptyAddress, 1000, {from: owner});
+        await token.transfer(emptyAddress, transferAmount, {from: sender});
       });
     });
 
     it("does not let you transfer to the contract itself", async () => {
       await assertActionThrows(async () => {
-        await token.transfer(token.address, 1000, {from: owner});
+        await token.transfer(token.address, transferAmount, {from: sender});
+      });
+    });
+
+    it("transfers the tokens", async () => {
+      let balance = await token.balanceOf(receiver.address);
+      assert.equal(balance, 0);
+
+      await token.transfer(receiver.address, transferAmount, {from: sender});
+
+      balance = await token.balanceOf(receiver.address);
+      assert.equal(balance.toString(), transferAmount.toString());
+    });
+
+    it("does NOT call the fallback on transfer", async () => {
+      await token.transfer(receiver.address, transferAmount, {from: sender});
+
+      let calledFallback = await receiver.calledFallback();
+      assert(!calledFallback);
+    });
+
+    it("returns true when the transfer succeeds", async () => {
+      let success = await token.transfer(receiver.address, transferAmount, {from: sender});
+      assert(success);
+    });
+
+    it("throws when the transfer fails", async () => {
+      await assertActionThrows(async () => {
+        await token.transfer(receiver.address, 100000, {from: sender});
+      });
+    });
+
+    context("when sending to a contract that is not ERC677 compatible", () => {
+      let nonERC677;
+
+      beforeEach(async () => {
+        nonERC677 = await NotERC677Compatible.new();
+      });
+
+      it("transfers the token", async () => {
+        let balance = await token.balanceOf(nonERC677.address);
+        assert.equal(balance, 0);
+
+        await token.transfer(nonERC677.address, transferAmount, {from: sender});
+
+        balance = await token.balanceOf(nonERC677.address);
+        assert.equal(balance.toString(), transferAmount.toString());
       });
     });
   });

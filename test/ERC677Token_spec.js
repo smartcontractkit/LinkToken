@@ -17,54 +17,6 @@ contract('ERC677Token', (accounts) => {
     assert.equal(await receiver.sentValue(), 0);
   });
 
-  describe("#transfer(address, uint)", () => {
-    it("transfers the tokens", async () => {
-      let balance = await token.balanceOf(receiver.address);
-      assert.equal(balance, 0);
-
-      await token.transfer(receiver.address, transferAmount);
-
-      balance = await token.balanceOf(receiver.address);
-      assert.equal(balance.toString(), transferAmount.toString());
-    });
-
-    it("does NOT call the fallback on transfer", async () => {
-      await token.transfer(receiver.address, transferAmount);
-
-      let calledFallback = await receiver.calledFallback();
-      assert(!calledFallback);
-    });
-
-    it("returns true when the transfer succeeds", async () => {
-      let success = await token.transfer(receiver.address, transferAmount);
-      assert(success);
-    });
-
-    it("throws when the transfer fails", async () => {
-      await assertActionThrows(async () => {
-        await token.transfer(receiver.address, 100000);
-      });
-    });
-
-    context("when sending to a contract that is not ERC677 compatible", () => {
-      let nonERC677;
-
-      beforeEach(async () => {
-        nonERC677 = await NotERC677Compatible.new();
-      });
-
-      it("transfers the token", async () => {
-        let balance = await token.balanceOf(nonERC677.address);
-        assert.equal(balance, 0);
-
-        await token.transfer(nonERC677.address, transferAmount);
-
-        balance = await token.balanceOf(nonERC677.address);
-        assert.equal(balance.toString(), transferAmount.toString());
-      });
-    });
-  });
-
   describe("#transferAndCall(address, uint, bytes)", () => {
     let params;
 
