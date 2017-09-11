@@ -65,11 +65,11 @@ contract('ERC677Token', (accounts) => {
     });
   });
 
-  describe("#transfer(address, uint, bytes)", () => {
+  describe("#transferAndCall(address, uint, bytes)", () => {
     let params;
 
     beforeEach(() => {
-      let data = "be45fd62" + // transfer(address,uint256,bytes)
+      let data = functionID("transferAndCall(address,uint256,bytes)") +
         encodeAddress(receiver.address) +
         encodeUint256(transferAmount) +
         encodeUint256(96) +
@@ -136,7 +136,7 @@ contract('ERC677Token', (accounts) => {
       beforeEach(async () => {
         nonERC677 = await NotERC677Compatible.new();
 
-        let data = "be45fd62" + // transfer(address,uint256,bytes)
+        let data = functionID("transferAndCall(address,uint256,bytes)") +
           encodeAddress(nonERC677.address) +
           encodeUint256(100000) +
           encodeUint256(96) +

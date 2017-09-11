@@ -8,12 +8,12 @@ import "./token/ERC677Receiver.sol";
 contract ERC677Token is ERC677 {
 
   /**
-  * @dev transfer token to a specified address with data.
+  * @dev transfer token to a contract address with additional data if the recipient is a contact.
   * @param _to The address to transfer to.
   * @param _value The amount to be transferred.
   * @param _data The extra data to be passed to the receiving contract.
   */
-  function transfer(address _to, uint _value, bytes _data)
+  function transferAndCall(address _to, uint _value, bytes _data)
   public returns (bool success)
   {
     super.transfer(_to, _value);

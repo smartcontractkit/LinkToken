@@ -27,6 +27,7 @@ contract('LinkToken', () => {
       'decreaseApproval',
       'increaseApproval',
       'transfer',
+      'transferAndCall',
       'transferFrom',
     ];
 
@@ -65,7 +66,7 @@ contract('LinkToken', () => {
 
     it("does not let you transfer to an empty address", async () => {
       await assertActionThrows(async () => {
-        let data = "be45fd62" + // transfer(address,uint256,bytes)
+        let data = functionID("transferAndCall(address,uint256,bytes)") +
           encodeAddress(token.address) +
           encodeUint256(value) +
           encodeUint256(96) +
@@ -96,7 +97,7 @@ contract('LinkToken', () => {
     });
 
     it("transfers the amount to the contract and calls the contract", async () => {
-      let data = "be45fd62" + // transfer(address,uint256,bytes)
+      let data = functionID("transferAndCall(address,uint256,bytes)") +
         encodeAddress(recipient.address) +
         encodeUint256(value) +
         encodeUint256(96) +
@@ -115,7 +116,7 @@ contract('LinkToken', () => {
     });
 
     it("does not blow up if no data is passed", async () => {
-      let data = "be45fd62" + // transfer(address,uint256,bytes)
+      let data = functionID("transferAndCall(address,uint256,bytes)") +
         encodeAddress(recipient.address) +
         encodeUint256(value) +
         encodeUint256(96) +
