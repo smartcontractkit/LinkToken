@@ -219,4 +219,25 @@ contract('LinkToken', () => {
       });
     });
   });
+
+  describe("#transferFrom", () => {
+    let amount = 1000;
+
+    beforeEach(async () => {
+        await token.transfer(recipient, amount, {from: owner});
+        await token.approve(owner, amount, {from: recipient});
+    });
+
+    it("throws an error when transferring to the null address", async () => {
+      await assertActionThrows(async () => {
+        await token.transferFrom(recipient, emptyAddress, amount, {from: owner});
+      });
+    });
+
+    it("throws an error when transferring to the token itself", async () => {
+      await assertActionThrows(async () => {
+        await token.transferFrom(recipient, token.address, amount, {from: owner});
+      });
+    });
+  });
 });
