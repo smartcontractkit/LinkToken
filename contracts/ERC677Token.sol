@@ -14,7 +14,8 @@ contract ERC677Token is ERC677 {
   * @param _data The extra data to be passed to the receiving contract.
   */
   function transferAndCall(address _to, uint _value, bytes _data)
-  public returns (bool success)
+    public
+    returns (bool success)
   {
     super.transfer(_to, _value);
     Transfer(msg.sender, _to, _value, _data);
@@ -28,17 +29,19 @@ contract ERC677Token is ERC677 {
   // PRIVATE
 
   function contractFallback(address _to, uint _value, bytes _data)
-  private
+    private
   {
     ERC677Receiver receiver = ERC677Receiver(_to);
     receiver.tokenFallback(msg.sender, _value, _data);
   }
 
   function isContract(address _addr)
-  private returns (bool hasCode)
+    private
+    returns (bool hasCode)
   {
     uint length;
     assembly { length := extcodesize(_addr) }
     return length > 0;
   }
+
 }

@@ -13,7 +13,7 @@ contract LinkToken is StandardToken, ERC677Token {
   string public constant symbol = 'LINK';
 
   function LinkToken()
-  public
+    public
   {
     balances[msg.sender] = totalSupply;
   }
@@ -25,7 +25,9 @@ contract LinkToken is StandardToken, ERC677Token {
   * @param _data The extra data to be passed to the receiving contract.
   */
   function transferAndCall(address _to, uint _value, bytes _data)
-  public validRecipient(_to) returns (bool success)
+    public
+    validRecipient(_to)
+    returns (bool success)
   {
     return super.transferAndCall(_to, _value, _data);
   }
@@ -36,7 +38,9 @@ contract LinkToken is StandardToken, ERC677Token {
   * @param _value The amount to be transferred.
   */
   function transfer(address _to, uint _value)
-  public validRecipient(_to) returns (bool success)
+    public
+    validRecipient(_to)
+    returns (bool success)
   {
     return super.transfer(_to, _value);
   }
@@ -47,7 +51,9 @@ contract LinkToken is StandardToken, ERC677Token {
    * @param _value The amount of tokens to be spent.
    */
   function approve(address _spender, uint256 _value)
-  public validRecipient(_spender) returns (bool)
+    public
+    validRecipient(_spender)
+    returns (bool)
   {
     allowed[msg.sender][_spender] = _value;
     Approval(msg.sender, _spender, _value);
@@ -61,7 +67,9 @@ contract LinkToken is StandardToken, ERC677Token {
    * @param _value uint256 the amount of tokens to be transferred
    */
   function transferFrom(address _from, address _to, uint256 _value)
-  public validRecipient(_to) returns (bool)
+    public
+    validRecipient(_to)
+    returns (bool)
   {
     return super.transferFrom(_from, _to, _value);
   }
