@@ -192,4 +192,8 @@ Web3 = require('web3');
     }
   };
 
+  functionID = function functionID(signature) {
+    return web3.sha3(signature).slice(2).slice(0, 8);
+  };
+
 })();

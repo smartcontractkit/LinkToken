@@ -1,19 +1,19 @@
 pragma solidity ^0.4.11;
 
 
-import "./token/ERC223.sol";
-import "./token/ERC223Receiver.sol";
+import "./token/ERC677.sol";
+import "./token/ERC677Receiver.sol";
 
 
-contract ERC223BasicToken is ERC223 {
+contract ERC677Token is ERC677 {
 
   /**
-  * @dev transfer token to a specified address with data.
+  * @dev transfer token to a contract address with additional data if the recipient is a contact.
   * @param _to The address to transfer to.
   * @param _value The amount to be transferred.
   * @param _data The extra data to be passed to the receiving contract.
   */
-  function transfer(address _to, uint _value, bytes _data)
+  function transferAndCall(address _to, uint _value, bytes _data)
   public returns (bool success)
   {
     super.transfer(_to, _value);
@@ -30,7 +30,7 @@ contract ERC223BasicToken is ERC223 {
   function contractFallback(address _to, uint _value, bytes _data)
   private
   {
-    ERC223Receiver receiver = ERC223Receiver(_to);
+    ERC677Receiver receiver = ERC677Receiver(_to);
     receiver.tokenFallback(msg.sender, _value, _data);
   }
 

@@ -1,11 +1,11 @@
 pragma solidity ^0.4.11;
 
 
-import './ERC223BasicToken.sol';
+import './ERC677Token.sol';
 import './token/StandardToken.sol';
 
 
-contract LinkToken is StandardToken, ERC223BasicToken {
+contract LinkToken is StandardToken, ERC677Token {
 
   uint public constant totalSupply = 10**27;
   string public constant name = 'ChainLink Token';
@@ -19,15 +19,15 @@ contract LinkToken is StandardToken, ERC223BasicToken {
   }
 
   /**
-  * @dev transfer token to a specified address with data.
+  * @dev transfer token to a specified address with additional data if the recipient is a contract.
   * @param _to The address to transfer to.
   * @param _value The amount to be transferred.
   * @param _data The extra data to be passed to the receiving contract.
   */
-  function transfer(address _to, uint _value, bytes _data)
+  function transferAndCall(address _to, uint _value, bytes _data)
   public validRecipient(_to) returns (bool success)
   {
-    return super.transfer(_to, _value, _data);
+    return super.transferAndCall(_to, _value, _data);
   }
 
   /**
