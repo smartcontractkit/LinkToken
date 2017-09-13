@@ -7,7 +7,7 @@ contract Token677ReceiverMock {
     bytes public tokenData;
     bool public calledFallback = false;
 
-    function tokenFallback(address _sender, uint _value, bytes _data)
+    function onTokenTransfer(address _sender, uint _value, bytes _data)
     public {
       calledFallback = true;
 
