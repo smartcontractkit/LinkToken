@@ -46,7 +46,9 @@ contract LinkToken is StandardToken, ERC677Token {
    * @param _spender The address which will spend the funds.
    * @param _value The amount of tokens to be spent.
    */
-  function approve(address _spender, uint256 _value) returns (bool) {
+  function approve(address _spender, uint256 _value)
+  public validRecipient(_spender) returns (bool)
+  {
     allowed[msg.sender][_spender] = _value;
     Approval(msg.sender, _spender, _value);
     return true;

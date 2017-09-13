@@ -54,7 +54,7 @@ contract('LinkToken', () => {
       assert.equal(await receiver.sentValue(), 0);
     });
 
-    it("does not let you transfer to an empty address", async () => {
+    it("does not let you transfer to the null address", async () => {
       await assertActionThrows(async () => {
         await token.transfer(emptyAddress, transferAmount, {from: sender});
       });
@@ -193,6 +193,8 @@ contract('LinkToken', () => {
   });
 
   describe("#approve", () => {
+    let amount = 1000;
+
     it("allows token approval amounts to be updated without first resetting to zero", async () => {
       let originalApproval = bigNum(1000);
       await token.approve(recipient, originalApproval, {from: owner});
@@ -203,6 +205,18 @@ contract('LinkToken', () => {
       await token.approve(recipient, laterApproval, {from: owner});
       approvedAmount = await token.allowance.call(owner, recipient);
       assert.equal(approvedAmount.toString(), laterApproval.toString());
+    });
+
+    it("throws an error when approving the null address", async () => {
+      await assertActionThrows(async () => {
+        await token.approve(emptyAddress, amount, {from: owner});
+      });
+    });
+
+    it("throws an error when approving the token itself", async () => {
+      await assertActionThrows(async () => {
+        await token.approve(token.address, amount, {from: owner});
+      });
     });
   });
 });
