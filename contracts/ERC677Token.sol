@@ -32,7 +32,7 @@ contract ERC677Token is ERC677 {
     private
   {
     ERC677Receiver receiver = ERC677Receiver(_to);
-    receiver.tokenFallback(msg.sender, _value, _data);
+    receiver.onTokenTransfer(msg.sender, _value, _data);
   }
 
   function isContract(address _addr)

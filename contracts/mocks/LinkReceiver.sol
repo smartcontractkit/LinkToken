@@ -11,7 +11,7 @@ contract LinkReceiver {
   uint public tokensReceived;
 
 
-  function tokenFallback(address _from, uint _amount, bytes _data)
+  function onTokenTransfer(address _from, uint _amount, bytes _data)
   public returns (bool success) {
     fallbackCalled = true;
     if (_data.length > 0) {
