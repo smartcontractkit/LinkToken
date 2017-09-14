@@ -55,9 +55,7 @@ contract LinkToken is StandardToken, ERC677Token {
     validRecipient(_spender)
     returns (bool)
   {
-    allowed[msg.sender][_spender] = _value;
-    Approval(msg.sender, _spender, _value);
-    return true;
+    return super.approve(_spender,  _value);
   }
 
   /**
