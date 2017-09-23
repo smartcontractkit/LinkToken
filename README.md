@@ -17,12 +17,12 @@ Security audit available [here](https://gist.github.com/Arachnid/4aa88041bd6e348
 ### Solidity ABI:
 ```
 contract LinkToken {
-    function allowance(address,address) returns (bool success);
+    function allowance(address owner, address spender) returns (bool success);
     function approve(address spender, uint256 value) returns (bool success);
     function balanceOf(address owner) returns (uint256 balance);
     function decimals() returns (uint8 decimalPlaces);
-    function decreaseApproval(address,uint256) reutrns (bool success);
-    function increaseApproval(address,uint256);
+    function decreaseApproval(address spender, uint256 addedValue) reutrns (bool success);
+    function increaseApproval(address spender, uint256 subtractedValue);
     function name() returns (string tokenName);
     function symbol() returns (string tokenSymbol);
     function totalSupply() returns (uint256 totalTokensIssued);
