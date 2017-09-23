@@ -6,6 +6,8 @@ The total supply of the token is 1,000,000,000, and each token is divisibe up to
 
 To prevent accidental burns, the token does not allow transfers to the contract itself and to 0x0.
 
+Security audit available [here](https://gist.github.com/Arachnid/4aa88041bd6e34835b8c0fd051245e79).
+
 ## Details
 - Address: [0x514910771AF9Ca656af840dff83E8264EcF986CA](https://etherscan.io/address/0x514910771af9ca656af840dff83e8264ecf986ca)
 - Decimals: 18
