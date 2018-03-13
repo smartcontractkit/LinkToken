@@ -1,4 +1,4 @@
-# LINK Token Contracts
+# LINK Token Contracts [![Build Status](https://travis-ci.org/smartcontractkit/LinkToken.svg?branch=master)](https://travis-ci.org/smartcontractkit/LinkToken)
 
 The LINK token is an [EIP20](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md) token with additional [ERC667](https://github.com/ethereum/EIPs/issues/677) functionality.
 
