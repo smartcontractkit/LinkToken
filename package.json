@@ -1,5 +1,7 @@
 {
-  "name": "token_sale",
+  "name": "linkToken",
+  "homepage": "https://github.com/smartcontractkit/LinkToken",
+  "version": "1.0.0",
   "authors": [
     "Steve Ellis <steve@smartcontract.com>"
   ],
@@ -14,8 +16,6 @@
     "web3": "^0.19.1",
     "webpack": "^4.1.1"
   },
-  "homepage": "",
-  "private": true,
   "ignore": [
     "**/.*",
     "node_modules",
