@@ -1,13 +1,12 @@
 BigNumber = require('bignumber.js');
-TestRPC = require('ethereumjs-testrpc');
 moment = require('moment');
 Web3 = require('web3');
 
 (() => {
   eth = web3.eth;
 
-  before(async function () {
-    accounts = await eth.accounts;
+  before(function () {
+    accounts = eth.accounts;
     Accounts = accounts.slice(1);
   });
 
@@ -152,10 +151,12 @@ Web3 = require('web3');
       })
       .then(errorMessage => {
         assert(errorMessage, "Expected an error to be raised");
-        assert.include(errorMessage, "invalid opcode", 'expected error message to include "invalid JUMP"');
+        invalidOpcode = errorMessage.includes("invalid opcode")
+        reverted = errorMessage.includes("VM Exception while processing transaction: revert")
+        assert.isTrue(invalidOpcode || reverted, 'expected error message to include "invalid JUMP" or "revert"');
         // see https://github.com/ethereumjs/testrpc/issues/39
         // for why the "invalid JUMP" is the throw related error when using TestRPC
-      })
+      });
   };
 
   encodeUint256 = function encodeUint256(int) {
