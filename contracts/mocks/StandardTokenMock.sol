@@ -1,7 +1,7 @@
 pragma solidity ^0.4.8;
 
 
-import '../token/StandardToken.sol';
+import 'openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol';
 
 
 contract StandardTokenMock is StandardToken {

@@ -2,7 +2,7 @@ pragma solidity ^0.4.11;
 
 
 import "../ERC677Token.sol";
-import "../token/StandardToken.sol";
+import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 
 
 contract Token677 is StandardToken, ERC677Token {
