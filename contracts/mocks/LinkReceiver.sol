@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
 
-import '../token/ERC20.sol';
+import 'openzeppelin-solidity/contracts/token/ERC20/ERC20.sol';
 
 
 contract LinkReceiver {

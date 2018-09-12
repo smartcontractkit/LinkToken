@@ -2,12 +2,11 @@ pragma solidity ^0.4.11;
 
 
 import './ERC677Token.sol';
-import './token/StandardToken.sol';
+import 'openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol';
 
 
 contract LinkToken is StandardToken, ERC677Token {
 
-  uint public constant totalSupply = 10**27;
   string public constant name = 'ChainLink Token';
   uint8 public constant decimals = 18;
   string public constant symbol = 'LINK';
@@ -15,7 +14,8 @@ contract LinkToken is StandardToken, ERC677Token {
   function LinkToken()
     public
   {
-    balances[msg.sender] = totalSupply;
+    totalSupply_ = 10**27;
+    balances[msg.sender] = totalSupply_;
   }
 
   /**
