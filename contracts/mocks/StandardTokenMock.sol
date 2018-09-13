@@ -1,10 +1,10 @@
 pragma solidity ^0.4.8;
 
 
-import '../token/StandardToken.sol';
+import '../token/linkStandardToken.sol';
 
 
-contract StandardTokenMock is StandardToken {
+contract StandardTokenMock is linkStandardToken {
 
   function StandardTokenMock(address initialAccount, uint initialBalance)
   {

@@ -2,10 +2,10 @@ pragma solidity ^0.4.11;
 
 
 import './ERC677Token.sol';
-import './token/StandardToken.sol';
+import './token/linkStandardToken.sol';
 
 
-contract LinkToken is StandardToken, ERC677Token {
+contract LinkToken is linkStandardToken, ERC677Token {
 
   uint public constant totalSupply = 10**27;
   string public constant name = 'ChainLink Token';
