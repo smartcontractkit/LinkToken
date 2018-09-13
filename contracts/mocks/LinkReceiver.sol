@@ -1,7 +1,7 @@
 pragma solidity ^0.4.11;
 
 
-import '../token/ERC20.sol';
+import '../token/linkERC20.sol';
 
 
 contract LinkReceiver {
@@ -26,7 +26,7 @@ contract LinkReceiver {
 
   function callbackWithWithdrawl(uint _value, address _from, address _token) {
     callDataCalled = true;
-    ERC20 token = ERC20(_token);
+    linkERC20 token = linkERC20(_token);
     token.transferFrom(_from, this, _value);
     tokensReceived = _value;
   }
