@@ -1,7 +1,9 @@
 {
   "name": "linkToken",
   "homepage": "https://github.com/smartcontractkit/LinkToken",
-  "version": "1.0.0",
+  "repository": "https://github.com/smartcontractkit/LinkToken",
+  "version": "1.0.1",
+  "license": "MIT",
   "authors": [
     "Steve Ellis <steve@smartcontract.com>"
   ],
@@ -14,7 +16,7 @@
     "truffle": "^4.0.4",
     "truffle-config": "^1.0.0",
     "web3": "^0.19.1",
-    "webpack": "^4.1.1"
+    "webpack": "^4.20.2"
   },
   "ignore": [
     "**/.*",
