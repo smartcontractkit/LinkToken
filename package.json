@@ -1,7 +1,9 @@
 {
   "name": "linkToken",
   "homepage": "https://github.com/smartcontractkit/LinkToken",
-  "version": "1.0.0",
+  "repository": "https://github.com/smartcontractkit/LinkToken",
+  "version": "1.0.1",
+  "license": "MIT",
   "authors": [
     "Steve Ellis <steve@smartcontract.com>"
   ],
