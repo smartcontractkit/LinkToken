@@ -2,7 +2,7 @@
   "name": "link_token",
   "homepage": "https://github.com/smartcontractkit/LinkToken",
   "repository": "https://github.com/smartcontractkit/LinkToken",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "license": "MIT",
   "authors": [
     "Steve Ellis <steve@smartcontract.com>"
