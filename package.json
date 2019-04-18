@@ -7,7 +7,7 @@
   "authors": [
     "Steve Ellis <steve@smartcontract.com>"
   ],
-  "dependencies": {
+  "devDependencies": {
     "bignumber.js": "^2.0.0",
     "ganache-cli": "^6.4.1",
     "moment": "^2.15.2",
