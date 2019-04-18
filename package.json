@@ -2,7 +2,7 @@
   "name": "link_token",
   "homepage": "https://github.com/smartcontractkit/LinkToken",
   "repository": "https://github.com/smartcontractkit/LinkToken",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "license": "MIT",
   "authors": [
     "Steve Ellis <steve@smartcontract.com>"
@@ -17,11 +17,8 @@
     "web3": "^0.19.1",
     "webpack": "^4.20.2"
   },
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
+  "files": [
+    "README.md",
+    "contracts"
   ]
 }
