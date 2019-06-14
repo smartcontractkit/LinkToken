@@ -39,7 +39,7 @@ contract LinkToken {
 
 ## Installation
 ```
-npm install
+yarn install
 ```
 
 ## Testing
