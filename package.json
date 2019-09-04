@@ -12,7 +12,7 @@
     "ganache-cli": "^6.4.1",
     "moment": "^2.15.2",
     "solc": "^0.4.11",
-    "truffle": "^4.1.15",
+    "truffle": "^5.0.0",
     "web3": "^1.0.0-beta.55"
   },
   "files": [
