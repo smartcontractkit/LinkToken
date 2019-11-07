@@ -18,5 +18,10 @@
   "files": [
     "README.md",
     "contracts"
-  ]
+  ],
+  "scripts": {
+    "migrate-ganache": "truffle migrate --network ganache",
+    "test": "truffle test",
+    "test-ganache": "truffle test --network ganache"
+  }
 }
