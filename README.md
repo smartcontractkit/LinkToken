@@ -43,12 +43,20 @@ yarn install
 ```
 
 ## Testing
-Run a test network:
 ```
-./server.sh
+yarn test
 ```
 
-Then, run the test suite:
+If Ganache is already running on port 7545 (its default port), you must run:
 ```
-truffle test
+yarn test-ganache
 ```
+
+This will instruct the tests to run against your locally deployed instance of Ganache.
+
+## Migration
+```
+yarn migrate-ganache
+```
+
+This will migrate the `LinkToken` contract to your locally deployed instance of Ganache.
