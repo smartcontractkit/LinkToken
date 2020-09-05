@@ -3,7 +3,7 @@
 require('../support/zeppelinHelpers.js')
 
 contract('BasicToken', function (accounts) {
-  var BasicTokenMock = artifacts.require('./helpers/BasicTokenMock.sol')
+  var BasicTokenMock = artifacts.require('./helpers/StandardTokenMock.sol')
 
   it('should return the correct totalSupply after construction', async function () {
     let token = await BasicTokenMock.new(accounts[0], 100)
@@ -29,7 +29,7 @@ contract('BasicToken', function (accounts) {
       let transfer = await token.transfer(accounts[1], 101)
       assert.fail('should have thrown before')
     } catch (error) {
-      assertJump(error)
+      assertJump(error, 'revert ERC20: transfer amount exceeds balance')
     }
   })
 })

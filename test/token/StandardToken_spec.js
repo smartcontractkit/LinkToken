@@ -40,7 +40,7 @@ contract('StandardToken', function (accounts) {
       await token.transfer(accounts[1], 101)
       assert.fail('should have thrown before')
     } catch (error) {
-      assertJump(error)
+      assertJump(error, 'revert ERC20: transfer amount exceeds balance')
     }
   })
 
@@ -69,7 +69,7 @@ contract('StandardToken', function (accounts) {
       })
       assert.fail('should have thrown before')
     } catch (error) {
-      assertJump(error)
+      assertJump(error, 'revert ERC20: transfer amount exceeds allowance')
     }
   })
 
@@ -77,13 +77,13 @@ contract('StandardToken', function (accounts) {
     let preApproved
 
     it('should start with zero', async function () {
-      preApproved = await token.allowance(accounts[0], accounts[1])
+      preApproved = bigNum(await token.allowance(accounts[0], accounts[1]))
       assert.equal(preApproved, 0)
     })
 
     it('should increase by 50 then decrease by 10', async function () {
       await token.increaseApproval(accounts[1], 50)
-      let postIncrease = await token.allowance(accounts[0], accounts[1])
+      let postIncrease = bigNum(await token.allowance(accounts[0], accounts[1]))
       assert.equal(preApproved.plus(50).toString(), postIncrease.toString())
       await token.decreaseApproval(accounts[1], 10)
       let postDecrease = await token.allowance(accounts[0], accounts[1])

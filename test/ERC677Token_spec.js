@@ -9,7 +9,7 @@ contract('ERC677Token', (accounts) => {
 
   beforeEach(async () => {
     receiver = await Token677ReceiverMock.new()
-    sender = Accounts[0]
+    sender = accounts[0]
     token = await Token677.new(1000)
     transferAmount = 100
 

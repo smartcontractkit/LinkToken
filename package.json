@@ -11,8 +11,8 @@
     "bignumber.js": "^2.0.0",
     "ganache-cli": "^6.4.1",
     "moment": "^2.15.2",
-    "solc": "^0.4.11",
-    "truffle": "^4.1.15",
+    "solc": "^0.6.0",
+    "truffle": "^5.1.32",
     "web3": "^1.0.0-beta.55"
   },
   "files": [
@@ -23,5 +23,8 @@
     "migrate-ganache": "truffle migrate --network ganache",
     "test": "truffle test",
     "test-ganache": "truffle test --network ganache"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^3.1.0"
   }
 }

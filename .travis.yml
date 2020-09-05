@@ -2,6 +2,6 @@ dist: trusty
 sudo: required
 language: node_js
 node_js:
-  - "8"
+  - '10'
 script:
   - ./server.sh & truffle test

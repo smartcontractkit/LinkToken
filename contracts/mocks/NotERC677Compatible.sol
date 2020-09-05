@@ -1,6 +1,3 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.6.0;
 
-
-contract NotERC677Compatible {
-
-}
+contract NotERC677Compatible {}

@@ -4,11 +4,6 @@ Web3 = require('web3')
 ;(() => {
   eth = web3.eth
 
-  before(function () {
-    accounts = eth.accounts
-    Accounts = accounts.slice(1)
-  })
-
   Eth = function sendEth(method, params) {
     params = params || []
 
@@ -92,7 +87,7 @@ Web3 = require('web3')
   }
 
   keccak256 = function keccak256(string) {
-    return web3.sha3(string)
+    return web3.utils.sha3(string)
   }
 
   logTopic = function logTopic(string) {
@@ -202,6 +197,6 @@ Web3 = require('web3')
   }
 
   functionID = function functionID(signature) {
-    return web3.sha3(signature).slice(2).slice(0, 8)
+    return web3.utils.sha3(signature).slice(2).slice(0, 8)
   }
 })()

@@ -2,7 +2,7 @@
 
 require('./support/helpers.js')
 
-contract('LinkToken', () => {
+contract('LinkToken', (accounts) => {
   let LinkToken = artifacts.require('./contracts/LinkToken.sol')
   let LinkReceiver = artifacts.require('./contracts/mocks/LinkReceiver.sol')
   let Token677ReceiverMock = artifacts.require('../contracts/mocks/Token677ReceiverMock.sol')
@@ -10,8 +10,8 @@ contract('LinkToken', () => {
   let allowance, owner, recipient, token
 
   beforeEach(async () => {
-    owner = Accounts[0]
-    recipient = Accounts[1]
+    owner = accounts[0]
+    recipient = accounts[1]
     token = await LinkToken.new({ from: owner })
   })
 
@@ -28,6 +28,8 @@ contract('LinkToken', () => {
       'balanceOf',
       'decreaseApproval',
       'increaseApproval',
+      'decreaseAllowance',
+      'increaseAllowance',
       'transfer',
       'transferAndCall',
       'transferFrom',
@@ -37,9 +39,9 @@ contract('LinkToken', () => {
   })
 
   it('assigns all of the balance to the owner', async () => {
-    let balance = await token.balanceOf.call(owner)
+    let balance = await token.balanceOf(owner)
 
-    assert.equal(balance.toString(), '1e+27')
+    assert.equal(balance.toString(), '1000000000000000000000000000')
   })
 
   describe('#transfer(address,uint256)', () => {
@@ -47,7 +49,7 @@ contract('LinkToken', () => {
 
     beforeEach(async () => {
       receiver = await Token677ReceiverMock.new()
-      sender = Accounts[1]
+      sender = accounts[1]
       transferAmount = 100
 
       await token.transfer(sender, transferAmount, { from: owner })

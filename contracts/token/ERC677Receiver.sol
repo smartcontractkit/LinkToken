@@ -1,6 +1,5 @@
-pragma solidity ^0.4.8;
+pragma solidity ^0.6.0;
 
-
-contract ERC677Receiver {
-  function onTokenTransfer(address _sender, uint _value, bytes _data);
+abstract contract ERC677Receiver {
+  function onTokenTransfer(address _sender, uint _value, bytes memory _data) public virtual;
 }

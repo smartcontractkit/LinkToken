@@ -1,21 +1,19 @@
-pragma solidity ^0.4.11;
-
+pragma solidity ^0.6.0;
 
 import './ERC677Token.sol';
-import './token/linkStandardToken.sol';
 
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract LinkToken is linkStandardToken, ERC677Token {
+contract LinkToken is ERC20, ERC677Token {
 
-  uint public constant totalSupply = 10**27;
-  string public constant name = 'ChainLink Token';
-  uint8 public constant decimals = 18;
-  string public constant symbol = 'LINK';
+  uint private constant TOTAL_SUPPLY = 10**27;
+  string private constant NAME = 'ChainLink Token';
+  string private constant SYMBOL = 'LINK';
 
-  function LinkToken()
+  constructor() ERC20(NAME, SYMBOL)
     public
   {
-    balances[msg.sender] = totalSupply;
+    _mint(msg.sender, TOTAL_SUPPLY);
   }
 
   /**
@@ -24,8 +22,9 @@ contract LinkToken is linkStandardToken, ERC677Token {
   * @param _value The amount to be transferred.
   * @param _data The extra data to be passed to the receiving contract.
   */
-  function transferAndCall(address _to, uint _value, bytes _data)
+  function transferAndCall(address _to, uint _value, bytes memory _data)
     public
+    override
     validRecipient(_to)
     returns (bool success)
   {
@@ -39,6 +38,7 @@ contract LinkToken is linkStandardToken, ERC677Token {
   */
   function transfer(address _to, uint _value)
     public
+    override
     validRecipient(_to)
     returns (bool success)
   {
@@ -52,10 +52,53 @@ contract LinkToken is linkStandardToken, ERC677Token {
    */
   function approve(address _spender, uint256 _value)
     public
+    override
     validRecipient(_spender)
     returns (bool)
   {
     return super.approve(_spender,  _value);
+  }
+
+  /**
+   * @dev Atomically increases the allowance granted to `spender` by the caller.
+   *
+   * This is an alternative to {approve} that can be used as a mitigation for
+   * problems described in {IERC20-approve}.
+   *
+   * Emits an {Approval} event indicating the updated allowance.
+   *
+   * Requirements:
+   *
+   * - `spender` cannot be the zero address.
+   */
+  function increaseApproval(address spender, uint256 addedValue)
+    public
+    virtual
+    returns (bool)
+  {
+      return super.increaseAllowance(spender, addedValue);
+  }
+
+  /**
+   * @dev Atomically decreases the allowance granted to `spender` by the caller.
+   *
+   * This is an alternative to {approve} that can be used as a mitigation for
+   * problems described in {IERC20-approve}.
+   *
+   * Emits an {Approval} event indicating the updated allowance.
+   *
+   * Requirements:
+   *
+   * - `spender` cannot be the zero address.
+   * - `spender` must have allowance for the caller of at least
+   * `subtractedValue`.
+   */
+  function decreaseApproval(address spender, uint256 subtractedValue)
+    public
+    virtual
+    returns (bool)
+  {
+      return super.decreaseAllowance(spender, subtractedValue);
   }
 
   /**
@@ -66,6 +109,7 @@ contract LinkToken is linkStandardToken, ERC677Token {
    */
   function transferFrom(address _from, address _to, uint256 _value)
     public
+    override
     validRecipient(_to)
     returns (bool)
   {

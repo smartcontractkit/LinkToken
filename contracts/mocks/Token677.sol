@@ -1,19 +1,13 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.6.0;
 
-
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "../ERC677Token.sol";
-import "../token/linkStandardToken.sol";
 
+contract Token677 is ERC20, ERC677Token {
+    string private constant NAME = "Example ERC677 Token";
+    string private constant SYMBOL = "ERC677";
 
-contract Token677 is linkStandardToken, ERC677Token {
-    string public constant name = "Example ERC677 Token";
-    string public constant symbol = "ERC677";
-    uint8 public constant decimals = 18;
-    uint256 public totalSupply;
-
-    function Token677(uint _initialBalance)
-    {
-        balances[msg.sender] = _initialBalance;
-        totalSupply = _initialBalance;
+    constructor(uint _initialBalance) ERC20(NAME, SYMBOL) public {
+        _mint(msg.sender, _initialBalance);
     }
 }

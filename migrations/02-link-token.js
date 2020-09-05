@@ -1,5 +1,5 @@
-const LinkToken = artifacts.require("LinkToken");
+const LinkToken = artifacts.require('LinkToken')
 
 module.exports = function (deployer) {
-  deployer.deploy(LinkToken);
-};
+  deployer.deploy(LinkToken)
+}

@@ -1,34 +1,29 @@
-pragma solidity ^0.4.11;
+pragma solidity ^0.6.0;
 
-
-import '../token/linkERC20.sol';
-
-
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract LinkReceiver {
 
   bool public fallbackCalled;
   bool public callDataCalled;
   uint public tokensReceived;
 
-
-  function onTokenTransfer(address _from, uint _amount, bytes _data)
-  public returns (bool success) {
+  function onTokenTransfer(address _from, uint _amount, bytes memory _data) public returns (bool) {
     fallbackCalled = true;
     if (_data.length > 0) {
-      require(address(this).delegatecall(_data, msg.sender, _from, _amount));
+      (bool success, bytes memory _returnData) = address(this).delegatecall(_data);
+      require(success, "onTokenTransfer:delegatecall failed");
     }
     return true;
   }
 
-  function callbackWithoutWithdrawl() {
+  function callbackWithoutWithdrawl() public {
     callDataCalled = true;
   }
 
-  function callbackWithWithdrawl(uint _value, address _from, address _token) {
+  function callbackWithWithdrawl(uint _value, address _from, address _token) public {
     callDataCalled = true;
-    linkERC20 token = linkERC20(_token);
-    token.transferFrom(_from, this, _value);
+    IERC20 token = IERC20(_token);
+    token.transferFrom(_from, address(this), _value);
     tokensReceived = _value;
   }
-
 }
