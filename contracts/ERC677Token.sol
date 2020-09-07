@@ -7,11 +7,11 @@ import "./token/ERC677Receiver.sol";
 abstract contract ERC677Token is ERC20, ERC677 {
 
   /**
-  * @dev transfer token to a contract address with additional data if the recipient is a contact.
-  * @param _to The address to transfer to.
-  * @param _value The amount to be transferred.
-  * @param _data The extra data to be passed to the receiving contract.
-  */
+   * @dev transfer token to a contract address with additional data if the recipient is a contact.
+   * @param _to The address to transfer to.
+   * @param _value The amount to be transferred.
+   * @param _data The extra data to be passed to the receiving contract.
+   */
   function transferAndCall(address _to, uint _value, bytes memory _data)
     public
     override

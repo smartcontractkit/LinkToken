@@ -1,10 +1,10 @@
 pragma solidity ^0.6.0;
 
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import './token/LinkERC20.sol';
 import './ERC677Token.sol';
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-
-contract LinkToken is ERC20, ERC677Token {
+contract LinkToken is ERC20, LinkERC20, ERC677Token {
 
   uint private constant TOTAL_SUPPLY = 10**27;
   string private constant NAME = 'ChainLink Token';
@@ -13,15 +13,27 @@ contract LinkToken is ERC20, ERC677Token {
   constructor() ERC20(NAME, SYMBOL)
     public
   {
+    _onCreate();
+  }
+
+  /**
+   * @dev Hook that is called when this contract is created.
+   * Useful to override constructor behaviour in child contracts (e.g., LINK bridge tokens).
+   * @notice Default implementation mints 10**27 tokens to msg.sender
+   */
+  function _onCreate()
+    internal
+    virtual
+  {
     _mint(msg.sender, TOTAL_SUPPLY);
   }
 
   /**
-  * @dev transfer token to a specified address with additional data if the recipient is a contract.
-  * @param _to The address to transfer to.
-  * @param _value The amount to be transferred.
-  * @param _data The extra data to be passed to the receiving contract.
-  */
+   * @dev transfer token to a specified address with additional data if the recipient is a contract.
+   * @param _to The address to transfer to.
+   * @param _value The amount to be transferred.
+   * @param _data The extra data to be passed to the receiving contract.
+   */
   function transferAndCall(address _to, uint _value, bytes memory _data)
     public
     override
@@ -32,10 +44,10 @@ contract LinkToken is ERC20, ERC677Token {
   }
 
   /**
-  * @dev transfer token to a specified address.
-  * @param _to The address to transfer to.
-  * @param _value The amount to be transferred.
-  */
+   * @dev transfer token to a specified address.
+   * @param _to The address to transfer to.
+   * @param _value The amount to be transferred.
+   */
   function transfer(address _to, uint _value)
     public
     override
@@ -60,48 +72,6 @@ contract LinkToken is ERC20, ERC677Token {
   }
 
   /**
-   * @dev Atomically increases the allowance granted to `spender` by the caller.
-   *
-   * This is an alternative to {approve} that can be used as a mitigation for
-   * problems described in {IERC20-approve}.
-   *
-   * Emits an {Approval} event indicating the updated allowance.
-   *
-   * Requirements:
-   *
-   * - `spender` cannot be the zero address.
-   */
-  function increaseApproval(address spender, uint256 addedValue)
-    public
-    virtual
-    returns (bool)
-  {
-      return super.increaseAllowance(spender, addedValue);
-  }
-
-  /**
-   * @dev Atomically decreases the allowance granted to `spender` by the caller.
-   *
-   * This is an alternative to {approve} that can be used as a mitigation for
-   * problems described in {IERC20-approve}.
-   *
-   * Emits an {Approval} event indicating the updated allowance.
-   *
-   * Requirements:
-   *
-   * - `spender` cannot be the zero address.
-   * - `spender` must have allowance for the caller of at least
-   * `subtractedValue`.
-   */
-  function decreaseApproval(address spender, uint256 subtractedValue)
-    public
-    virtual
-    returns (bool)
-  {
-      return super.decreaseAllowance(spender, subtractedValue);
-  }
-
-  /**
    * @dev Transfer tokens from one address to another
    * @param _from address The address which you want to send tokens from
    * @param _to address The address which you want to transfer to
@@ -123,5 +93,4 @@ contract LinkToken is ERC20, ERC677Token {
     require(_recipient != address(0) && _recipient != address(this));
     _;
   }
-
 }
