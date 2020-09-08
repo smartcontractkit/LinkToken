@@ -9,6 +9,7 @@
   ],
   "devDependencies": {
     "bignumber.js": "^2.0.0",
+    "eth-gas-reporter": "^0.2.17",
     "ganache-cli": "^6.4.1",
     "moment": "^2.15.2",
     "solc": "^0.6.0",

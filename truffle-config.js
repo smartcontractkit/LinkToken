@@ -37,6 +37,16 @@ module.exports = {
     },
   },
 
+  // Set default mocha options here, use special reporters etc.
+  mocha: {
+    reporter: 'eth-gas-reporter',
+    reporterOptions: {
+      currency: 'USD',
+      gasPrice: 21,
+      showTimeSpent: true,
+    },
+  },
+
   // Configure your compilers
   compilers: {
     solc: {
