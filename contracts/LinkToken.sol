@@ -5,7 +5,6 @@ import './token/LinkERC20.sol';
 import './ERC677Token.sol';
 
 contract LinkToken is ERC20, LinkERC20, ERC677Token {
-
   uint private constant TOTAL_SUPPLY = 10**27;
   string private constant NAME = 'ChainLink Token';
   string private constant SYMBOL = 'LINK';
@@ -29,68 +28,55 @@ contract LinkToken is ERC20, LinkERC20, ERC677Token {
   }
 
   /**
-   * @dev transfer token to a specified address with additional data if the recipient is a contract.
-   * @param _to The address to transfer to.
-   * @param _value The amount to be transferred.
-   * @param _data The extra data to be passed to the receiving contract.
+   * @dev Moves tokens `amount` from `sender` to `recipient`.
+   *
+   * This is internal function is equivalent to {transfer}, and can be used to
+   * e.g. implement automatic token fees, slashing mechanisms, etc.
+   *
+   * Emits a {Transfer} event.
+   *
+   * Requirements:
+   *
+   * - `sender` cannot be the zero address.
+   * - `recipient` cannot be the zero address.
+   * - `sender` must have a balance of at least `amount`.
    */
-  function transferAndCall(address _to, uint _value, bytes memory _data)
-    public
+  function _transfer(address sender, address recipient, uint256 amount)
+    internal
     override
-    validRecipient(_to)
-    returns (bool success)
+    virtual
+    validAddress(recipient)
   {
-    return super.transferAndCall(_to, _value, _data);
+    super._transfer(sender, recipient, amount);
   }
 
   /**
-   * @dev transfer token to a specified address.
-   * @param _to The address to transfer to.
-   * @param _value The amount to be transferred.
+   * @dev Sets `amount` as the allowance of `spender` over the `owner`s tokens.
+   *
+   * This is internal function is equivalent to `approve`, and can be used to
+   * e.g. set automatic allowances for certain subsystems, etc.
+   *
+   * Emits an {Approval} event.
+   *
+   * Requirements:
+   *
+   * - `owner` cannot be the zero address.
+   * - `spender` cannot be the zero address.
    */
-  function transfer(address _to, uint _value)
-    public
+  function _approve(address owner, address spender, uint256 amount)
+    internal
     override
-    validRecipient(_to)
-    returns (bool success)
+    virtual
+    validAddress(spender)
   {
-    return super.transfer(_to, _value);
-  }
-
-  /**
-   * @dev Approve the passed address to spend the specified amount of tokens on behalf of msg.sender.
-   * @param _spender The address which will spend the funds.
-   * @param _value The amount of tokens to be spent.
-   */
-  function approve(address _spender, uint256 _value)
-    public
-    override
-    validRecipient(_spender)
-    returns (bool)
-  {
-    return super.approve(_spender,  _value);
-  }
-
-  /**
-   * @dev Transfer tokens from one address to another
-   * @param _from address The address which you want to send tokens from
-   * @param _to address The address which you want to transfer to
-   * @param _value uint256 the amount of tokens to be transferred
-   */
-  function transferFrom(address _from, address _to, uint256 _value)
-    public
-    override
-    validRecipient(_to)
-    returns (bool)
-  {
-    return super.transferFrom(_from, _to, _value);
+    super._approve(owner, spender, amount);
   }
 
 
   // MODIFIERS
 
-  modifier validRecipient(address _recipient) {
-    require(_recipient != address(0) && _recipient != address(this));
+  modifier validAddress(address _recipient) {
+    require(_recipient != address(this), "LinkToken: transfer to this contract address");
     _;
   }
 }

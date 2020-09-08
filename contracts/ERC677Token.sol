@@ -5,7 +5,6 @@ import "./token/ERC677.sol";
 import "./token/ERC677Receiver.sol";
 
 abstract contract ERC677Token is ERC20, ERC677 {
-
   /**
    * @dev transfer token to a contract address with additional data if the recipient is a contact.
    * @param _to The address to transfer to.

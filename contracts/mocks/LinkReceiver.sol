@@ -2,7 +2,6 @@ pragma solidity ^0.6.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract LinkReceiver {
-
   bool public fallbackCalled;
   bool public callDataCalled;
   uint public tokensReceived;
