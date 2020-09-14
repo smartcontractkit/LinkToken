@@ -2,10 +2,11 @@
   "name": "link_token",
   "homepage": "https://github.com/smartcontractkit/LinkToken",
   "repository": "https://github.com/smartcontractkit/LinkToken",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "license": "MIT",
   "authors": [
-    "Steve Ellis <steve@smartcontract.com>"
+    "Steve Ellis <steve@smartcontract.com>",
+    "Kristijan Rebernisak <kristijan@smartcontract.com>"
   ],
   "devDependencies": {
     "bignumber.js": "^2.0.0",
@@ -14,6 +15,7 @@
     "moment": "^2.15.2",
     "solc": "^0.6.0",
     "truffle": "^5.1.32",
+    "@truffle/hdwallet-provider": "^1.0.43",
     "web3": "^1.0.0-beta.55"
   },
   "files": [
@@ -21,12 +23,10 @@
     "contracts"
   ],
   "scripts": {
-    "migrate-ganache": "truffle migrate --network ganache",
-    "test": "truffle test",
-    "test-ganache": "truffle test --network ganache"
+    "migrate:development": "truffle migrate --network development",
+    "test": "find ./test/v0.6 -type f | xargs truffle test"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^3.1.0",
-    "@truffle/hdwallet-provider": "^1.0.43"
+    "@openzeppelin/contracts": "^3.1.0"
   }
 }

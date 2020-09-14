@@ -51,6 +51,9 @@ module.exports = {
     },
   },
 
+  // Configure contracts location
+  contracts_directory: './contracts/v0.6/',
+
   // Configure your compilers
   compilers: {
     solc: {

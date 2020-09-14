@@ -1,6 +1,6 @@
 'use strict'
 
-require('../support/zeppelinHelpers.js')
+require('../../support/zeppelinHelpers.js')
 
 contract('StandardToken', function (accounts) {
   var StandardTokenMock = artifacts.require('./helpers/StandardTokenMock.sol')
@@ -40,16 +40,14 @@ contract('StandardToken', function (accounts) {
       await token.transfer(accounts[1], 101)
       assert.fail('should have thrown before')
     } catch (error) {
-      assertJump(error, 'revert ERC20: transfer amount exceeds balance')
+      assertJump(error)
     }
   })
 
   it('should return correct balances after transfering from another account', async function () {
     let token = await StandardTokenMock.new(accounts[0], 100)
     await token.approve(accounts[1], 100)
-    await token.transferFrom(accounts[0], accounts[2], 100, {
-      from: accounts[1],
-    })
+    await token.transferFrom(accounts[0], accounts[2], 100, { from: accounts[1] })
 
     let balance0 = await token.balanceOf(accounts[0])
     assert.equal(balance0, 0)
@@ -64,12 +62,10 @@ contract('StandardToken', function (accounts) {
   it('should throw an error when trying to transfer more than allowed', async function () {
     await token.approve(accounts[1], 99)
     try {
-      await token.transferFrom(accounts[0], accounts[2], 100, {
-        from: accounts[1],
-      })
+      await token.transferFrom(accounts[0], accounts[2], 100, { from: accounts[1] })
       assert.fail('should have thrown before')
     } catch (error) {
-      assertJump(error, 'revert ERC20: transfer amount exceeds allowance')
+      assertJump(error)
     }
   })
 
@@ -77,13 +73,13 @@ contract('StandardToken', function (accounts) {
     let preApproved
 
     it('should start with zero', async function () {
-      preApproved = bigNum(await token.allowance(accounts[0], accounts[1]))
+      preApproved = await token.allowance(accounts[0], accounts[1])
       assert.equal(preApproved, 0)
     })
 
     it('should increase by 50 then decrease by 10', async function () {
       await token.increaseApproval(accounts[1], 50)
-      let postIncrease = bigNum(await token.allowance(accounts[0], accounts[1]))
+      let postIncrease = await token.allowance(accounts[0], accounts[1])
       assert.equal(preApproved.plus(50).toString(), postIncrease.toString())
       await token.decreaseApproval(accounts[1], 10)
       let postDecrease = await token.allowance(accounts[0], accounts[1])

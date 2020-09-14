@@ -6,57 +6,44 @@ The total supply of the token is 1,000,000,000, and each token is divisible up t
 
 To prevent accidental burns, the token does not allow transfers to the contract itself and to 0x0.
 
-Security audit available [here](https://gist.github.com/Arachnid/4aa88041bd6e34835b8c0fd051245e79).
+Security audit for [v0.4 version of the contracts](./contracts/v0.4/) is available [here](https://gist.github.com/Arachnid/4aa88041bd6e34835b8c0fd051245e79).
 
 ## Details
-- Address: [0x514910771AF9Ca656af840dff83E8264EcF986CA](https://etherscan.io/address/0x514910771af9ca656af840dff83e8264ecf986ca)
+
+- Deployments:
+  - Ethereum Mainnet [LinkToken v0.4](./flat/v0.4/LinkToken.sol): [0x514910771AF9Ca656af840dff83E8264EcF986CA](https://etherscan.io/address/0x514910771af9ca656af840dff83e8264ecf986ca)
 - Decimals: 18
 - Name: ChainLink Token
 - Symbol: LINK
 
-### Solidity ABI:
-```
-contract LinkToken {
-    function allowance(address owner, address spender) returns (bool success);
-    function approve(address spender, uint256 value) returns (bool success);
-    function balanceOf(address owner) returns (uint256 balance);
-    function decimals() returns (uint8 decimalPlaces);
-    function decreaseApproval(address spender, uint256 addedValue) reutrns (bool success);
-    function increaseApproval(address spender, uint256 subtractedValue);
-    function name() returns (string tokenName);
-    function symbol() returns (string tokenSymbol);
-    function totalSupply() returns (uint256 totalTokensIssued);
-    function transfer(address to, uint256 value) returns (bool success);
-    function transferAndCall(address to, uint256 value, bytes data) returns (bool success);
-    function transferFrom(address from, address to, uint256 value) returns (bool success);
-}
-```
-
-### JSON ABI:
-```
-[{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_value","type":"uint256"}],"name":"approve","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"},{"name":"_data","type":"bytes"}],"name":"transferAndCall","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_subtractedValue","type":"uint256"}],"name":"decreaseApproval","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_spender","type":"address"},{"name":"_addedValue","type":"uint256"}],"name":"increaseApproval","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"name":"_owner","type":"address"},{"name":"_spender","type":"address"}],"name":"allowance","outputs":[{"name":"remaining","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"value","type":"uint256"},{"indexed":false,"name":"data","type":"bytes"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"owner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"value","type":"uint256"}],"name":"Approval","type":"event"}]
-```
-
 ## Installation
+
+The project is setup to work with [v0.6 contracts](./contracts/v0.6/), while the [v0.4 contracts](./contracts/v0.4/) are here to document LINK Ethereum Mainnet deployment in 2017.
+
 ```
 yarn install
 ```
 
 ## Testing
+
+Before running tests, open a new terminal and start Ganache on port `8454`:
+
 ```
-yarn test
+ganache-cli -l 8000000
 ```
 
-If Ganache is already running on port 7545 (its default port), you must run:
+Run tests:
+
 ```
-yarn test-ganache
+yarn test
 ```
 
 This will instruct the tests to run against your locally deployed instance of Ganache.
 
 ## Migration
+
 ```
-yarn migrate-ganache
+yarn migrate:development
 ```
 
-This will migrate the `LinkToken` contract to your locally deployed instance of Ganache.
+This will migrate the `LinkToken` contract to your locally deployed instance of Ganache blockchain.

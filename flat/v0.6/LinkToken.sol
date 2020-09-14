@@ -721,7 +721,7 @@ contract ERC20 is Context, IERC20 {
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual { }
 }
 
-// File: contracts/token/LinkERC20.sol
+// File: contracts/v0.6/token/LinkERC20.sol
 
 pragma solidity ^0.6.0;
 
@@ -762,7 +762,7 @@ abstract contract LinkERC20 is ERC20 {
   }
 }
 
-// File: contracts/token/ERC677.sol
+// File: contracts/v0.6/token/ERC677.sol
 
 pragma solidity ^0.6.0;
 
@@ -772,7 +772,7 @@ abstract contract ERC677 is IERC20 {
   event Transfer(address indexed from, address indexed to, uint value, bytes data);
 }
 
-// File: contracts/token/ERC677Receiver.sol
+// File: contracts/v0.6/token/ERC677Receiver.sol
 
 pragma solidity ^0.6.0;
 
@@ -780,7 +780,7 @@ abstract contract ERC677Receiver {
   function onTokenTransfer(address _sender, uint _value, bytes memory _data) public virtual;
 }
 
-// File: contracts/ERC677Token.sol
+// File: contracts/v0.6/ERC677Token.sol
 
 pragma solidity ^0.6.0;
 
@@ -829,7 +829,7 @@ abstract contract ERC677Token is ERC20, ERC677 {
   }
 }
 
-// File: contracts/LinkToken.sol
+// File: contracts/v0.6/LinkToken.sol
 
 pragma solidity ^0.6.0;
 

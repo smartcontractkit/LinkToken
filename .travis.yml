@@ -2,7 +2,7 @@ dist: trusty
 language: node_js
 sudo: required
 node_js:
-  - '10'
+  - '12'
 
 env:
   - CXX=g++-4.8
@@ -21,7 +21,7 @@ before_install:
   - npm install -g ganache-cli truffle
 
 install:
-  - npm install
+  - yarn install
 
 script:
-  - ganache-cli --quiet -l 8000000 & truffle test
+  - ganache-cli --quiet -l 8000000 & yarn test

@@ -1,6 +1,6 @@
 'use strict'
 
-require('./support/helpers.js')
+require('../support/helpers.js')
 
 contract('LinkToken', (accounts) => {
   let LinkToken = artifacts.require('./contracts/LinkToken.sol')

@@ -1,4 +1,4 @@
-require('./support/helpers.js')
+require('../support/helpers.js')
 
 contract('ERC677Token', (accounts) => {
   let Token677 = artifacts.require('../contracts/mocks/Token677.sol')
