@@ -9,13 +9,14 @@
     "Kristijan Rebernisak <kristijan@smartcontract.com>"
   ],
   "devDependencies": {
+    "@chainlink/belt": "^0.0.3",
+    "@truffle/hdwallet-provider": "^1.0.43",
     "bignumber.js": "^2.0.0",
     "eth-gas-reporter": "^0.2.17",
     "ganache-cli": "^6.4.1",
     "moment": "^2.15.2",
     "solc": "^0.6.0",
     "truffle": "^5.1.32",
-    "@truffle/hdwallet-provider": "^1.0.43",
     "web3": "^1.0.0-beta.55"
   },
   "files": [
@@ -24,7 +25,9 @@
   ],
   "scripts": {
     "migrate:development": "truffle migrate --network development",
-    "test": "find ./test/v0.6 -type f | xargs truffle test"
+    "test": "find ./test/v0.6 -type f | xargs truffle test",
+    "build": "belt compile all",
+    "clean": "rm -r abi ethers truffle"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^3.1.0"
