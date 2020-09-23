@@ -76,7 +76,7 @@ contract LinkToken is ERC20, LinkERC20, ERC677Token {
   // MODIFIERS
 
   modifier validAddress(address _recipient) {
-    require(_recipient != address(this), "LinkToken: transfer to this contract address");
+    require(_recipient != address(this), "LinkToken: transfer/approve to this contract address");
     _;
   }
 }

@@ -144,12 +144,12 @@ Web3 = require('web3')
   assertActionThrows = function assertActionThrows(action) {
     return Promise.resolve()
       .then(action)
-      .catch((error) => {
+      .catch(error => {
         assert(error, 'Expected an error to be raised')
         assert(error.message, 'Expected an error to be raised')
         return error.message
       })
-      .then((errorMessage) => {
+      .then(errorMessage => {
         assert(errorMessage, 'Expected an error to be raised')
         invalidOpcode = errorMessage.includes('invalid opcode')
         reverted = errorMessage.includes('VM Exception while processing transaction: revert')
@@ -197,6 +197,9 @@ Web3 = require('web3')
   }
 
   functionID = function functionID(signature) {
-    return web3.utils.sha3(signature).slice(2).slice(0, 8)
+    return web3.utils
+      .sha3(signature)
+      .slice(2)
+      .slice(0, 8)
   }
 })()

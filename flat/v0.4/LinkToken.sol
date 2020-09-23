@@ -1,4 +1,5 @@
-// File: link_token/contracts/token/linkERC20Basic.sol
+
+// File: contracts/v0.4/token/linkERC20Basic.sol
 
 pragma solidity ^0.4.11;
 
@@ -15,7 +16,7 @@ contract linkERC20Basic {
   event Transfer(address indexed from, address indexed to, uint256 value);
 }
 
-// File: link_token/contracts/token/linkERC20.sol
+// File: contracts/v0.4/token/linkERC20.sol
 
 pragma solidity ^0.4.11;
 
@@ -32,7 +33,7 @@ contract linkERC20 is linkERC20Basic {
   event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
-// File: link_token/contracts/token/ERC677.sol
+// File: contracts/v0.4/token/ERC677.sol
 
 pragma solidity ^0.4.8;
 
@@ -43,7 +44,7 @@ contract ERC677 is linkERC20 {
   event Transfer(address indexed from, address indexed to, uint value, bytes data);
 }
 
-// File: link_token/contracts/token/ERC677Receiver.sol
+// File: contracts/v0.4/token/ERC677Receiver.sol
 
 pragma solidity ^0.4.8;
 
@@ -52,7 +53,7 @@ contract ERC677Receiver {
   function onTokenTransfer(address _sender, uint _value, bytes _data);
 }
 
-// File: link_token/contracts/ERC677Token.sol
+// File: contracts/v0.4/ERC677Token.sol
 
 pragma solidity ^0.4.11;
 
@@ -100,7 +101,7 @@ contract ERC677Token is ERC677 {
 
 }
 
-// File: link_token/contracts/math/linkSafeMath.sol
+// File: contracts/v0.4/math/linkSafeMath.sol
 
 pragma solidity ^0.4.11;
 
@@ -135,7 +136,7 @@ library linkSafeMath {
   }
 }
 
-// File: link_token/contracts/token/linkBasicToken.sol
+// File: contracts/v0.4/token/linkBasicToken.sol
 
 pragma solidity ^0.4.11;
 
@@ -174,7 +175,7 @@ contract linkBasicToken is linkERC20Basic {
 
 }
 
-// File: link_token/contracts/token/linkStandardToken.sol
+// File: contracts/v0.4/token/linkStandardToken.sol
 
 pragma solidity ^0.4.11;
 
@@ -260,7 +261,7 @@ contract linkStandardToken is linkERC20, linkBasicToken {
 
 }
 
-// File: link_token/contracts/LinkToken.sol
+// File: contracts/v0.4/LinkToken.sol
 
 pragma solidity ^0.4.11;
 

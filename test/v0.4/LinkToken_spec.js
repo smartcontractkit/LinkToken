@@ -1,17 +1,17 @@
 'use strict'
 
-require('./support/helpers.js')
+require('../support/helpers.js')
 
-contract('LinkToken', () => {
-  let LinkToken = artifacts.require('./contracts/LinkToken.sol')
-  let LinkReceiver = artifacts.require('./contracts/mocks/LinkReceiver.sol')
-  let Token677ReceiverMock = artifacts.require('../contracts/mocks/Token677ReceiverMock.sol')
-  let NotERC677Compatible = artifacts.require('../contracts/mocks/NotERC677Compatible.sol')
+contract('LinkToken', accounts => {
+  let { LinkToken } = require('../../build/truffle/v0.4/LinkToken')
+  let { LinkReceiver } = require('../../build/truffle/v0.4/LinkReceiver')
+  let { Token677ReceiverMock } = require('../../build/truffle/v0.4/Token677ReceiverMock')
+  let { NotERC677Compatible } = require('../../build/truffle/v0.4/NotERC677Compatible')
   let allowance, owner, recipient, token
 
   beforeEach(async () => {
-    owner = Accounts[0]
-    recipient = Accounts[1]
+    owner = accounts[0]
+    recipient = accounts[1]
     token = await LinkToken.new({ from: owner })
   })
 
@@ -39,15 +39,15 @@ contract('LinkToken', () => {
   it('assigns all of the balance to the owner', async () => {
     let balance = await token.balanceOf.call(owner)
 
-    assert.equal(balance.toString(), '1e+27')
+    assert.equal(balance.toString(), '1000000000000000000000000000')
   })
 
   describe('#transfer(address,uint256)', () => {
     let receiver, sender, transferAmount
 
     beforeEach(async () => {
-      receiver = await Token677ReceiverMock.new()
-      sender = Accounts[1]
+      receiver = await Token677ReceiverMock.new({ from: owner })
+      sender = accounts[1]
       transferAmount = 100
 
       await token.transfer(sender, transferAmount, { from: owner })
@@ -98,7 +98,7 @@ contract('LinkToken', () => {
       let nonERC677
 
       beforeEach(async () => {
-        nonERC677 = await NotERC677Compatible.new()
+        nonERC677 = await NotERC677Compatible.new({ from: owner })
       })
 
       it('transfers the token', async () => {

@@ -2,11 +2,11 @@
 
 require('../support/helpers.js')
 
-contract('LinkToken', (accounts) => {
-  let LinkToken = artifacts.require('./contracts/LinkToken.sol')
-  let LinkReceiver = artifacts.require('./contracts/mocks/LinkReceiver.sol')
-  let Token677ReceiverMock = artifacts.require('../contracts/mocks/Token677ReceiverMock.sol')
-  let NotERC677Compatible = artifacts.require('../contracts/mocks/NotERC677Compatible.sol')
+contract('LinkToken', accounts => {
+  let { LinkToken } = require('../../build/truffle/v0.6/LinkToken')
+  let { LinkReceiver } = require('../../build/truffle/v0.6/LinkReceiver')
+  let { Token677ReceiverMock } = require('../../build/truffle/v0.6/Token677ReceiverMock')
+  let { NotERC677Compatible } = require('../../build/truffle/v0.6/NotERC677Compatible')
   let allowance, owner, recipient, token
 
   beforeEach(async () => {
@@ -48,7 +48,7 @@ contract('LinkToken', (accounts) => {
     let receiver, sender, transferAmount
 
     beforeEach(async () => {
-      receiver = await Token677ReceiverMock.new()
+      receiver = await Token677ReceiverMock.new({ from: owner })
       sender = accounts[1]
       transferAmount = 100
 
@@ -100,7 +100,7 @@ contract('LinkToken', (accounts) => {
       let nonERC677
 
       beforeEach(async () => {
-        nonERC677 = await NotERC677Compatible.new()
+        nonERC677 = await NotERC677Compatible.new({ from: owner })
       })
 
       it('transfers the token', async () => {

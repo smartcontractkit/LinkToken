@@ -1,5 +1,2 @@
 build/
 node_modules/
-abi/
-ethers/
-truffle

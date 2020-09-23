@@ -18,9 +18,9 @@ Security audit for [v0.4 version of the contracts](./contracts/v0.4/) is availab
 
 ## Installation
 
-The project is setup to work with [v0.6 contracts](./contracts/v0.6/), while the [v0.4 contracts](./contracts/v0.4/) are here to document LINK Ethereum Mainnet deployment in 2017.
+The project contains [v0.4 contracts](./contracts/v0.4/) that were used for LINK Ethereum Mainnet deployment in 2017, and upgraded [v0.6 contracts](./contracts/v0.6/).
 
-```
+```bash
 yarn install
 ```
 
@@ -28,22 +28,36 @@ yarn install
 
 Before running tests, open a new terminal and start Ganache on port `8454`:
 
-```
+```bash
 ganache-cli -l 8000000
 ```
 
 Run tests:
 
-```
+```bash
 yarn test
 ```
 
 This will instruct the tests to run against your locally deployed instance of Ganache.
 
+Or you can test specific version separately:
+
+```bash
+yarn test:v0.4
+```
+
 ## Migration
 
+To migrate v0.4 contracts run:
+
+```bash
+yarn migrate:v0.4
 ```
-yarn migrate:development
+
+To migrate v0.6 contracts run:
+
+```bash
+yarn migrate:v0.6
 ```
 
 This will migrate the `LinkToken` contract to your locally deployed instance of Ganache blockchain.

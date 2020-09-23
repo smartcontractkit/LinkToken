@@ -1,19 +1,19 @@
 require('../support/helpers.js')
 
-contract('ERC677Token', (accounts) => {
-  let Token677 = artifacts.require('../contracts/mocks/Token677.sol')
-  let Token677ReceiverMock = artifacts.require('../contracts/mocks/Token677ReceiverMock.sol')
-  let NotERC677Compatible = artifacts.require('../contracts/mocks/NotERC677Compatible.sol')
+contract('ERC677Token', accounts => {
+  let { Token677 } = require('../../build/truffle/v0.6/Token677')
+  let { Token677ReceiverMock } = require('../../build/truffle/v0.6/Token677ReceiverMock')
+  let { NotERC677Compatible } = require('../../build/truffle/v0.6/NotERC677Compatible')
 
   let receiver, sender, token, transferAmount
 
   beforeEach(async () => {
-    receiver = await Token677ReceiverMock.new()
     sender = accounts[0]
-    token = await Token677.new(1000)
+    receiver = await Token677ReceiverMock.new({ from: sender })
+    token = await Token677.new(1000, { from: sender })
     transferAmount = 100
 
-    await token.transfer(sender, transferAmount)
+    await token.transfer(sender, transferAmount, { from: sender })
     assert.equal(await receiver.sentValue(), 0)
   })
 
@@ -88,7 +88,7 @@ contract('ERC677Token', (accounts) => {
       let nonERC677
 
       beforeEach(async () => {
-        nonERC677 = await NotERC677Compatible.new()
+        nonERC677 = await NotERC677Compatible.new({ from: sender })
 
         let data =
           functionID('transferAndCall(address,uint256,bytes)') +

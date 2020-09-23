@@ -10,7 +10,8 @@ Security audit available [here](https://gist.github.com/Arachnid/4aa88041bd6e348
 
 ## Details
 
-- Address: [0x514910771AF9Ca656af840dff83E8264EcF986CA](https://etherscan.io/address/0x514910771af9ca656af840dff83e8264ecf986ca)
+- Deployments:
+  - Ethereum Mainnet: [0x514910771AF9Ca656af840dff83E8264EcF986CA](https://etherscan.io/address/0x514910771af9ca656af840dff83e8264ecf986ca)
 - Decimals: 18
 - Name: ChainLink Token
 - Symbol: LINK

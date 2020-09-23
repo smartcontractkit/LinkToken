@@ -2,19 +2,23 @@
 
 require('../../support/zeppelinHelpers.js')
 
-contract('BasicToken', function (accounts) {
-  var BasicTokenMock = artifacts.require('./helpers/StandardTokenMock.sol')
+contract('BasicToken', function(accounts) {
+  var {
+    StandardTokenMock: BasicTokenMock,
+  } = require('../../../build/truffle/v0.6/StandardTokenMock')
 
-  it('should return the correct totalSupply after construction', async function () {
-    let token = await BasicTokenMock.new(accounts[0], 100)
+  const options = { from: accounts[0] }
+
+  it('should return the correct totalSupply after construction', async function() {
+    let token = await BasicTokenMock.new(accounts[0], 100, options)
     let totalSupply = await token.totalSupply()
 
     assert.equal(totalSupply, 100)
   })
 
-  it('should return correct balances after transfer', async function () {
-    let token = await BasicTokenMock.new(accounts[0], 100)
-    let transfer = await token.transfer(accounts[1], 100)
+  it('should return correct balances after transfer', async function() {
+    let token = await BasicTokenMock.new(accounts[0], 100, options)
+    let transfer = await token.transfer(accounts[1], 100, options)
 
     let firstAccountBalance = await token.balanceOf(accounts[0])
     assert.equal(firstAccountBalance, 0)
@@ -23,10 +27,10 @@ contract('BasicToken', function (accounts) {
     assert.equal(secondAccountBalance, 100)
   })
 
-  it('should throw an error when trying to transfer more than balance', async function () {
-    let token = await BasicTokenMock.new(accounts[0], 100)
+  it('should throw an error when trying to transfer more than balance', async function() {
+    let token = await BasicTokenMock.new(accounts[0], 100, options)
     try {
-      let transfer = await token.transfer(accounts[1], 101)
+      let transfer = await token.transfer(accounts[1], 101, options)
       assert.fail('should have thrown before')
     } catch (error) {
       assertJump(error, 'revert ERC20: transfer amount exceeds balance')

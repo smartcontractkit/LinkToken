@@ -24,4 +24,7 @@ install:
   - yarn install
 
 script:
-  - ganache-cli --quiet -l 8000000 & yarn test
+  - ganache-cli --quiet -l 8000000 > /dev/null &
+  - sleep 5
+  - yarn compile
+  - yarn test

@@ -6,7 +6,7 @@ const MNEMONIC =
 const INFURA_API_KEY = process.env.INFURA_API_KEY
 const ETHERSCAN_API_KEY = process.env.ETHERSCAN_API_KEY
 
-const walletProvider = (provider) => new HDWalletProvider(MNEMONIC, provider)
+const walletProvider = provider => new HDWalletProvider(MNEMONIC, provider)
 
 module.exports = {
   //$ truffle test --network <network-name>
@@ -51,24 +51,9 @@ module.exports = {
     },
   },
 
-  // Configure contracts location
-  contracts_directory: './contracts/v0.6/',
-
-  // Configure your compilers
-  compilers: {
-    solc: {
-      version: '0.6.6', // Fetch exact version from solc-bin (default: truffle's version)
-      parser: 'solcjs',
-      settings: {
-        // See the solidity docs for advice about optimization and evmVersion
-        optimizer: {
-          enabled: true,
-          runs: 1337,
-        },
-        evmVersion: 'istanbul',
-      },
-    },
-  },
+  // Configure contracts location to dir without contracts
+  // to avoid Truffle compilation step (we use @chainlink/belt instead)
+  contracts_directory: './contracts_null',
 
   verify: {
     preamble: 'LINK\nVersion: 0.1.0',

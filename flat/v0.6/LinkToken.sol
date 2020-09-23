@@ -766,6 +766,7 @@ abstract contract LinkERC20 is ERC20 {
 
 pragma solidity ^0.6.0;
 
+
 abstract contract ERC677 is IERC20 {
   function transferAndCall(address to, uint value, bytes memory data) public virtual returns (bool success);
 
@@ -908,7 +909,7 @@ contract LinkToken is ERC20, LinkERC20, ERC677Token {
   // MODIFIERS
 
   modifier validAddress(address _recipient) {
-    require(_recipient != address(this), "LinkToken: transfer to this contract address");
+    require(_recipient != address(this), "LinkToken: transfer/approve to this contract address");
     _;
   }
 }

@@ -17,19 +17,25 @@
     "moment": "^2.15.2",
     "solc": "^0.6.0",
     "truffle": "^5.1.32",
-    "web3": "^1.0.0-beta.55"
+    "web3": "^1.3.0"
   },
   "files": [
     "README.md",
     "contracts"
   ],
   "scripts": {
-    "migrate:development": "truffle migrate --network development",
-    "test": "find ./test/v0.6 -type f | xargs truffle test",
-    "build": "belt compile all",
-    "clean": "rm -r abi ethers truffle"
+    "compile": "belt compile all",
+    "clean": "rm -r build/contracts build/ethers build/truffle",
+    "compile:clean": "yarn clean & yarn compile",
+    "test": "env NODE_ENV=test truffle test",
+    "test:v0.4": "env NODE_ENV=test find ./test/v0.4 -type f | xargs truffle test",
+    "test:v0.6": "env NODE_ENV=test find ./test/v0.6 -type f | xargs truffle test",
+    "migrate:v0.4": "env VERSION=v0.4 truffle migrate",
+    "migrate:v0.6": "env VERSION=v0.6 truffle migrate"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^3.1.0"
+    "@openzeppelin/contracts": "^3.1.0",
+    "@truffle/contract": "^4.1.8",
+    "ethers": "^4.0.44"
   }
 }
