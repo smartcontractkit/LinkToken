@@ -18,7 +18,7 @@ Security audit for [v0.4 version of the contracts](./contracts/v0.4/) is availab
 
 ## Installation
 
-The project contains [v0.4 contracts](./contracts/v0.4/) that were used for LINK Ethereum Mainnet deployment in 2017, and upgraded [v0.6 contracts](./contracts/v0.6/).
+The project contains [v0.4 contracts](./contracts/v0.4/) that were used for LINK Ethereum Mainnet deployment in 2017. For deployments moving forward, we use the updated [v0.6 contracts](./contracts/v0.6/) which use a more recent version of solc and the OpenZeppelin token standards. These updates include a minor ABI change around approval/allowance naming.
 
 ```bash
 yarn install

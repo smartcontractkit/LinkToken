@@ -1,10 +1,9 @@
 pragma solidity ^0.6.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import './token/LinkERC20.sol';
 import './ERC677Token.sol';
 
-contract LinkToken is ERC20, LinkERC20, ERC677Token {
+contract LinkToken is LinkERC20, ERC677Token {
   uint private constant TOTAL_SUPPLY = 10**27;
   string private constant NAME = 'ChainLink Token';
   string private constant SYMBOL = 'LINK';

@@ -836,8 +836,7 @@ pragma solidity ^0.6.0;
 
 
 
-
-contract LinkToken is ERC20, LinkERC20, ERC677Token {
+contract LinkToken is LinkERC20, ERC677Token {
   uint private constant TOTAL_SUPPLY = 10**27;
   string private constant NAME = 'ChainLink Token';
   string private constant SYMBOL = 'LINK';

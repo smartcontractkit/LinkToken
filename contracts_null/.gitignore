@@ -1,3 +1,6 @@
+# We point Truffle (contracts_directory cofig) to this empty directory
+# to avoid the extra compilation step as we use @chainlink/belt.
+
 # Ignore everything in this directory
 *
 # Except this file
