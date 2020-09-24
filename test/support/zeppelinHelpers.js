@@ -1,3 +1,3 @@
-assertJump = function assertJump(error) {
-  assert.isAbove(error.message.search('invalid opcode'), -1, 'Invalid opcode error must be returned');
+assertJump = function assertJump(error, q = 'invalid opcode') {
+  assert.isAbove(error.message.search(q), -1, `'${q}' error must be returned: ${error.message}`)
 }

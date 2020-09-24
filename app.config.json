@@ -1,0 +1,17 @@
+{
+  "contractsDir": "contracts",
+  "artifactsDir": "./build/contracts",
+  "contractAbstractionDir": "./build",
+  "useDockerisedSolc": false,
+  "compilerSettings": {
+    "optimizer": {
+      "runs": 200,
+      "enabled": true
+    },
+    "versions": {
+      "v0.4": "0.4.16+commit.d7661dd9",
+      "v0.6": "0.6.6+commit.6c089d02"
+    }
+  },
+  "publicVersions": ["0.4.16", "0.6.6"]
+}

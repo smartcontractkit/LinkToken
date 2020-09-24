@@ -1,7 +1,30 @@
 dist: trusty
-sudo: required
 language: node_js
+sudo: required
 node_js:
-  - "8"
+  - '12'
+
+env:
+  - CXX=g++-4.8
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - build-essential
+      - g++-4.8
+
+before_install:
+  - export CXX="g++-4.8"
+  - npm install -g npm@latest
+  - npm install -g ganache-cli truffle
+
+install:
+  - yarn install
+
 script:
-  - ./server.sh & truffle test
+  - ganache-cli --quiet -l 8000000 > /dev/null &
+  - sleep 5
+  - yarn compile
+  - yarn test

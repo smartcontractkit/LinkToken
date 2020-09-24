@@ -2,26 +2,40 @@
   "name": "link_token",
   "homepage": "https://github.com/smartcontractkit/LinkToken",
   "repository": "https://github.com/smartcontractkit/LinkToken",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "license": "MIT",
   "authors": [
-    "Steve Ellis <steve@smartcontract.com>"
+    "Steve Ellis <steve@smartcontract.com>",
+    "Kristijan Rebernisak <kristijan@smartcontract.com>"
   ],
   "devDependencies": {
+    "@chainlink/belt": "^0.0.3",
+    "@truffle/hdwallet-provider": "^1.0.43",
     "bignumber.js": "^2.0.0",
+    "eth-gas-reporter": "^0.2.17",
     "ganache-cli": "^6.4.1",
     "moment": "^2.15.2",
-    "solc": "^0.4.11",
-    "truffle": "^4.1.15",
-    "web3": "^1.0.0-beta.55"
+    "solc": "^0.6.0",
+    "truffle": "^5.1.32",
+    "web3": "^1.3.0"
   },
   "files": [
     "README.md",
     "contracts"
   ],
   "scripts": {
-    "migrate-ganache": "truffle migrate --network ganache",
-    "test": "truffle test",
-    "test-ganache": "truffle test --network ganache"
+    "compile": "belt compile all",
+    "clean": "rm -r build/contracts build/ethers build/truffle",
+    "compile:clean": "yarn clean & yarn compile",
+    "test": "env NODE_ENV=test truffle test",
+    "test:v0.4": "env NODE_ENV=test find ./test/v0.4 -type f | xargs truffle test",
+    "test:v0.6": "env NODE_ENV=test find ./test/v0.6 -type f | xargs truffle test",
+    "migrate:v0.4": "env VERSION=v0.4 truffle migrate",
+    "migrate:v0.6": "env VERSION=v0.6 truffle migrate"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^3.1.0",
+    "@truffle/contract": "^4.1.8",
+    "ethers": "^4.0.44"
   }
 }
