@@ -1,7 +1,8 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity >0.6.0 <0.8.0;
 
-import './token/LinkERC20.sol';
-import './ERC677Token.sol';
+import "./token/LinkERC20.sol";
+import "./ERC677Token.sol";
 
 contract LinkToken is LinkERC20, ERC677Token {
   uint private constant TOTAL_SUPPLY = 10**27;
@@ -27,18 +28,8 @@ contract LinkToken is LinkERC20, ERC677Token {
   }
 
   /**
-   * @dev Moves tokens `amount` from `sender` to `recipient`.
-   *
-   * This is internal function is equivalent to {transfer}, and can be used to
-   * e.g. implement automatic token fees, slashing mechanisms, etc.
-   *
-   * Emits a {Transfer} event.
-   *
-   * Requirements:
-   *
-   * - `sender` cannot be the zero address.
-   * - `recipient` cannot be the zero address.
-   * - `sender` must have a balance of at least `amount`.
+   * @dev Check if recepient is a valid address before transfer
+   * @inheritdoc ERC20
    */
   function _transfer(address sender, address recipient, uint256 amount)
     internal
@@ -50,17 +41,8 @@ contract LinkToken is LinkERC20, ERC677Token {
   }
 
   /**
-   * @dev Sets `amount` as the allowance of `spender` over the `owner`s tokens.
-   *
-   * This is internal function is equivalent to `approve`, and can be used to
-   * e.g. set automatic allowances for certain subsystems, etc.
-   *
-   * Emits an {Approval} event.
-   *
-   * Requirements:
-   *
-   * - `owner` cannot be the zero address.
-   * - `spender` cannot be the zero address.
+   * @dev Check if spender is a valid address before approval
+   * @inheritdoc ERC20
    */
   function _approve(address owner, address spender, uint256 amount)
     internal
@@ -74,7 +56,9 @@ contract LinkToken is LinkERC20, ERC677Token {
 
   // MODIFIERS
 
-  modifier validAddress(address _recipient) {
+  modifier validAddress(address _recipient)
+    virtual
+  {
     require(_recipient != address(this), "LinkToken: transfer/approve to this contract address");
     _;
   }

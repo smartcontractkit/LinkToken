@@ -1,2 +1,10 @@
-build/
 node_modules/
+dist/
+build/
+
+# Coverage output
+coverage/
+coverage.json
+
+# Misc
+.DS_STORE

@@ -1,5 +1,6 @@
-pragma solidity ^0.6.0;
+// SPDX-License-Identifier: MIT
+pragma solidity >0.6.0 <0.8.0;
 
-abstract contract ERC677Receiver {
-  function onTokenTransfer(address _sender, uint _value, bytes memory _data) public virtual;
+interface ERC677Receiver {
+  function onTokenTransfer(address _sender, uint _value, bytes memory _data) external;
 }
