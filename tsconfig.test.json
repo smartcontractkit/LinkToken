@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["test", "build/ethers"],
+  "compilerOptions": {
+    "noEmit": true
+  }
+}
