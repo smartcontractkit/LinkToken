@@ -14,17 +14,21 @@
   "scripts": {
     "clean": "tsc -b --clean tsconfig.test.json && rm -rf build/",
     "compile": "belt compile all",
+    "compile:ovm": "yarn belt compile all-ovm --config app.config.ovm.json",
     "compile:clean": "yarn clean & yarn compile",
+    "compile:clean:ovm": "yarn clean & yarn compile:ovm",
     "setup": "yarn compile:clean",
-    "test": "jest --testTimeout 80000 --forceExit --detectOpenHandles"
+    "setup:ovm": "yarn compile:clean:ovm",
+    "test": "env USE_OVM=false jest --testTimeout 80000 --forceExit --detectOpenHandles",
+    "test:ovm": "env USE_OVM=true jest --testTimeout 80000 --forceExit --detectOpenHandles --testRegex 'test/.*v0.7/.*.(spec|test).(js|ts)?$'"
   },
   "dependencies": {
     "@chainlink/contracts": "^0.1.6",
     "@openzeppelin/contracts": "^3.4.0"
   },
   "devDependencies": {
-    "@chainlink/belt": "^0.0.3",
-    "@chainlink/test-helpers": "^0.0.5",
+    "@chainlink/belt": "^0.0.4",
+    "@chainlink/test-helpers": "^0.0.6",
     "@types/jest": "^26.0.8",
     "@types/node": "^13.9.1",
     "jest": "^26.6.3",

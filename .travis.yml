@@ -25,3 +25,5 @@ install:
 script:
   - yarn setup
   - yarn test
+  - yarn setup:ovm
+  - yarn test:ovm

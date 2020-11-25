@@ -2,9 +2,9 @@ import { Wallet, Contract } from 'ethers'
 import { setup, matchers } from '@chainlink/test-helpers'
 import * as h from '../helpers'
 
-import { PegSwapFactory } from '../../build/ethers/v0.7/PegSwapFactory'
-import { Token677Factory } from '../../build/ethers/v0.7/Token677Factory'
-import { StandardTokenMockFactory } from '../../build/ethers/v0.7/StandardTokenMockFactory'
+import { PegSwap__factory } from '../../build/ethers/v0.7/factories/PegSwap__factory'
+import { Token677__factory } from '../../build/ethers/v0.7/factories/Token677__factory'
+import { StandardTokenMock__factory } from '../../build/ethers/v0.7/factories/StandardTokenMock__factory'
 
 describe('ERC677Token', () => {
   let swap: Contract, owner: Wallet, base: Contract, wrapped: Contract, user: Wallet
@@ -22,9 +22,9 @@ describe('ERC677Token', () => {
   })
 
   beforeEach(async () => {
-    base = await new StandardTokenMockFactory(owner).deploy(owner.address, totalIssuance)
-    wrapped = await new Token677Factory(owner).deploy(totalIssuance)
-    swap = await new PegSwapFactory(owner).deploy()
+    base = await new StandardTokenMock__factory(owner).deploy(owner.address, totalIssuance)
+    wrapped = await new Token677__factory(owner).deploy(totalIssuance)
+    swap = await new PegSwap__factory(owner).deploy()
 
     await base.connect(owner).transfer(user.address, depositAmount)
   })
