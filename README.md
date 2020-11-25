@@ -26,10 +26,10 @@ yarn install
 
 ## Testing
 
-Before running tests, open a new terminal and start Ganache on port `8454`:
+Setup contracts:
 
 ```bash
-ganache-cli -l 8000000
+yarn setup
 ```
 
 Run tests:
@@ -38,26 +38,4 @@ Run tests:
 yarn test
 ```
 
-This will instruct the tests to run against your locally deployed instance of Ganache.
-
-Or you can test specific version separately:
-
-```bash
-yarn test:v0.4
-```
-
-## Migration
-
-To migrate v0.4 contracts run:
-
-```bash
-yarn migrate:v0.4
-```
-
-To migrate v0.6 contracts run:
-
-```bash
-yarn migrate:v0.6
-```
-
-This will migrate the `LinkToken` contract to your locally deployed instance of Ganache blockchain.
+This will test both v0.4 and v0.6 versions of the contracts.

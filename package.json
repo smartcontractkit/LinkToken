@@ -1,41 +1,40 @@
 {
-  "name": "link_token",
+  "name": "@chainlink/contracts-token",
   "homepage": "https://github.com/smartcontractkit/LinkToken",
   "repository": "https://github.com/smartcontractkit/LinkToken",
-  "version": "1.1.0",
+  "version": "0.1.0",
   "license": "MIT",
   "authors": [
     "Steve Ellis <steve@smartcontract.com>",
     "Kristijan Rebernisak <kristijan@smartcontract.com>"
   ],
-  "devDependencies": {
-    "@chainlink/belt": "^0.0.3",
-    "@truffle/hdwallet-provider": "^1.0.43",
-    "bignumber.js": "^2.0.0",
-    "eth-gas-reporter": "^0.2.17",
-    "ganache-cli": "^6.4.1",
-    "moment": "^2.15.2",
-    "solc": "^0.6.0",
-    "truffle": "^5.1.32",
-    "web3": "^1.3.0"
-  },
   "files": [
     "README.md",
     "contracts"
   ],
   "scripts": {
+    "clean": "tsc -b --clean tsconfig.test.json && rm -rf build/",
     "compile": "belt compile all",
-    "clean": "rm -r build/contracts build/ethers build/truffle",
     "compile:clean": "yarn clean & yarn compile",
-    "test": "env NODE_ENV=test truffle test",
-    "test:v0.4": "env NODE_ENV=test find ./test/v0.4 -type f | xargs truffle test",
-    "test:v0.6": "env NODE_ENV=test find ./test/v0.6 -type f | xargs truffle test",
-    "migrate:v0.4": "env VERSION=v0.4 truffle migrate",
-    "migrate:v0.6": "env VERSION=v0.6 truffle migrate"
+    "setup": "yarn compile:clean",
+    "test": "jest --testTimeout 80000 --forceExit --detectOpenHandles"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^3.1.0",
-    "@truffle/contract": "^4.1.8",
-    "ethers": "^4.0.44"
+    "@openzeppelin/contracts": "^3.4.0"
+  },
+  "devDependencies": {
+    "@chainlink/belt": "^0.0.3",
+    "@chainlink/test-helpers": "^0.0.5",
+    "@types/jest": "^26.0.8",
+    "@types/node": "^13.9.1",
+    "jest": "^26.6.3",
+    "jest-circus": "^25.1.0",
+    "moment": "^2.15.2",
+    "prettier": "^1.19.1",
+    "ts-jest": "^26.5.3",
+    "typescript": "^3.9.7"
+  },
+  "resolutions": {
+    "**/ethers": "4.0.45"
   }
 }
