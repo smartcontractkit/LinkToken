@@ -8,34 +8,37 @@
     "Steve Ellis <steve@smartcontract.com>",
     "Kristijan Rebernisak <kristijan@smartcontract.com>"
   ],
-  "devDependencies": {
-    "@chainlink/belt": "^0.0.3",
-    "@truffle/hdwallet-provider": "^1.0.43",
-    "bignumber.js": "^2.0.0",
-    "eth-gas-reporter": "^0.2.17",
-    "ganache-cli": "^6.4.1",
-    "moment": "^2.15.2",
-    "solc": "^0.6.0",
-    "truffle": "^5.1.32",
-    "web3": "^1.3.0"
-  },
   "files": [
     "README.md",
     "contracts"
   ],
   "scripts": {
+    "clean": "tsc -b --clean tsconfig.test.json && rm -rf build/",
     "compile": "belt compile all",
-    "clean": "rm -r build/contracts build/ethers build/truffle",
+    "compile:ovm": "yarn belt compile all-ovm --config app.config.ovm.json",
     "compile:clean": "yarn clean & yarn compile",
-    "test": "env NODE_ENV=test truffle test",
-    "test:v0.4": "env NODE_ENV=test find ./test/v0.4 -type f | xargs truffle test",
-    "test:v0.6": "env NODE_ENV=test find ./test/v0.6 -type f | xargs truffle test",
-    "migrate:v0.4": "env VERSION=v0.4 truffle migrate",
-    "migrate:v0.6": "env VERSION=v0.6 truffle migrate"
+    "compile:clean:ovm": "yarn clean & yarn compile:ovm",
+    "setup": "yarn compile:clean",
+    "setup:ovm": "yarn compile:clean:ovm",
+    "test": "env USE_OVM=false jest --testTimeout 80000 --forceExit",
+    "test:ovm": "env USE_OVM=true jest --testTimeout 80000 --forceExit --testRegex 'test/.*v0.6/.*.(spec|test).(js|ts)?$'"
+  },
+  "devDependencies": {
+    "@chainlink/belt": "^0.0.4",
+    "@chainlink/test-helpers": "^0.0.6",
+    "jest": "^26.6.3",
+    "jest-circus": "^25.1.0",
+    "moment": "^2.15.2",
+    "prettier": "^1.19.1",
+    "typescript": "^3.9.7",
+    "@types/jest": "^26.0.8",
+    "@types/node": "^13.9.1",
+    "ts-jest": "^25.2.0"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^3.1.0",
-    "@truffle/contract": "^4.1.8",
-    "ethers": "^4.0.44"
+    "@openzeppelin/contracts": "^3.1.0"
+  },
+  "resolutions": {
+    "**/ethers": "4.0.45"
   }
 }

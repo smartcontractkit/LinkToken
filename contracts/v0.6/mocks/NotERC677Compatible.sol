@@ -1,3 +1,5 @@
 pragma solidity ^0.6.0;
 
-contract NotERC677Compatible {}
+contract NotERC677Compatible {
+    constructor() public {}
+}
