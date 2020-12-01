@@ -13,13 +13,12 @@ export const shouldBehaveLikeLinkToken = (
   describe('ERC677Token', () => {
     const provider = setup.provider()
 
-    // @ts-ignore
-    let allowance: number, owner: Wallet, sender: Wallet, recipient: Contract, token: Contract
+    let owner: Wallet, sender: Wallet, recipient: Contract, token: Contract
 
     beforeAll(async () => {
-      const users = await setup.users(provider)
-      owner = users.roles.defaultAccount
-      sender = users.roles.stranger
+      const { roles } = await setup.users(provider)
+      owner = roles.defaultAccount
+      sender = roles.stranger
     })
 
     beforeEach(async () => {
@@ -27,7 +26,7 @@ export const shouldBehaveLikeLinkToken = (
     })
 
     it('has a limited public ABI', () => {
-      let expectedABI = [
+      const expectedABI = [
         //public attributes
         'decimals',
         'name',
@@ -97,7 +96,7 @@ export const shouldBehaveLikeLinkToken = (
       })
 
       it('returns true when the transfer succeeds', async () => {
-        let success = await token.connect(sender).transfer(receiver.address, transferAmount)
+        const success = await token.connect(sender).transfer(receiver.address, transferAmount)
         expect(success).toBeTruthy()
       })
 
@@ -128,7 +127,7 @@ export const shouldBehaveLikeLinkToken = (
     })
 
     describe('#transfer(address,uint256,bytes)', () => {
-      let value = 1000
+      const value = 1000
 
       beforeEach(async () => {
         recipient = await linkReceiverFactory.connect(owner).deploy()
@@ -140,7 +139,7 @@ export const shouldBehaveLikeLinkToken = (
       })
 
       it('does not let you transfer to an empty address', async () => {
-        let data =
+        const data =
           '0x' +
           h.functionID('transferAndCall(address,uint256,bytes)') +
           h.encodeAddress(token.address) +
@@ -155,7 +154,7 @@ export const shouldBehaveLikeLinkToken = (
       })
 
       it('does not let you transfer to the contract itself', async () => {
-        let data =
+        const data =
           '0x' +
           'be45fd62' + // transfer(address,uint256,bytes)
           h.encodeAddress(h.EMPTY_ADDRESS) +
@@ -170,7 +169,7 @@ export const shouldBehaveLikeLinkToken = (
       })
 
       it('transfers the amount to the contract and calls the contract', async () => {
-        let data =
+        const data =
           '0x' +
           h.functionID('transferAndCall(address,uint256,bytes)') +
           h.encodeAddress(recipient.address) +
@@ -191,7 +190,7 @@ export const shouldBehaveLikeLinkToken = (
       })
 
       it('does not blow up if no data is passed', async () => {
-        let data =
+        const data =
           '0x' +
           h.functionID('transferAndCall(address,uint256,bytes)') +
           h.encodeAddress(recipient.address) +
@@ -199,7 +198,7 @@ export const shouldBehaveLikeLinkToken = (
           h.encodeUint256(96) +
           h.encodeBytes('')
 
-        await owner.sendTransaction({ to: token.address, data: data })
+        await owner.sendTransaction({ to: token.address, data })
 
         expect(await recipient.fallbackCalled()).toBeTruthy()
         expect(await recipient.callDataCalled()).toBeFalsy()
@@ -207,15 +206,15 @@ export const shouldBehaveLikeLinkToken = (
     })
 
     describe('#approve', () => {
-      let amount = 1000
+      const amount = 1000
 
       it('allows token approval amounts to be updated without first resetting to zero', async () => {
-        let originalApproval = new BigNumber(1000)
+        const originalApproval = new BigNumber(1000)
         await token.connect(owner).approve(recipient.address, originalApproval)
         let approvedAmount = await token.allowance(owner.address, recipient.address)
         expect(approvedAmount.eq(originalApproval)).toBeTruthy()
 
-        let laterApproval = new BigNumber(2000)
+        const laterApproval = new BigNumber(2000)
         await token.connect(owner).approve(recipient.address, laterApproval)
         approvedAmount = await token.allowance(owner.address, recipient.address)
         expect(approvedAmount.eq(laterApproval)).toBeTruthy()
@@ -237,7 +236,7 @@ export const shouldBehaveLikeLinkToken = (
     })
 
     describe('#transferFrom', () => {
-      let amount = 1000
+      const amount = 1000
 
       beforeEach(async () => {
         await token.connect(owner).transfer(sender.address, amount)

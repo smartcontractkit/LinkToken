@@ -33,13 +33,13 @@ export const shouldBehaveLikeStandardToken = (factory: ContractFactory) => {
         .connect(personas.Eddy)
         .transferFrom(personas.Carol.address, personas.Nelly.address, 100)
 
-      let balance0 = await token.balanceOf(personas.Carol.address)
+      const balance0 = await token.balanceOf(personas.Carol.address)
       expect(balance0.eq(0)).toBeTruthy()
 
-      let balance1 = await token.balanceOf(personas.Nelly.address)
+      const balance1 = await token.balanceOf(personas.Nelly.address)
       expect(balance1.eq(100)).toBeTruthy()
 
-      let balance2 = await token.balanceOf(personas.Eddy.address)
+      const balance2 = await token.balanceOf(personas.Eddy.address)
       expect(balance2.eq(0)).toBeTruthy()
     })
 

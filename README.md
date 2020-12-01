@@ -42,6 +42,10 @@ This will test both v0.4 and v0.6 versions of the contracts.
 
 ## Testing OVM
 
+The Optimistic Virtual Machine (OVM) is a scalable form of the EVM. Optimistic Rollup, by [Optimism](https://optimism.io), is the core scaling solution which enables the off-chain OVM to achieve cheap, instant transactions that still inherit L1 security. The OVM is an EVM-based VM which supports optimistically executing EVM smart contracts on a layer 1 blockchain like Ethereum. It is structured in such a way that it is possible to verify individual steps of its computation on Ethereum mainnet. This allows the mainnet to enforce validity of state roots with fraud proofs in the layer 2 Optimistic Rollup chain. For more information consult the [Optimism developer documentation](https://docs.optimism.io/).
+
+To compile and test the contracts on OVM please follow the steps below.
+
 Setup contracts:
 
 ```bash

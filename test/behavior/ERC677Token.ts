@@ -13,8 +13,8 @@ export const shouldBehaveLikeERC677Token = (
     const provider = setup.provider()
 
     beforeAll(async () => {
-      const users = await setup.users(provider)
-      defaultAccount = users.roles.defaultAccount
+      const { roles } = await setup.users(provider)
+      defaultAccount = roles.defaultAccount
     })
 
     let receiver: Contract, sender: Wallet, token: Contract, transferAmount: number
@@ -34,7 +34,7 @@ export const shouldBehaveLikeERC677Token = (
       let params: any
 
       beforeEach(() => {
-        let data =
+        const data =
           '0x' +
           h.functionID('transferAndCall(address,uint256,bytes)') +
           h.encodeAddress(receiver.address) +
@@ -56,23 +56,23 @@ export const shouldBehaveLikeERC677Token = (
 
       it('calls the token fallback function on transfer', async () => {
         await sender.sendTransaction(params)
-        let calledFallback = await receiver.calledFallback()
+        const calledFallback = await receiver.calledFallback()
         expect(calledFallback).toBeTruthy()
 
-        let tokenSender = await receiver.tokenSender()
+        const tokenSender = await receiver.tokenSender()
         expect(tokenSender).toEqual(sender.address)
 
-        let sentValue = await receiver.sentValue()
+        const sentValue = await receiver.sentValue()
         expect(sentValue.eq(transferAmount)).toBeTruthy()
       })
 
       it('returns true when the transfer succeeds', async () => {
-        let success = await sender.sendTransaction(params)
+        const success = await sender.sendTransaction(params)
         expect(success).toBeTruthy()
       })
 
       it('throws when the transfer fails', async () => {
-        let data =
+        const data =
           '0x' +
           'be45fd62' + // transfer(address,uint256,bytes)
           h.encodeAddress(receiver.address) +
@@ -92,7 +92,7 @@ export const shouldBehaveLikeERC677Token = (
 
         beforeEach(async () => {
           nonERC677 = await notERC677CompatibleFactory.connect(sender).deploy()
-          let data =
+          const data =
             '0x' +
             h.functionID('transferAndCall(address,uint256,bytes)') +
             h.encodeAddress(nonERC677.address) +
@@ -108,7 +108,7 @@ export const shouldBehaveLikeERC677Token = (
             'VM Exception while processing transaction:',
           )
 
-          let balance = await token.balanceOf(nonERC677.address)
+          const balance = await token.balanceOf(nonERC677.address)
           expect(balance.eq(0)).toBeTruthy()
         })
       })
