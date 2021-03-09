@@ -23,20 +23,20 @@
     "test": "env USE_OVM=false jest --testTimeout 80000 --forceExit",
     "test:ovm": "env USE_OVM=true jest --testTimeout 80000 --forceExit --testRegex 'test/.*v0.6/.*.(spec|test).(js|ts)?$'"
   },
+  "dependencies": {
+    "@openzeppelin/contracts": "^3.4.0"
+  },
   "devDependencies": {
     "@chainlink/belt": "^0.0.4",
     "@chainlink/test-helpers": "^0.0.6",
+    "@types/jest": "^26.0.8",
+    "@types/node": "^13.9.1",
     "jest": "^26.6.3",
     "jest-circus": "^25.1.0",
     "moment": "^2.15.2",
     "prettier": "^1.19.1",
-    "typescript": "^3.9.7",
-    "@types/jest": "^26.0.8",
-    "@types/node": "^13.9.1",
-    "ts-jest": "^25.2.0"
-  },
-  "dependencies": {
-    "@openzeppelin/contracts": "^3.1.0"
+    "ts-jest": "^25.2.0",
+    "typescript": "^3.9.7"
   },
   "resolutions": {
     "**/ethers": "4.0.45"
