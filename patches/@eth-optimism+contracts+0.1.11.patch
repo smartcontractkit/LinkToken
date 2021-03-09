@@ -1,0 +1,13 @@
+diff --git a/node_modules/@eth-optimism/contracts/build/src/contract-dumps.js b/node_modules/@eth-optimism/contracts/build/src/contract-dumps.js
+index cdfda5e..8c29208 100644
+--- a/node_modules/@eth-optimism/contracts/build/src/contract-dumps.js
++++ b/node_modules/@eth-optimism/contracts/build/src/contract-dumps.js
+@@ -23,7 +23,7 @@ exports.getLatestStateDump = exports.makeStateDump = void 0;
+ const path = __importStar(require("path"));
+ const ethers_1 = require("ethers");
+ const Ganache = __importStar(require("ganache-core"));
+-const utils_1 = require("ethers/lib/utils");
++const utils_1 = require("ethers/utils");
+ const core_utils_1 = require("@eth-optimism/core-utils");
+ const contract_deployment_1 = require("./contract-deployment");
+ const contract_defs_1 = require("./contract-defs");

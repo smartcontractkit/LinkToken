@@ -1,0 +1,13 @@
+diff --git a/node_modules/@eth-optimism/watcher/build/src/watcher.js b/node_modules/@eth-optimism/watcher/build/src/watcher.js
+index ab02d6e..bba2d83 100644
+--- a/node_modules/@eth-optimism/watcher/build/src/watcher.js
++++ b/node_modules/@eth-optimism/watcher/build/src/watcher.js
+@@ -61,7 +61,7 @@ class Watcher {
+                 if (log.data === msgHash) {
+                     try {
+                         const txReceipt = await layer.provider.getTransactionReceipt(log.transactionHash);
+-                        layer.provider.off(filter);
++                        layer.provider.removeListener(filter);
+                         resolve(txReceipt);
+                     }
+                     catch (e) {
