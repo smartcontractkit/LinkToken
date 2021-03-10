@@ -34,7 +34,7 @@
     "migrate:v0.6": "env VERSION=v0.6 truffle migrate"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^3.1.0",
+    "@openzeppelin/contracts": "^3.4.0",
     "@truffle/contract": "^4.1.8",
     "ethers": "^4.0.44"
   }
