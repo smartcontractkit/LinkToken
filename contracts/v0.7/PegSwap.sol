@@ -1,6 +1,6 @@
 pragma solidity >=0.6.0 <0.8.0;
 
-import "@chainlink/contracts/src/v0.6/Owned.sol";
+import "@chainlink/contracts/src/v0.7/dev/ConfirmedOwner.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
@@ -12,7 +12,7 @@ import "./token/ERC677Receiver.sol";
  * users should only interact with the swap, onTokenTransfer, and
  * getSwappableAmount functions.
  */
-contract PegSwap is Owned, ReentrancyGuard {
+contract PegSwap is ConfirmedOwner, ReentrancyGuard {
   using SafeMath for uint256;
 
   event LiquidityUpdated(
@@ -32,6 +32,8 @@ contract PegSwap is Owned, ReentrancyGuard {
   );
 
   mapping(address => mapping(address => uint256)) private s_swappableAmount;
+
+  constructor() ConfirmedOwner(msg.sender) {}
 
   /**
    * @dev Disallows direct send by setting a default function without the `payable` flag.
@@ -55,7 +57,7 @@ contract PegSwap is Owned, ReentrancyGuard {
   )
     external
   {
-    bool allowed = owner == msg.sender || _hasLiquidity(source, target);
+    bool allowed = owner() == msg.sender || _hasLiquidity(source, target);
     // By only allowing the owner to add a new pair, we reduce the potential of
     // possible attacks mounted by malicious token contracts.
     require(allowed, "only owner can add pairs");
@@ -207,6 +209,7 @@ contract PegSwap is Owned, ReentrancyGuard {
     address target
   )
     private
+    view
     returns (
       bool hasLiquidity
     )

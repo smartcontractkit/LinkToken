@@ -2,9 +2,9 @@ import { Wallet, Contract } from 'ethers'
 import { setup, matchers } from '@chainlink/test-helpers'
 import * as h from '../helpers'
 
-import { PegSwapFactory } from '../../build/ethers/v0.6/PegSwapFactory'
-import { Token677Factory } from '../../build/ethers/v0.6/Token677Factory'
-import { StandardTokenMockFactory } from '../../build/ethers/v0.6/StandardTokenMockFactory'
+import { PegSwapFactory } from '../../build/ethers/v0.7/PegSwapFactory'
+import { Token677Factory } from '../../build/ethers/v0.7/Token677Factory'
+import { StandardTokenMockFactory } from '../../build/ethers/v0.7/StandardTokenMockFactory'
 
 describe('ERC677Token', () => {
   let swap: Contract, owner: Wallet, base: Contract, wrapped: Contract, user: Wallet
