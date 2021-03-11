@@ -1,8 +1,8 @@
-import { StandardTokenMockFactory } from '../../../build/ethers/v0.6/StandardTokenMockFactory'
+import { StandardTokenMockFactory } from '../../../build/ethers/v0.7/StandardTokenMockFactory'
 import { shouldBehaveLikeBasicToken } from '../../behavior/token/BasicToken'
 import { shouldBehaveLikeStandardToken } from '../../behavior/token/StandardToken'
 
-describe('StandardToken v0.6', () => {
+describe('StandardToken v0.7', () => {
   shouldBehaveLikeBasicToken(new StandardTokenMockFactory())
   shouldBehaveLikeStandardToken(new StandardTokenMockFactory())
 })

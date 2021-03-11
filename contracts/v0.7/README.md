@@ -1,4 +1,4 @@
-# LINK Token Contracts v0.6
+# LINK Token Contracts v0.7
 
 The LINK token is an [EIP20](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md) token with additional [ERC677](https://github.com/ethereum/EIPs/issues/677) functionality.
 
