@@ -17,7 +17,7 @@ contract('SimpleSwap', accounts => {
     swap = await SimpleSwap.new({ from: owner })
   })
 
-  describe('#addSwappableTokens(address,address)', () => {
+  describe('#addLiquidity(address,address)', () => {
     const depositAmount = 100
 
     beforeEach(async () => {
@@ -26,17 +26,17 @@ contract('SimpleSwap', accounts => {
 
     it('reverts if called by anyone other than the owner', async () => {
       await assertActionThrows(async () => {
-        await swap.addSwappableTokens(base.address, wrapped.address, { from: user })
+        await swap.addLiquidity(base.address, wrapped.address, { from: user })
       })
     })
 
-    it("withdraws the amount from the owner's balance on the destination token", async () => {
+    it("withdraws the amount from the owner's balance on the target token", async () => {
       let swapBalance = await wrapped.balanceOf(swap.address)
       assert.equal(0, swapBalance)
       let ownerBalance = await wrapped.balanceOf(owner)
       assert.equal(totalIssuance, ownerBalance)
 
-      await swap.addSwappableTokens(base.address, wrapped.address, { from: owner })
+      await swap.addLiquidity(base.address, wrapped.address, { from: owner })
 
       swapBalance = await wrapped.balanceOf(swap.address)
       assert.equal(depositAmount, swapBalance)
@@ -45,25 +45,86 @@ contract('SimpleSwap', accounts => {
     })
 
     it('does not change balance amounts on source token', async () => {
-      let swappable = await base.balanceOf(swap.address)
-      assert.equal(0, swappable)
-
-      await swap.addSwappableTokens(base.address, wrapped.address, { from: owner })
-
-      swapBalance = await base.balanceOf(swap.address)
+      let swapBalance = await base.balanceOf(swap.address)
       assert.equal(0, swapBalance)
-      ownerBalance = await base.balanceOf(owner)
+      let ownerBalance = await base.balanceOf(owner)
       assert.equal(totalIssuance, ownerBalance)
+
+      await swap.addLiquidity(base.address, wrapped.address, { from: owner })
+
+      assert.equal(swapBalance.toString(), (await base.balanceOf(swap.address)).toString())
+      assert.equal(ownerBalance.toString(), (await base.balanceOf(owner)).toString())
     })
 
     it('updates the swappable amount', async () => {
       let swappable = await swap.swappable.call(base.address, wrapped.address)
       assert.equal(0, swappable)
 
-      await swap.addSwappableTokens(base.address, wrapped.address, { from: owner })
+      await swap.addLiquidity(base.address, wrapped.address, { from: owner })
 
       swappable = await swap.swappable.call(base.address, wrapped.address)
       assert.equal(depositAmount, swappable)
+    })
+  })
+
+  describe('#removeLiquidity(uint256,address,address)', () => {
+    const depositAmount = 100
+    const withdrawalAmount = 50
+    const startingAmount = totalIssuance - depositAmount
+
+    beforeEach(async () => {
+      await wrapped.approve(swap.address, depositAmount, { from: owner })
+      await swap.addLiquidity(base.address, wrapped.address, { from: owner })
+    })
+
+    it('reverts if called by anyone other than the owner', async () => {
+      await assertActionThrows(async () => {
+        await swap.removeLiquidity(withdrawalAmount, base.address, wrapped.address, {
+          from: user,
+        })
+      })
+    })
+
+    it("withdraws the amount from the swap's balance on the target to the owner", async () => {
+      let swapBalance = await wrapped.balanceOf(swap.address)
+      assert.equal(depositAmount, swapBalance)
+      let ownerBalance = await wrapped.balanceOf(owner)
+      assert.equal(totalIssuance - depositAmount, ownerBalance)
+
+      await swap.removeLiquidity(withdrawalAmount, base.address, wrapped.address, {
+        from: owner,
+      })
+
+      swapBalance = await wrapped.balanceOf(swap.address)
+      assert.equal(depositAmount - withdrawalAmount, swapBalance)
+      ownerBalance = await wrapped.balanceOf(owner)
+      assert.equal((startingAmount + withdrawalAmount).toString(), ownerBalance.toString())
+    })
+
+    it('does not change balance amounts on source token', async () => {
+      let swapBalance = await base.balanceOf(swap.address)
+      assert.equal(0, swapBalance)
+      let ownerBalance = await base.balanceOf(owner)
+      assert.equal(totalIssuance.toString(), ownerBalance.toString())
+
+      await swap.removeLiquidity(withdrawalAmount, base.address, wrapped.address, {
+        from: owner,
+      })
+
+      assert.equal(swapBalance.toString(), (await base.balanceOf(swap.address)).toString())
+      assert.equal(ownerBalance.toString(), (await base.balanceOf(owner)).toString())
+    })
+
+    it('updates the swappable amount', async () => {
+      let swappable = await swap.swappable.call(base.address, wrapped.address)
+      assert.equal(depositAmount, swappable)
+
+      await swap.removeLiquidity(withdrawalAmount, base.address, wrapped.address, {
+        from: owner,
+      })
+
+      swappable = await swap.swappable.call(base.address, wrapped.address)
+      assert.equal(depositAmount - withdrawalAmount, swappable)
     })
   })
 })

@@ -11,38 +11,47 @@ contract SimpleSwap is Owned, ReentrancyGuard {
 
   mapping(address => mapping(address => uint256)) s_swappableAmount;
 
-  constructor()
-    public
-    Owned()
-  { }
-
-  function addSwappableTokens(
+  function addLiquidity(
     address source,
-    address destination
+    address target
   )
     external
     onlyOwner()
     nonReentrant()
   {
-    ERC20 destinationToken = ERC20(destination);
-    uint256 allowance = destinationToken.allowance(msg.sender, address(this));
+    uint256 allowance = ERC20(target).allowance(msg.sender, address(this));
 
-    uint256 current = swappable(source, destination);
-    s_swappableAmount[source][destination] = current.add(allowance);
+    uint256 current = swappable(source, target);
+    s_swappableAmount[source][target] = current.add(allowance);
 
-    bool success = destinationToken.transferFrom(msg.sender, address(this), allowance);
+    bool success = ERC20(target).transferFrom(msg.sender, address(this), allowance);
     require(success, "transferFrom failed");
+  }
+
+  function removeLiquidity(
+    uint256 amount,
+    address source,
+    address target
+  )
+    external
+    onlyOwner()
+  {
+    uint256 current = swappable(source, target);
+    s_swappableAmount[source][target] = current.sub(amount);
+
+    bool success = ERC20(target).transfer(msg.sender, amount);
+    require(success, "transfer failed");
   }
 
   function swappable(
     address source,
-    address destination
+    address target
   )
     public
     view
     returns(uint256 total)
   {
-    return s_swappableAmount[source][destination];
+    return s_swappableAmount[source][target];
   }
 
 
