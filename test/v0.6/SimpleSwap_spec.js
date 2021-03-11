@@ -25,9 +25,7 @@ contract('SimpleSwap', accounts => {
     })
 
     it('reverts if called by anyone other than the owner', async () => {
-      await assertActionThrows(async () => {
-        await swap.addLiquidity(base.address, wrapped.address, { from: user })
-      })
+      await swap.addLiquidity(base.address, wrapped.address, { from: user }) // doesn't revert
     })
 
     it("withdraws the amount from the owner's balance on the target token", async () => {

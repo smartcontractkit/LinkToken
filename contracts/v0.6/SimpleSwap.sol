@@ -16,7 +16,6 @@ contract SimpleSwap is Owned, ReentrancyGuard {
     address target
   )
     external
-    onlyOwner()
     nonReentrant()
   {
     uint256 allowance = ERC20(target).allowance(msg.sender, address(this));
