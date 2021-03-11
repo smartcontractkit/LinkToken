@@ -10,6 +10,7 @@
   ],
   "devDependencies": {
     "@chainlink/belt": "^0.0.3",
+    "@chainlink/contracts": "^0.1.6",
     "@truffle/hdwallet-provider": "^1.0.43",
     "bignumber.js": "^2.0.0",
     "eth-gas-reporter": "^0.2.17",
