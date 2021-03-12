@@ -6,6 +6,12 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./token/ERC677Receiver.sol";
 
+/**
+ * @notice This contract provides a one-to-one swap between pairs of tokens. It
+ * is controlled by an owner who manages liquidity pools for all pairs. Most
+ * users should only interact with the swap, onTokenTransfer, and
+ * getSwappableAmount functions.
+ */
 contract SimpleSwap is Owned, ReentrancyGuard {
   using SafeMath for uint256;
 
