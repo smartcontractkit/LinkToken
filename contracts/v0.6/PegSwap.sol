@@ -36,13 +36,6 @@ contract PegSwap is Owned, ReentrancyGuard {
   mapping(address => mapping(address => uint256)) private s_swappableAmount;
 
   /**
-   * @dev Disallows direct send by setting a default function without the `payable` flag.
-   */
-  fallback()
-    external
-  {}
-
-  /**
    * @notice deposits tokens from the target of a swap pair but does not return
    * any. WARNING: Liquidity added through this method is only retrievable by
    * the owner of the contract.
