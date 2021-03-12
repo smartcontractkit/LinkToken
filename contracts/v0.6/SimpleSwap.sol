@@ -42,6 +42,24 @@ contract SimpleSwap is Owned, ReentrancyGuard {
     require(success, "transfer failed");
   }
 
+  function swap(
+    uint256 amount,
+    address source,
+    address target
+  )
+    external
+  {
+    uint256 availableTarget = swappable(source, target);
+    s_swappableAmount[source][target] = availableTarget.sub(amount);
+    require(amount <= availableTarget, "not enough liquidity");
+
+    uint256 availableSource = swappable(target, source);
+    s_swappableAmount[target][source] = availableSource.add(amount);
+
+    require(ERC20(source).transferFrom(msg.sender, address(this), amount), "transferFrom failed");
+    require(ERC20(target).transfer(msg.sender, amount), "transfer failed");
+  }
+
   function swappable(
     address source,
     address target
