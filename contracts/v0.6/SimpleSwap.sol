@@ -47,6 +47,9 @@ function() external {}
   )
     external
   {
+    bool allowed = owner == msg.sender || _hasLiquidity(source, target);
+    require(allowed, "only owner can add pairs");
+
     _addLiquidity(amount, source, target);
 
     require(ERC20(target).transferFrom(msg.sender, address(this), amount), "transferFrom failed");
@@ -187,6 +190,20 @@ function() external {}
     s_swappableAmount[source][target] = newAmount;
 
     emit LiquidityUpdated(newAmount, source, target);
+  }
+
+  function _hasLiquidity(
+    address source,
+    address target
+  )
+    private
+    returns (
+      bool hasLiquidity
+    )
+  {
+    if (getSwappableAmount(source, target) > 0) return true;
+    if (getSwappableAmount(target, source) > 0) return true;
+    return false;
   }
 
 }
