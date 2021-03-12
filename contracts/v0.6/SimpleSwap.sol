@@ -28,10 +28,7 @@ contract SimpleSwap is Owned {
   )
     external
   {
-    uint256 current = getSwappableAmount(source, target);
-    uint256 newAmount = current.add(amount);
-    s_swappableAmount[source][target] = newAmount;
-    emit LiquidityUpdated(newAmount, source, target);
+    _addLiquidity(amount, source, target);
 
     require(ERC20(target).transferFrom(msg.sender, address(this), amount), "transferFrom failed");
   }
@@ -44,10 +41,7 @@ contract SimpleSwap is Owned {
     external
     onlyOwner()
   {
-    uint256 current = getSwappableAmount(source, target);
-    uint256 newAmount = current.sub(amount);
-    s_swappableAmount[source][target] = newAmount;
-    emit LiquidityUpdated(newAmount, source, target);
+    _removeLiquidity(amount, source, target);
 
     require(ERC20(target).transfer(msg.sender, amount), "transfer failed");
   }
@@ -59,16 +53,8 @@ contract SimpleSwap is Owned {
   )
     external
   {
-    uint256 availableTarget = getSwappableAmount(source, target);
-    require(amount <= availableTarget, "not enough liquidity");
-
-    uint256 newTargetAmount = availableTarget.sub(amount);
-    s_swappableAmount[source][target] = newTargetAmount;
-    emit LiquidityUpdated(newTargetAmount, source, target);
-
-    uint256 newSourceAmount = getSwappableAmount(target, source).add(amount);
-    s_swappableAmount[target][source] = newSourceAmount;
-    emit LiquidityUpdated(newSourceAmount, source, target);
+    _removeLiquidity(amount, source, target);
+    _addLiquidity(amount, target, source);
 
     emit TokensSwapped(amount, source, target, msg.sender);
 
@@ -85,6 +71,34 @@ contract SimpleSwap is Owned {
     returns(uint256 total)
   {
     return s_swappableAmount[source][target];
+  }
+
+  function _addLiquidity(
+    uint256 amount,
+    address source,
+    address target
+  )
+    private
+  {
+    uint256 current = getSwappableAmount(source, target);
+    uint256 newAmount = current.add(amount);
+    s_swappableAmount[source][target] = newAmount;
+
+    emit LiquidityUpdated(newAmount, source, target);
+  }
+
+  function _removeLiquidity(
+    uint256 amount,
+    address source,
+    address target
+  )
+    private
+  {
+    uint256 current = getSwappableAmount(source, target);
+    uint256 newAmount = current.sub(amount);
+    s_swappableAmount[source][target] = newAmount;
+
+    emit LiquidityUpdated(newAmount, source, target);
   }
 
 }
