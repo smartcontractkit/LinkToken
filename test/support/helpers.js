@@ -152,10 +152,11 @@ Web3 = require('web3')
       .then(errorMessage => {
         assert(errorMessage, 'Expected an error to be raised')
         invalidOpcode = errorMessage.includes('invalid opcode')
-        reverted = errorMessage.includes('VM Exception while processing transaction: revert')
+        vmException = errorMessage.includes('VM Exception')
+        reverted = errorMessage.includes('revert')
         assert.isTrue(
-          invalidOpcode || reverted,
-          'expected error message to include "invalid JUMP" or "revert"',
+          vmException || invalidOpcode || reverted,
+          'expected error message to include "invalid JUMP", "revert", or "VM Exception"',
         )
         // see https://github.com/ethereumjs/testrpc/issues/39
         // for why the "invalid JUMP" is the throw related error when using TestRPC

@@ -1,13 +1,15 @@
 pragma solidity ^0.6.0;
 
 import "@chainlink/contracts/src/v0.6/Owned.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./token/ERC677Receiver.sol";
 
 contract SimpleSwap is Owned, ReentrancyGuard {
   using SafeMath for uint256;
+  using SafeERC20 for IERC20;
 
   event LiquidityUpdated(
     uint256 amount,
@@ -44,7 +46,7 @@ contract SimpleSwap is Owned, ReentrancyGuard {
   {
     _addLiquidity(amount, source, target);
 
-    require(ERC20(target).transferFrom(msg.sender, address(this), amount), "transferFrom failed");
+    IERC20(target).safeTransferFrom(msg.sender, address(this), amount);
   }
 
   /**
@@ -64,7 +66,7 @@ contract SimpleSwap is Owned, ReentrancyGuard {
   {
     _removeLiquidity(amount, source, target);
 
-    require(ERC20(target).transfer(msg.sender, amount), "transfer failed");
+    IERC20(target).safeTransfer(msg.sender, amount);
   }
 
   /**
@@ -86,8 +88,8 @@ contract SimpleSwap is Owned, ReentrancyGuard {
 
     emit TokensSwapped(amount, source, target, msg.sender);
 
-    require(ERC20(source).transferFrom(msg.sender, address(this), amount), "transferFrom failed");
-    require(ERC20(target).transfer(msg.sender, amount), "transfer failed");
+    IERC20(source).safeTransferFrom(msg.sender, address(this), amount);
+    IERC20(target).safeTransfer(msg.sender, amount);
   }
 
   /**
@@ -109,7 +111,7 @@ contract SimpleSwap is Owned, ReentrancyGuard {
   {
     emit StuckTokensRecovered(amount, target);
 
-    require(ERC20(target).transfer(msg.sender, amount), "transfer failed");
+    IERC20(target).safeTransfer(msg.sender, amount);
   }
 
   /**
@@ -133,7 +135,7 @@ contract SimpleSwap is Owned, ReentrancyGuard {
 
     emit TokensSwapped(amount, source, target, sender);
 
-    require(ERC20(target).transfer(sender, amount), "transfer failed");
+    IERC20(target).safeTransfer(sender, amount);
   }
 
   /**
