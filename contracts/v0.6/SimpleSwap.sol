@@ -2,29 +2,25 @@ pragma solidity ^0.6.0;
 
 import "@chainlink/contracts/src/v0.6/Owned.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./token/ERC677.sol";
 
-contract SimpleSwap is Owned, ReentrancyGuard {
+contract SimpleSwap is Owned {
   using SafeMath for uint256;
 
-  mapping(address => mapping(address => uint256)) s_swappableAmount;
+  mapping(address => mapping(address => uint256)) private s_swappableAmount;
 
   function addLiquidity(
+    uint256 amount,
     address source,
     address target
   )
     external
-    nonReentrant()
   {
-    uint256 allowance = ERC20(target).allowance(msg.sender, address(this));
-
     uint256 current = swappable(source, target);
-    s_swappableAmount[source][target] = current.add(allowance);
+    s_swappableAmount[source][target] = current.add(amount);
 
-    bool success = ERC20(target).transferFrom(msg.sender, address(this), allowance);
-    require(success, "transferFrom failed");
+    require(ERC20(target).transferFrom(msg.sender, address(this), amount), "transferFrom failed");
   }
 
   function removeLiquidity(

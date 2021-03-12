@@ -27,8 +27,8 @@ contract('SimpleSwap', accounts => {
       await wrapped.approve(swap.address, depositAmount, { from: owner })
     })
 
-    it('reverts if called by anyone other than the owner', async () => {
-      await swap.addLiquidity(base.address, wrapped.address, { from: user }) // doesn't revert
+    it('can be called by anyone', async () => {
+      await swap.addLiquidity(0, base.address, wrapped.address, { from: user }) // doesn't revert
     })
 
     it("withdraws the amount from the owner's balance on the target token", async () => {
@@ -37,7 +37,7 @@ contract('SimpleSwap', accounts => {
       let ownerBalance = await wrapped.balanceOf(owner)
       assert.equal(totalIssuance, ownerBalance)
 
-      await swap.addLiquidity(base.address, wrapped.address, { from: owner })
+      await swap.addLiquidity(depositAmount, base.address, wrapped.address, { from: owner })
 
       swapBalance = await wrapped.balanceOf(swap.address)
       assert.equal(depositAmount, swapBalance)
@@ -51,7 +51,7 @@ contract('SimpleSwap', accounts => {
       let ownerBalance = await base.balanceOf(owner)
       assert.equal(ownerBaseAmount, ownerBalance.toNumber())
 
-      await swap.addLiquidity(base.address, wrapped.address, { from: owner })
+      await swap.addLiquidity(depositAmount, base.address, wrapped.address, { from: owner })
 
       assert.equal(swapBalance, (await base.balanceOf(swap.address)).toNumber())
       assert.equal(ownerBalance, (await base.balanceOf(owner)).toNumber())
@@ -61,7 +61,7 @@ contract('SimpleSwap', accounts => {
       let swappable = await swap.swappable(base.address, wrapped.address)
       assert.equal(0, swappable)
 
-      await swap.addLiquidity(base.address, wrapped.address, { from: owner })
+      await swap.addLiquidity(depositAmount, base.address, wrapped.address, { from: owner })
 
       swappable = await swap.swappable(base.address, wrapped.address)
       assert.equal(depositAmount, swappable)
@@ -75,7 +75,7 @@ contract('SimpleSwap', accounts => {
 
     beforeEach(async () => {
       await wrapped.approve(swap.address, depositAmount, { from: owner })
-      await swap.addLiquidity(base.address, wrapped.address, { from: owner })
+      await swap.addLiquidity(depositAmount, base.address, wrapped.address, { from: owner })
     })
 
     it('reverts if called by anyone other than the owner', async () => {
@@ -132,7 +132,7 @@ contract('SimpleSwap', accounts => {
   describe('swap(uint256,address,address)', () => {
     beforeEach(async () => {
       await wrapped.approve(swap.address, depositAmount, { from: owner })
-      await swap.addLiquidity(base.address, wrapped.address, { from: owner })
+      await swap.addLiquidity(depositAmount, base.address, wrapped.address, { from: owner })
     })
 
     it('reverts if enough funds have not been approved before', async () => {
