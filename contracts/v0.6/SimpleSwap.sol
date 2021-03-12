@@ -24,7 +24,9 @@ contract SimpleSwap is Owned, ReentrancyGuard {
   mapping(address => mapping(address => uint256)) private s_swappableAmount;
 
   /**
-   * @dev deposits tokens from the target of a swap pair but does not return any
+   * @notice deposits tokens from the target of a swap pair but does not return
+   * any. WARNING: Liquidity added through this method is only retrievable by
+   * the owner of the contract.
    * @param amount count of liquidity being added
    * @param source the token that can be swapped for what is being deposited
    * @param target the token that can is being deposited for swapping
@@ -42,8 +44,8 @@ contract SimpleSwap is Owned, ReentrancyGuard {
   }
 
   /**
-   * @dev withdraws tokens from the target of a swap pair.
-   * Only callable by owner
+   * @notice withdraws tokens from the target of a swap pair.
+   * @dev Only callable by owner
    * @param amount count of liquidity being removed
    * @param source the token that can be swapped for what is being removed
    * @param target the token that can is being withdrawn from swapping
@@ -62,7 +64,7 @@ contract SimpleSwap is Owned, ReentrancyGuard {
   }
 
   /**
-   * @dev exchanges the source token for target token
+   * @notice exchanges the source token for target token
    * @param amount count of tokens being swapped
    * @param source the token that is being given
    * @param target the token that is being taken
@@ -85,11 +87,12 @@ contract SimpleSwap is Owned, ReentrancyGuard {
   }
 
   /**
-   * @dev send funds that were accidentally transferred back to the owner. This
+   * @notice send funds that were accidentally transferred back to the owner. This
    * allows rescuing of funds, and poses no additional risk as the owner could
    * already withdraw any funds intended to be swapped. WARNING: If not called
    * correctly this method can throw off the swappable token balances, but that
    * can be recovered from by transferring the discrepancy back to the swap.
+   * @dev Only callable by owner
    * @param amount count of tokens being moved
    * @param target the token that is being moved
    */
@@ -104,7 +107,7 @@ contract SimpleSwap is Owned, ReentrancyGuard {
   }
 
   /**
-   * @dev swap tokens in one transaction if the sending token supports ERC677
+   * @notice swap tokens in one transaction if the sending token supports ERC677
    * @param sender address that initially initiated the call to the source token
    * @param amount count of tokens sent for the swap
    * @param targetData address of target token encoded as a bytes array
@@ -128,7 +131,7 @@ contract SimpleSwap is Owned, ReentrancyGuard {
   }
 
   /**
-   * @dev returns the amount of tokens for a pair that are available to swap
+   * @notice returns the amount of tokens for a pair that are available to swap
    * @param source the token that is being given
    * @param target the token that is being taken
    * @return amount count of tokens available to swap
