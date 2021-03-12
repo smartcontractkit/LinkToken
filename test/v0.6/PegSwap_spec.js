@@ -1,7 +1,7 @@
 require('../support/helpers.js')
 
-contract('SimpleSwap', accounts => {
-  let { SimpleSwap } = require('../../build/truffle/v0.6/SimpleSwap')
+contract('PegSwap', accounts => {
+  let { PegSwap } = require('../../build/truffle/v0.6/PegSwap')
   let { Token677 } = require('../../build/truffle/v0.6/Token677')
   let { StandardTokenMock } = require('../../build/truffle/v0.6/StandardTokenMock')
   const Token20 = StandardTokenMock
@@ -17,13 +17,13 @@ contract('SimpleSwap', accounts => {
     user = accounts[1]
     base = await Token20.new(owner, totalIssuance, { from: owner })
     wrapped = await Token677.new(totalIssuance, { from: owner })
-    swap = await SimpleSwap.new({ from: owner })
+    swap = await PegSwap.new({ from: owner })
 
     await base.transfer(user, depositAmount, { from: owner })
   })
 
   it('has a limited public ABI', () => {
-    checkPublicABI(SimpleSwap, [
+    checkPublicABI(PegSwap, [
       'addLiquidity',
       'getSwappableAmount',
       'onTokenTransfer',
