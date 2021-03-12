@@ -10,15 +10,15 @@ contract SimpleSwap is Owned, ReentrancyGuard {
   using SafeMath for uint256;
 
   event LiquidityUpdated(
-    uint256 indexed amount,
+    uint256 amount,
     address indexed source,
     address indexed target
   );
   event TokensSwapped(
-    uint256 indexed amount,
+    uint256 amount,
     address indexed source,
     address indexed target,
-    address caller
+    address indexed caller
   );
 
   mapping(address => mapping(address => uint256)) private s_swappableAmount;
