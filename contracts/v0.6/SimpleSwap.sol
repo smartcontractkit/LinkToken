@@ -96,7 +96,7 @@ contract SimpleSwap is Owned, ReentrancyGuard {
    * @param amount count of tokens being moved
    * @param target the token that is being moved
    */
-  function recoverTransferredTokens(
+  function recoverStuckTokens(
     uint256 amount,
     address target
   )

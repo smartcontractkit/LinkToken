@@ -27,7 +27,7 @@ contract('SimpleSwap', accounts => {
       'addLiquidity',
       'getSwappableAmount',
       'onTokenTransfer',
-      'recoverTransferredTokens',
+      'recoverStuckTokens',
       'removeLiquidity',
       'swap',
       // Owned functions
@@ -234,7 +234,7 @@ contract('SimpleSwap', accounts => {
     })
   })
 
-  describe('recoverTransferredTokens(uint256,address)', () => {
+  describe('recoverStuckTokens(uint256,address)', () => {
     const dumbAmount = 420
 
     beforeEach(async () => {
@@ -243,7 +243,7 @@ contract('SimpleSwap', accounts => {
 
     it('reverts if enough funds have not been approved before', async () => {
       await assertActionThrows(async () => {
-        await swap.recoverTransferredTokens(tradeAmount, base.address, {
+        await swap.recoverStuckTokens(tradeAmount, base.address, {
           from: user,
         })
       })
@@ -255,7 +255,7 @@ contract('SimpleSwap', accounts => {
       let ownerBalance = await base.balanceOf(owner)
       assert.equal(ownerBaseAmount - dumbAmount, ownerBalance)
 
-      await swap.recoverTransferredTokens(dumbAmount, base.address, {
+      await swap.recoverStuckTokens(dumbAmount, base.address, {
         from: owner,
       })
 
