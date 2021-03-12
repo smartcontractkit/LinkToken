@@ -22,6 +22,19 @@ contract('SimpleSwap', accounts => {
     await base.transfer(user, depositAmount, { from: owner })
   })
 
+  it('has a limited public ABI', () => {
+    checkPublicABI(SimpleSwap, [
+      'addLiquidity',
+      'removeLiquidity',
+      'swap',
+      'getSwappableAmount',
+      // Owned functions
+      'owner',
+      'transferOwnership',
+      'acceptOwnership',
+    ])
+  })
+
   describe('#addLiquidity(address,address)', () => {
     beforeEach(async () => {
       await wrapped.approve(swap.address, depositAmount, { from: owner })
@@ -58,12 +71,12 @@ contract('SimpleSwap', accounts => {
     })
 
     it('updates the swappable amount', async () => {
-      let swappable = await swap.swappable(base.address, wrapped.address)
+      let swappable = await swap.getSwappableAmount(base.address, wrapped.address)
       assert.equal(0, swappable)
 
       await swap.addLiquidity(depositAmount, base.address, wrapped.address, { from: owner })
 
-      swappable = await swap.swappable(base.address, wrapped.address)
+      swappable = await swap.getSwappableAmount(base.address, wrapped.address)
       assert.equal(depositAmount, swappable)
     })
   })
@@ -117,14 +130,14 @@ contract('SimpleSwap', accounts => {
     })
 
     it('updates the swappable amount', async () => {
-      let swappable = await swap.swappable(base.address, wrapped.address)
+      let swappable = await swap.getSwappableAmount(base.address, wrapped.address)
       assert.equal(depositAmount, swappable)
 
       await swap.removeLiquidity(withdrawalAmount, base.address, wrapped.address, {
         from: owner,
       })
 
-      swappable = await swap.swappable(base.address, wrapped.address)
+      swappable = await swap.getSwappableAmount(base.address, wrapped.address)
       assert.equal(depositAmount - withdrawalAmount, swappable)
     })
   })
@@ -181,26 +194,26 @@ contract('SimpleSwap', accounts => {
       })
 
       it('updates the swappable amount for the pair', async () => {
-        let swappable = await swap.swappable(base.address, wrapped.address)
+        let swappable = await swap.getSwappableAmount(base.address, wrapped.address)
         assert.equal(depositAmount, swappable.toNumber())
 
         await swap.swap(tradeAmount, base.address, wrapped.address, {
           from: user,
         })
 
-        swappable = await swap.swappable(base.address, wrapped.address)
+        swappable = await swap.getSwappableAmount(base.address, wrapped.address)
         assert.equal(depositAmount - tradeAmount, swappable.toNumber())
       })
 
       it('updates the swappable amount for the inverse of the pair', async () => {
-        let swappable = await swap.swappable(wrapped.address, base.address)
+        let swappable = await swap.getSwappableAmount(wrapped.address, base.address)
         assert.equal(0, swappable.toNumber())
 
         await swap.swap(tradeAmount, base.address, wrapped.address, {
           from: user,
         })
 
-        swappable = await swap.swappable(wrapped.address, base.address)
+        swappable = await swap.getSwappableAmount(wrapped.address, base.address)
         assert.equal(tradeAmount, swappable.toNumber())
       })
 
