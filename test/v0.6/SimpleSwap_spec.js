@@ -15,8 +15,8 @@ contract('SimpleSwap', accounts => {
   beforeEach(async () => {
     owner = accounts[0]
     user = accounts[1]
-    base = await Token677.new(totalIssuance, { from: owner })
-    wrapped = await Token20.new(owner, totalIssuance, { from: owner })
+    base = await Token20.new(owner, totalIssuance, { from: owner })
+    wrapped = await Token677.new(totalIssuance, { from: owner })
     swap = await SimpleSwap.new({ from: owner })
 
     await base.transfer(user, depositAmount, { from: owner })
@@ -26,6 +26,7 @@ contract('SimpleSwap', accounts => {
     checkPublicABI(SimpleSwap, [
       'addLiquidity',
       'getSwappableAmount',
+      'onTokenTransfer',
       'recoverTransferredTokens',
       'removeLiquidity',
       'swap',
@@ -262,6 +263,67 @@ contract('SimpleSwap', accounts => {
       assert.equal(0, swapBalance)
       ownerBalance = await base.balanceOf(owner)
       assert.equal(ownerBaseAmount, ownerBalance.toNumber())
+    })
+  })
+
+  describe('onTokenTransfer(address,uint256,bytes)', () => {
+    beforeEach(async () => {
+      await wrapped.transfer(user, depositAmount, { from: owner })
+      await base.approve(swap.address, depositAmount, { from: owner })
+      await swap.addLiquidity(depositAmount, wrapped.address, base.address, { from: owner })
+    })
+
+    it('pulls accepts the source funds from the user', async () => {
+      let swapBalance = await wrapped.balanceOf(swap.address)
+      //assert.equal(depositAmount, swapBalance)
+      assert.equal(0, swapBalance)
+      let userBalance = await wrapped.balanceOf(user)
+      assert.equal(depositAmount, userBalance)
+
+      const data = '0x' + encodeAddress(base.address)
+      await wrapped.transferAndCall(swap.address, tradeAmount, data, { from: user })
+
+      swapBalance = await wrapped.balanceOf(swap.address)
+      assert.equal(tradeAmount, swapBalance)
+      userBalance = await wrapped.balanceOf(user)
+      assert.equal(depositAmount - tradeAmount, userBalance.toNumber())
+    })
+
+    it('sends target funds to the user', async () => {
+      let swapBalance = await base.balanceOf(swap.address)
+      assert.equal(depositAmount, swapBalance)
+      let userBalance = await base.balanceOf(user)
+      assert.equal(depositAmount, userBalance)
+
+      const data = '0x' + encodeAddress(base.address)
+      await wrapped.transferAndCall(swap.address, tradeAmount, data, { from: user })
+
+      swapBalance = await base.balanceOf(swap.address)
+      assert.equal(depositAmount - tradeAmount, swapBalance)
+      userBalance = await base.balanceOf(user)
+      assert.equal(depositAmount + tradeAmount, userBalance.toNumber())
+    })
+
+    it('updates the swappable amount for the inverse of the pair', async () => {
+      let swappable = await swap.getSwappableAmount(base.address, wrapped.address)
+      assert.equal(0, swappable.toNumber())
+
+      const data = '0x' + encodeAddress(base.address)
+      await wrapped.transferAndCall(swap.address, tradeAmount, data, { from: user })
+
+      swappable = await swap.getSwappableAmount(base.address, wrapped.address)
+      assert.equal(tradeAmount, swappable.toNumber())
+    })
+
+    it('updates the swappable amount for the pair', async () => {
+      let swappable = await swap.getSwappableAmount(wrapped.address, base.address)
+      assert.equal(depositAmount, swappable.toNumber())
+
+      const data = '0x' + encodeAddress(base.address)
+      await wrapped.transferAndCall(swap.address, tradeAmount, data, { from: user })
+
+      swappable = await swap.getSwappableAmount(wrapped.address, base.address)
+      assert.equal(depositAmount - tradeAmount, swappable.toNumber())
     })
   })
 })

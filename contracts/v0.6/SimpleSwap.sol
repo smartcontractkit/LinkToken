@@ -4,6 +4,7 @@ import "@chainlink/contracts/src/v0.6/Owned.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
+import "./token/ERC677Receiver.sol";
 
 contract SimpleSwap is Owned, ReentrancyGuard {
   using SafeMath for uint256;
@@ -100,6 +101,30 @@ contract SimpleSwap is Owned, ReentrancyGuard {
     onlyOwner()
   {
     require(ERC20(target).transfer(msg.sender, amount), "transfer failed");
+  }
+
+  /**
+   * @dev swap tokens in one transaction if the sending token supports ERC677
+   * @param sender address that initially initiated the call to the source token
+   * @param amount count of tokens sent for the swap
+   * @param targetData address of target token encoded as a bytes array
+   */
+  function onTokenTransfer(
+    address sender,
+    uint256 amount,
+    bytes calldata targetData
+  )
+    external
+  {
+    address source = msg.sender;
+    address target = abi.decode(targetData, (address));
+
+    _removeLiquidity(amount, source, target);
+    _addLiquidity(amount, target, source);
+
+    emit TokensSwapped(amount, source, target, sender);
+
+    require(ERC20(target).transfer(sender, amount), "transfer failed");
   }
 
   /**
