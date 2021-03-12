@@ -20,6 +20,10 @@ contract SimpleSwap is Owned, ReentrancyGuard {
     address indexed target,
     address indexed caller
   );
+  event StuckTokensRecovered(
+    uint256 amount,
+    address indexed target
+  );
 
   mapping(address => mapping(address => uint256)) private s_swappableAmount;
 
@@ -103,6 +107,8 @@ contract SimpleSwap is Owned, ReentrancyGuard {
     external
     onlyOwner()
   {
+    emit StuckTokensRecovered(amount, target);
+
     require(ERC20(target).transfer(msg.sender, amount), "transfer failed");
   }
 
