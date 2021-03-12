@@ -56,6 +56,8 @@ contract SimpleSwap is Owned, ReentrancyGuard {
     external
   {
     bool allowed = owner == msg.sender || _hasLiquidity(source, target);
+    // By only allowing the owner to add a new pair, we reduce the potential of
+    // possible attacks mounted by malicious token contracts.
     require(allowed, "only owner can add pairs");
 
     _addLiquidity(amount, source, target);
