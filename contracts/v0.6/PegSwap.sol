@@ -12,7 +12,7 @@ import "./token/ERC677Receiver.sol";
  * users should only interact with the swap, onTokenTransfer, and
  * getSwappableAmount functions.
  */
-contract SimpleSwap is Owned, ReentrancyGuard {
+contract PegSwap is Owned, ReentrancyGuard {
   using SafeMath for uint256;
 
   event LiquidityUpdated(
