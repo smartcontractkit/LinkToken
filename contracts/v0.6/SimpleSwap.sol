@@ -84,6 +84,25 @@ contract SimpleSwap is Owned, ReentrancyGuard {
   }
 
   /**
+   * @dev send funds that were accidentally transferred back to the owner. This
+   * allows rescuing of funds, and poses no additional risk as the owner could
+   * already withdraw any funds intended to be swapped. WARNING: If not called
+   * correctly this method can throw off the swappable token balances, but that
+   * can be recovered from by transferring the discrepancy back to the swap.
+   * @param amount count of tokens being moved
+   * @param target the token that is being moved
+   */
+  function recoverTransferredTokens(
+    uint256 amount,
+    address target
+  )
+    external
+    onlyOwner()
+  {
+    require(ERC20(target).transfer(msg.sender, amount), "transfer failed");
+  }
+
+  /**
    * @dev returns the amount of tokens for a pair that are available to swap
    * @param source the token that is being given
    * @param target the token that is being taken
@@ -112,8 +131,7 @@ contract SimpleSwap is Owned, ReentrancyGuard {
   )
     private
   {
-    uint256 current = getSwappableAmount(source, target);
-    uint256 newAmount = current.add(amount);
+    uint256 newAmount = getSwappableAmount(source, target).add(amount);
     s_swappableAmount[source][target] = newAmount;
 
     emit LiquidityUpdated(newAmount, source, target);
@@ -126,8 +144,7 @@ contract SimpleSwap is Owned, ReentrancyGuard {
   )
     private
   {
-    uint256 current = getSwappableAmount(source, target);
-    uint256 newAmount = current.sub(amount);
+    uint256 newAmount = getSwappableAmount(source, target).sub(amount);
     s_swappableAmount[source][target] = newAmount;
 
     emit LiquidityUpdated(newAmount, source, target);

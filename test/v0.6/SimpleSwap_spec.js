@@ -25,13 +25,14 @@ contract('SimpleSwap', accounts => {
   it('has a limited public ABI', () => {
     checkPublicABI(SimpleSwap, [
       'addLiquidity',
+      'getSwappableAmount',
+      'recoverTransferredTokens',
       'removeLiquidity',
       'swap',
-      'getSwappableAmount',
       // Owned functions
+      'acceptOwnership',
       'owner',
       'transferOwnership',
-      'acceptOwnership',
     ])
   })
 
@@ -229,6 +230,38 @@ contract('SimpleSwap', accounts => {
           })
         })
       })
+    })
+  })
+
+  describe('recoverTransferredTokens(uint256,address)', () => {
+    const dumbAmount = 420
+
+    beforeEach(async () => {
+      await base.transfer(swap.address, dumbAmount, { from: owner })
+    })
+
+    it('reverts if enough funds have not been approved before', async () => {
+      await assertActionThrows(async () => {
+        await swap.recoverTransferredTokens(tradeAmount, base.address, {
+          from: user,
+        })
+      })
+    })
+
+    it('moves deposits for any token', async () => {
+      let swapBalance = await base.balanceOf(swap.address)
+      assert.equal(dumbAmount, swapBalance.toNumber())
+      let ownerBalance = await base.balanceOf(owner)
+      assert.equal(ownerBaseAmount - dumbAmount, ownerBalance)
+
+      await swap.recoverTransferredTokens(dumbAmount, base.address, {
+        from: owner,
+      })
+
+      swapBalance = await base.balanceOf(swap.address)
+      assert.equal(0, swapBalance)
+      ownerBalance = await base.balanceOf(owner)
+      assert.equal(ownerBaseAmount, ownerBalance.toNumber())
     })
   })
 })
