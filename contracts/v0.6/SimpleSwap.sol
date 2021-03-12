@@ -14,7 +14,7 @@ contract SimpleSwap is Owned, ReentrancyGuard {
     address indexed target
   );
   event TokensSwapped(
-    uint256 amount,
+    uint256 indexed amount,
     address indexed source,
     address indexed target,
     address caller
@@ -22,6 +22,12 @@ contract SimpleSwap is Owned, ReentrancyGuard {
 
   mapping(address => mapping(address => uint256)) private s_swappableAmount;
 
+  /**
+   * @dev deposits tokens from the target of a swap pair but does not return any
+   * @param amount count of liquidity being added
+   * @param source the token that can be swapped for what is being deposited
+   * @param target the token that can is being deposited for swapping
+   */
   function addLiquidity(
     uint256 amount,
     address source,
@@ -34,6 +40,13 @@ contract SimpleSwap is Owned, ReentrancyGuard {
     require(ERC20(target).transferFrom(msg.sender, address(this), amount), "transferFrom failed");
   }
 
+  /**
+   * @dev withdraws tokens from the target of a swap pair.
+   * Only callable by owner
+   * @param amount count of liquidity being removed
+   * @param source the token that can be swapped for what is being removed
+   * @param target the token that can is being withdrawn from swapping
+   */
   function removeLiquidity(
     uint256 amount,
     address source,
@@ -47,6 +60,12 @@ contract SimpleSwap is Owned, ReentrancyGuard {
     require(ERC20(target).transfer(msg.sender, amount), "transfer failed");
   }
 
+  /**
+   * @dev exchanges the source token for target token
+   * @param amount count of tokens being swapped
+   * @param source the token that is being given
+   * @param target the token that is being taken
+   */
   function swap(
     uint256 amount,
     address source,
@@ -64,16 +83,27 @@ contract SimpleSwap is Owned, ReentrancyGuard {
     require(ERC20(target).transfer(msg.sender, amount), "transfer failed");
   }
 
+  /**
+   * @dev returns the amount of tokens for a pair that are available to swap
+   * @param source the token that is being given
+   * @param target the token that is being taken
+   * @return amount count of tokens available to swap
+   */
   function getSwappableAmount(
     address source,
     address target
   )
     public
     view
-    returns(uint256 total)
+    returns(
+      uint256 amount
+    )
   {
     return s_swappableAmount[source][target];
   }
+
+
+  // PRIVATE
 
   function _addLiquidity(
     uint256 amount,
