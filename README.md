@@ -32,6 +32,12 @@ Before running tests, open a new terminal and start Ganache on port `8454`:
 ganache-cli -l 8000000
 ```
 
+Compile the contracts:
+
+```bash
+yarn compile
+```
+
 Run tests:
 
 ```bash
