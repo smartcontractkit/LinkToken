@@ -17,11 +17,12 @@
     "compile:ovm": "yarn belt compile all-ovm --config app.config.ovm.json",
     "compile:clean": "yarn clean & yarn compile",
     "compile:clean:ovm": "yarn clean & yarn compile:ovm",
-    "setup": "yarn clean & yarn compile & yarn compile:ovm",
-    "test": "env USE_OVM=false jest --testTimeout 80000 --forceExit --detectOpenHandles",
-    "test:ovm": "env USE_OVM=true jest --testTimeout 80000 --forceExit --detectOpenHandles --testRegex 'test/.*v0.7/.*.(spec|test).(js|ts)?$'",
+    "setup": "yarn compile:clean",
+    "setup:ovm": "yarn compile:clean:ovm",
+    "test": "env USE_OVM=false jest --testTimeout 60000 --forceExit --detectOpenHandles",
+    "test:ovm": "env USE_OVM=true jest --testTimeout 60000 --forceExit --detectOpenHandles --testRegex 'test/.*v0.7/.*.(spec|test).(js|ts)?$'",
     "postinstall": "patch-package",
-    "deposit-withdraw": "ts-node scripts/deposit-withdraw.ts"
+    "script:deposit-withdraw": "ts-node scripts/deposit-withdraw.ts"
   },
   "dependencies": {
     "@chainlink/contracts": "^0.1.6",

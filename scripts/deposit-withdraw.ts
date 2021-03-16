@@ -2,9 +2,10 @@ import { JsonRpcProvider } from 'ethers/providers'
 import { Wallet, ContractFactory, Contract } from 'ethers'
 const { Watcher } = require('@eth-optimism/watcher')
 
-// Load env
+// Load env (force 'local' env in unit test)
 import * as dotenv from 'dotenv'
-const networkArg = process.argv.slice(2)[0] || 'local'
+const isTest = process.argv[1].includes('jest')
+const networkArg = isTest ? 'local' : process.argv.slice(2)[0] || 'local'
 dotenv.config({ path: __dirname + `/../env/.env.${networkArg}` })
 
 import * as Def__ERC20 from '../fixtures/contracts/v0.7/LinkToken.json'
@@ -125,6 +126,8 @@ export const depositAndWithdraw = async (checkBalances: CheckBalances) => {
 
   const _checkBalances = () => checkBalances(l1Wallet, L1_ERC20, l2Wallet, OVM_L2DepositedERC20)
 
+  await _checkBalances()
+
   // Approve
   console.log('Approving L1 deposit contract...')
   const approveTx = await L1_ERC20.approve(OVM_L1ERC20Gateway.address, 1)
@@ -178,7 +181,9 @@ const logBalances: CheckBalances = async (l1Wallet, L1_ERC20, l2Wallet, OVM_L2De
   console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n')
 }
 
-const main = depositAndWithdraw
-
-// start script
-main(logBalances)
+if (require.main === module) {
+  console.log('Running depositAndWithdraw script...')
+  const main = depositAndWithdraw
+  // start script
+  main(logBalances)
+}
