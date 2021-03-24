@@ -1,5 +1,5 @@
 {
-  "name": "link_token",
+  "name": "@chainlink/token",
   "homepage": "https://github.com/smartcontractkit/LinkToken",
   "repository": "https://github.com/smartcontractkit/LinkToken",
   "version": "1.1.0",
