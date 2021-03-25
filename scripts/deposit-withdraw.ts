@@ -9,6 +9,7 @@ const networkArg = isTest ? 'local' : process.argv.slice(2)[0] || 'local'
 dotenv.config({ path: __dirname + `/../env/.env.${networkArg}` })
 
 import * as Def__ERC20 from '../fixtures/contracts/v0.7/LinkToken.json'
+import * as Def__L1ERC20Gateway from '../fixtures/contracts/v0.7/OVM_L1ERC20Gateway.json'
 import * as Def__L2DepositedERC20 from '../build/contracts/v0.7/OVM_L2DepositedLinkToken.json'
 
 import { deployGateway } from '../src/optimism'
@@ -60,7 +61,7 @@ export const setupOrRetrieveGateway = async (
   } else {
     OVM_L1ERC20Gateway = new Contract(
       l1ERC20GatewayAddress,
-      Def__L2DepositedERC20.compilerOutput.abi,
+      Def__L1ERC20Gateway.compilerOutput.abi,
       l1Wallet,
     )
     const l2ERC20GatewayAddress = await OVM_L1ERC20Gateway.l2ERC20Gateway()
@@ -161,6 +162,7 @@ export const depositAndWithdraw = async (checkBalances: CheckBalances) => {
   console.log('got L2->L1 message hash', l2ToL1msgHash)
   const l1Receipt = await watcher.getL1TransactionReceipt(l2ToL1msgHash)
   console.log('completed Withdrawal! L1 tx hash:', l1Receipt.transactionHash)
+
   await _checkBalances()
 }
 
@@ -186,4 +188,6 @@ if (require.main === module) {
   const main = depositAndWithdraw
   // start script
   main(logBalances)
+    .catch(console.error)
+    .finally(process.exit)
 }

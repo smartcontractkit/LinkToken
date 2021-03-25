@@ -589,7 +589,7 @@
     ethers "5.0.0"
     ganache-core "^2.12.1"
 
-"@eth-optimism/contracts@^0.1.10":
+"@eth-optimism/contracts@^0.1.11":
   version "0.1.11"
   resolved "https://registry.yarnpkg.com/@eth-optimism/contracts/-/contracts-0.1.11.tgz#d33354b69e1bdaf11eac799a1f4dfb17295a04e7"
   integrity sha512-Ak4VoPwn9ZTH7Th5Ioh9HxGt9mtriOuiH1YuOtRihnhmmsJ0DO5k5dqdzbckUKYDW1s3sA7N6Yw3pbtZ9qiVWw==

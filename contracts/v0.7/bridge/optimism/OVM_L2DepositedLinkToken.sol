@@ -7,6 +7,7 @@ import { LinkToken } from "../../LinkToken.sol";
 
 /* Library Imports */
 import { Abs_L2DepositedToken } from "@eth-optimism/contracts/build/contracts/OVM/bridge/tokens/Abs_L2DepositedToken.sol";
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 /**
  * @title OVM_L2DepositedLinkToken
@@ -45,13 +46,13 @@ contract OVM_L2DepositedLinkToken is Abs_L2DepositedToken, LinkToken {
    * @inheritdoc Abs_L2DepositedToken
    */
   function _handleInitiateWithdrawal(
-    address /* to */,
-    uint amount
+    address _to,
+    uint _amount
   )
     internal
     override
   {
-    _burn(msg.sender, amount);
+    _burn(msg.sender, _amount);
   }
 
   /**
@@ -59,12 +60,12 @@ contract OVM_L2DepositedLinkToken is Abs_L2DepositedToken, LinkToken {
    * @inheritdoc Abs_L2DepositedToken
    */
   function _handleFinalizeDeposit(
-    address to,
-    uint amount
+    address _to,
+    uint _amount
   )
     internal
     override
   {
-    _mint(to, amount);
+    _mint(_to, _amount);
   }
 }

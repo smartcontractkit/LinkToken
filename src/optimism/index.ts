@@ -1,6 +1,6 @@
 import { Wallet, ContractFactory, Contract } from 'ethers'
-const { getContractFactory } = require('@eth-optimism/contracts')
 
+import * as Def__L1ERC20Gateway from '../../fixtures/contracts/v0.7/OVM_L1ERC20Gateway.json'
 import * as Def__L2DepositedERC20 from '../../build/contracts/v0.7/OVM_L2DepositedLinkToken.json'
 
 export const deployGateway = async (
@@ -24,8 +24,13 @@ export const deployGateway = async (
   console.log('OVM_L2DepositedERC20 deployed to:', OVM_L2DepositedERC20.address)
 
   // Deploy L1 ERC20 Gateway
-  const Factory__OVM_L1ERC20Gateway = getContractFactory('OVM_L1ERC20Gateway')
-  const OVM_L1ERC20Gateway = await Factory__OVM_L1ERC20Gateway.connect(l1Wallet).deploy(
+  const Factory__OVM_L1ERC20Gateway = new ContractFactory(
+    Def__L1ERC20Gateway.compilerOutput.abi,
+    Def__L1ERC20Gateway.compilerOutput.evm.bytecode,
+    l1Wallet,
+  )
+
+  const OVM_L1ERC20Gateway = await Factory__OVM_L1ERC20Gateway.deploy(
     l1ERC20.address,
     OVM_L2DepositedERC20.address,
     l1MessengerAddress,

@@ -72,10 +72,11 @@ describe('OVM_L2DepositedLinkToken v0.7', () => {
 
   describe('OVM_L1ERC20Gateway', () => {
     const itif = (condition: boolean) => (condition ? it : it.skip)
-    // TODO: run this only if local env setup to accept the test
-    const isOVM = process.env.USE_OVM === 'true'
+    // Run this only if local env setup to accept the test
+    const isIntegrationOVM =
+      process.env.USE_OVM === 'true' && process.env.TEST_INTEGRATION === 'true'
 
-    itif(isOVM)('deposit L1->L2, withdraw L2->L1', async () => {
+    itif(isIntegrationOVM)('deposit L1->L2, withdraw L2->L1 @integration', async () => {
       let step = 0
       const _checkBalances: CheckBalances = async (
         l1Wallet,
