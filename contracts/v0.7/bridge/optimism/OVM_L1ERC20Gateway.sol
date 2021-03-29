@@ -56,6 +56,7 @@ contract OVM_L1ERC20Gateway is OpUnsafe, Abs_L1TokenGateway {
     l1ERC20 = _l1ERC20;
   }
 
+
   /**************
    * Depositing *
    **************/

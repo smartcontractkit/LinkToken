@@ -23,7 +23,10 @@ contract OVM_L2DepositedLinkTokenMock is OVM_L2DepositedLinkToken {
     OVM_L2DepositedLinkToken(l2CrossDomainMessenger)
   {}
 
-  function mockFinalizeDeposit(address to, uint amount)
+  function mockFinalizeDeposit(
+    address to,
+    uint amount
+  )
     external
     onlyInitialized()
   {

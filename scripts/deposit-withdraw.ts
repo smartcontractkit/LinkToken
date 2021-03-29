@@ -2,17 +2,11 @@ import { JsonRpcProvider } from 'ethers/providers'
 import { Wallet, ContractFactory, Contract } from 'ethers'
 const { Watcher } = require('@eth-optimism/watcher')
 
-// Load env (force 'local' env in unit test)
-import * as dotenv from 'dotenv'
-const isTest = process.argv[1].includes('jest')
-const networkArg = isTest ? 'local' : process.argv.slice(2)[0] || 'local'
-dotenv.config({ path: __dirname + `/../env/.env.${networkArg}` })
-
 import * as Def__ERC20 from '../fixtures/contracts/v0.7/LinkToken.json'
 import * as Def__L1ERC20Gateway from '../fixtures/contracts/v0.7/OVM_L1ERC20Gateway.json'
 import * as Def__L2DepositedERC20 from '../build/contracts/v0.7/OVM_L2DepositedLinkToken.json'
 
-import { deployGateway } from '../src/optimism'
+import { deployGateway, loadEnv } from '../src/optimism'
 
 export type ConfiguredGateway = {
   L1_ERC20: Contract
@@ -88,6 +82,9 @@ export type CheckBalances = (
 ) => Promise<void>
 
 export const depositAndWithdraw = async (checkBalances: CheckBalances) => {
+  // Load the configuration from environment
+  loadEnv()
+
   // Grab wallets for both chains
   const l1Provider = new JsonRpcProvider(process.env.L1_WEB3_URL)
   const l2Provider = new JsonRpcProvider(process.env.L2_WEB3_URL)
@@ -130,13 +127,13 @@ export const depositAndWithdraw = async (checkBalances: CheckBalances) => {
   await _checkBalances()
 
   // Approve
-  console.log('Approving L1 deposit contract...')
+  console.log('Approving L1 gateway contract...')
   const approveTx = await L1_ERC20.approve(OVM_L1ERC20Gateway.address, 1)
   console.log('Approved: https://kovan.etherscan.io/tx/' + approveTx.hash)
   await approveTx.wait()
 
   // Deposit
-  console.log('Depositing into L1 deposit contract...')
+  console.log('Depositing into L1 gateway contract...')
   const depositTx = await OVM_L1ERC20Gateway.deposit(1, { gasLimit: 1000000 })
   console.log('Deposited: https://kovan.etherscan.io/tx/' + depositTx.hash)
   await depositTx.wait()
@@ -151,7 +148,7 @@ export const depositAndWithdraw = async (checkBalances: CheckBalances) => {
   await _checkBalances()
 
   // Withdraw
-  console.log('Withdrawing from L1 deposit contract...')
+  console.log('Withdrawing from L2 deposit contract...')
   const withdrawalTx = await OVM_L2DepositedERC20.withdraw(1, { gasLimit: 5000000 })
   await withdrawalTx.wait()
   console.log('Withdrawal tx hash:' + withdrawalTx.hash)

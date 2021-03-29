@@ -1,7 +1,15 @@
+import * as dotenv from 'dotenv'
 import { Wallet, ContractFactory, Contract } from 'ethers'
 
 import * as Def__L1ERC20Gateway from '../../fixtures/contracts/v0.7/OVM_L1ERC20Gateway.json'
 import * as Def__L2DepositedERC20 from '../../build/contracts/v0.7/OVM_L2DepositedLinkToken.json'
+
+export const loadEnv = () => {
+  // Load env (force 'local' env in unit test)
+  const isTest = process.argv[1].includes('jest')
+  const networkArg = isTest ? 'local' : process.argv.slice(2)[0] || 'local'
+  dotenv.config({ path: __dirname + `/../../env/.env.${networkArg}` })
+}
 
 export const deployGateway = async (
   l1Wallet: Wallet,
