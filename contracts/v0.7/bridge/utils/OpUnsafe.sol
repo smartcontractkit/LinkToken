@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >0.6.0 <0.8.0;
 
-
 /**
  * @dev Contract module that helps declare and check safe/unsafe calls to a function.
  *
@@ -11,7 +10,6 @@ pragma solidity >0.6.0 <0.8.0;
  * which can be useful to disable some checks that are enabled by default.
  */
 abstract contract OpUnsafe {
-
   /// @dev Indicates that we are doing an unsafe operation.
   bool private s_unsafe;
 

@@ -7,6 +7,7 @@ import { LinkToken } from "../../LinkToken.sol";
 
 /* Library Imports */
 import { Abs_L2DepositedToken } from "@eth-optimism/contracts/build/contracts/OVM/bridge/tokens/Abs_L2DepositedToken.sol";
+import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { OpUnsafe } from "../utils/OpUnsafe.sol";
 import { OVM_Address } from "./OVM_Address.sol";
 
@@ -73,12 +74,7 @@ contract OVM_L2DepositedLinkToken is OpUnsafe, Abs_L2DepositedToken, LinkToken {
     override
   {
     // Unless explicitly unsafe op, stop withdrawals to contracts (avoid accidentally lost tokens)
-    require(
-      _isUnsafe()
-      || OVM_Address.isEOAContract(_to)
-      || OVM_Address.isEmptyAccount(_to),
-      "Unsafe withdraw to contract"
-    );
+    require(_isUnsafe() || !Address.isContract(_to) || OVM_Address.isEOAContract(_to), "Unsafe withdraw to contract");
 
     _burn(msg.sender, _amount);
   }

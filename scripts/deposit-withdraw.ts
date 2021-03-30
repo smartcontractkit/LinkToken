@@ -46,7 +46,7 @@ export const setupOrRetrieveGateway = async (
     const newGateway = await deployGateway(
       l1Wallet,
       l2Wallet,
-      L1_ERC20,
+      L1_ERC20.address,
       l1MessengerAddress!,
       l2MessengerAddress!,
     )

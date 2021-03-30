@@ -2,12 +2,12 @@
 pragma solidity >0.6.0 <0.8.0;
 
 /**
- * @title OVM_L2CrossDomainMessengerMock
+ * @title OVM_CrossDomainMessengerMock
  *
  * Compiler used: optimistic-solc
  * Runtime target: OVM
  */
-contract OVM_L2CrossDomainMessengerMock {
+contract OVM_CrossDomainMessengerMock {
 
   /**
    * Sends a cross domain message to the target messenger.

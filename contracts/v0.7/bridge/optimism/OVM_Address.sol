@@ -2,10 +2,9 @@
 pragma solidity >0.5.0 <0.8.0;
 
 /**
- * @title OVM_Address
+ * @dev Collection of functions related to the address type (OVM specific)
  */
 library OVM_Address {
-
   // OVM_ProxyEOA.sol EXTCODEHASH
   bytes32 constant OVM_EOA_CODEHASH = 0xb01e6526abeb73cf7701ba03da7d294a507b32214304ade7f8b6b7923c806cc8;
 
@@ -28,22 +27,5 @@ library OVM_Address {
     // solhint-disable-next-line no-inline-assembly
     assembly { codehash := extcodehash(account) }
     return codehash == OVM_EOA_CODEHASH;
-  }
-
-  /**
-   * @dev Returns true if `account` is empty.
-   * @param account Address to check
-   */
-  function isEmptyAccount(
-    address account
-  )
-    internal
-    view
-    returns (bool)
-  {
-    bytes32 codehash;
-    // solhint-disable-next-line no-inline-assembly
-    assembly { codehash := extcodehash(account) }
-    return codehash == bytes32(0);
   }
 }

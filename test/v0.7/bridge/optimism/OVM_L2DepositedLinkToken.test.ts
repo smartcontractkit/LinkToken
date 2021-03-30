@@ -2,15 +2,15 @@ import { Wallet, ContractFactory, Contract, Signer } from 'ethers'
 import { JsonRpcProvider } from 'ethers/providers'
 import { OVML2DepositedLinkToken as OVM_L2DepositedLinkToken } from '../../../../build/ethers/v0.7/OVML2DepositedLinkToken'
 import { OVML2DepositedLinkTokenMock__factory as OVM_L2DepositedLinkTokenMock__factory } from '../../../../build/ethers/v0.7/factories/OVML2DepositedLinkTokenMock__factory'
-import { OVML2CrossDomainMessengerMock__factory as OVM_L2CrossDomainMessengerMock__factory } from '../../../../build/ethers/v0.7/factories/OVML2CrossDomainMessengerMock__factory'
+import { OVMCrossDomainMessengerMock__factory as OVM_CrossDomainMessengerMock__factory } from '../../../../build/ethers/v0.7/factories/OVMCrossDomainMessengerMock__factory'
 import { loadEnv } from '../../../../src/optimism'
-import * as h from '../../../helpers'
 import { LinkReceiver__factory } from '../../../../build/ethers/v0.7/factories/LinkReceiver__factory'
 import { Token677ReceiverMock__factory } from '../../../../build/ethers/v0.7/factories/Token677ReceiverMock__factory'
 import { NotERC677Compatible__factory } from '../../../../build/ethers/v0.7/factories/NotERC677Compatible__factory'
 
 import { shouldBehaveLikeERC677Token } from '../../../behavior/ERC677Token'
 import { shouldBehaveLikeLinkToken } from '../../../behavior/LinkToken'
+import * as h from '../../../helpers'
 
 export class OVM_L2DepositedLinkTokenTest__factory {
   readonly signer: Signer
@@ -21,27 +21,29 @@ export class OVM_L2DepositedLinkTokenTest__factory {
   deploy(...args: Array<any>): Promise<OVM_L2DepositedLinkToken> {
     const initBalance: number = args[0] || '1000000000000000000000000000'
     const _deploy = async () => {
+      // Deploy l2CrossDomainMessenger
+      const messengerMock = await new OVM_CrossDomainMessengerMock__factory(this.signer).deploy()
+      await messengerMock.deployTransaction.wait()
+      const fake_l2CrossDomainMessenger = messengerMock.address
+
+      // Deploy l2Token with l2CrossDomainMessenger
+      const l2Token = await new OVM_L2DepositedLinkTokenMock__factory(this.signer).deploy(
+        fake_l2CrossDomainMessenger,
+      )
+      await l2Token.deployTransaction.wait()
+      // Init l2Token with l1TokenGateway
       const address = await this.signer.getAddress()
       const fake_l1TokenGateway = address
-
-      const OVM_L2CrossDomainMessengerMock = await new OVM_L2CrossDomainMessengerMock__factory()
-        .connect(this.signer)
-        .deploy()
-      await OVM_L2CrossDomainMessengerMock.deployTransaction.wait()
-      const fake_l2CrossDomainMessenger = OVM_L2CrossDomainMessengerMock.address
-
-      const LINK = await new OVM_L2DepositedLinkTokenMock__factory()
-        .connect(this.signer)
-        .deploy(fake_l2CrossDomainMessenger)
-      await LINK.deployTransaction.wait()
-
-      const initTx = await LINK.init(fake_l1TokenGateway)
+      const initTx = await l2Token.init(fake_l1TokenGateway)
       await initTx.wait()
 
-      const finalizeDepositTx = await LINK.mockFinalizeDeposit(address, initBalance)
+      // Mock deposit $$$
+      const finalizeDepositTx = await l2Token.mockFinalizeDeposit(address, initBalance)
       await finalizeDepositTx.wait()
-      return LINK
+
+      return l2Token
     }
+
     return _deploy()
   }
 

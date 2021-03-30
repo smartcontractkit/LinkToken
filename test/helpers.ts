@@ -28,7 +28,7 @@ export const functionID = (signature: string) =>
     .slice(0, 8)
 
 /**
- * Check that an evm operation reverts
+ * Check that an evm transaction fails
  *
  * @param action The asynchronous action to execute, which should cause an evm revert.
  */
