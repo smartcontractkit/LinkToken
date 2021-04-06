@@ -3,6 +3,9 @@ import { assert } from 'chai'
 
 export const REVERT_REASON_EMPTY = 'Transaction reverted without a reason'
 
+// Only if local env is setup to accept tests
+export const isIntegration = () => process.env.TEST_INTEGRATION === 'true'
+
 export const encodeUint256 = (int: number) => {
   const zeros = '0000000000000000000000000000000000000000000000000000000000000000'
   const payload = int.toString(16)

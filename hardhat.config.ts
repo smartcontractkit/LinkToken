@@ -4,6 +4,7 @@ import { hardhat } from './src'
 
 import '@nomiclabs/hardhat-waffle'
 import '@typechain/hardhat'
+import '@eth-optimism/plugins/hardhat/compiler'
 
 const DEFAULT_VERSION = 'v0.6'
 
@@ -32,6 +33,8 @@ const versionLabel = process.env.VERSION || DEFAULT_VERSION
 const compiler = versions[versionLabel]
 if (!compiler) throw Error(`Compiler for ${versionLabel} could not be found!`)
 
+const typesDir = process.env.TARGET === 'ovm' ? 'types-ovm' : 'types'
+
 const config: HardhatUserConfig = {
   paths: {
     sources: `./contracts/${versionLabel}`,
@@ -45,11 +48,11 @@ const config: HardhatUserConfig = {
     },
   },
   typechain: {
-    outDir: `build/types/${versionLabel}`,
+    outDir: `build/${typesDir}/${versionLabel}`,
     target: 'ethers-v5',
   },
   mocha: {
-    timeout: 10000,
+    timeout: 5000,
   },
 }
 
