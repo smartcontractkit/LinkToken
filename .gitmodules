@@ -4,3 +4,9 @@
 [submodule "vendor/OpenZeppelin/openzeppelin-contracts"]
 	path = vendor/OpenZeppelin/openzeppelin-contracts
 	url = git@github.com:OpenZeppelin/openzeppelin-contracts.git
+[submodule "vendor/OpenZeppelin/openzeppelin-contracts-upgradeable"]
+	path = vendor/OpenZeppelin/openzeppelin-contracts-upgradeable
+	url = git@github.com:OpenZeppelin/openzeppelin-contracts-upgradeable.git
+[submodule "vendor/ethereum-optimism/optimism"]
+	path = vendor/ethereum-optimism/optimism
+	url = git@github.com:ethereum-optimism/optimism.git

@@ -27,7 +27,8 @@
     "test": "hardhat test --no-compile --show-stack-traces",
     "script:oe:up": "./node_modules/@chainlink/optimism-utils/scripts/run-ci.sh",
     "script:oe:down": "cd optimism/ops && docker-compose down -v",
-    "script:oe:clean": "cd optimism/ops && docker-compose down -v --remove-orphan --rmi all"
+    "script:oe:clean": "cd optimism/ops && docker-compose down -v --remove-orphan --rmi all",
+    "script:oe:deposit-withdraw": "ts-node scripts/deposit-withdraw.ts"
   },
   "dependencies": {},
   "devDependencies": {

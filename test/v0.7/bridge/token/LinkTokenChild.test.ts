@@ -63,7 +63,7 @@ const EXTRA_PUBLIC_ABI = [
 ]
 
 describe(`LinkTokenChild ${Versions.v0_7}`, () => {
-  h.describes.HH(`@unit ${Versions.v0_7}`, () => {
+  h.describes().HH(`@unit ${Versions.v0_7}`, () => {
     const _getContractFactory = (name: string, signer?: Signer) => {
       if (name === 'LinkToken' || name === 'Token677') {
         return LinkTokenChildTest__factory.new(signer)
@@ -164,7 +164,7 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
     })
   })
 
-  h.describes.OE('@integration', () => {
+  h.describes().OE('@integration', () => {
     let oe: optimism.env.OptimismEnv, l2Token: Contract
 
     before(async function () {

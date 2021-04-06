@@ -9,7 +9,7 @@ import { Token20__factory } from '../../build/types/v0.6/factories/Token20__fact
 
 import * as h from '../helpers'
 
-h.describes.HH('PegSwap', () => {
+h.describes().HH('PegSwap', () => {
   let swap: Contract,
     owner: SignerWithAddress,
     base: Contract,

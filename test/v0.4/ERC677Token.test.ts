@@ -3,7 +3,7 @@ import { getContractFactory, Versions } from '../../src'
 import { shouldBehaveLikeERC677 } from '../behavior/ERC677'
 import * as h from '../helpers'
 
-h.describes.HH(`ERC677Token ${Versions.v0_4}`, () => {
+h.describes().HH(`ERC677Token ${Versions.v0_4}`, () => {
   const _getContractFactory = (name: string, signer?: Signer) =>
     getContractFactory(name, signer, Versions.v0_4)
 

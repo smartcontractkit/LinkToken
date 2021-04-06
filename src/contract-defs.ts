@@ -1,5 +1,6 @@
 import * as path from 'path'
 import * as glob from 'glob'
+import { uniqBy } from 'lodash'
 import { ethers, ContractFactory, Signer, Contract } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
 import { Targets, Versions } from '.'
@@ -63,4 +64,39 @@ export const assertDeployed = async (contract: Contract) => {
   const code = await contract.provider.getCode(contract.address)
   if (code && code.length > 2) return
   throw Error(`Error: Deployment unsuccessful - no code at ${contract.address}`)
+}
+
+const CONTRACT_PROXY = 'TransparentUpgradeableProxy'
+const CONTRACT_PROXY_ADMIN = 'ProxyAdmin'
+
+export const deployProxy = async (
+  signer: Signer,
+  target: Targets = Targets.EVM,
+  logic: Contract,
+  admin: string | undefined = undefined,
+  data: Buffer = Buffer.from(''),
+) => {
+  console.log()
+  if (!admin) {
+    console.log('Admin not specified, deploying ProxyAdmin helper contract...')
+    const proxyAdmin = await deploy(
+      getContractFactory(CONTRACT_PROXY_ADMIN, signer, Versions.v0_7, target),
+      CONTRACT_PROXY_ADMIN,
+    )
+    admin = proxyAdmin.address
+  }
+
+  const proxyFactory = getContractFactory(CONTRACT_PROXY, signer, Versions.v0_7, target)
+  // Merge proxy + logic ABI
+  const abi = uniqBy([...proxyFactory.interface.fragments, ...logic.interface.fragments], 'name')
+
+  const payload = [logic.address, admin, data]
+  return {
+    admin,
+    proxy: await deploy(
+      new ContractFactory(abi, proxyFactory.bytecode, signer),
+      CONTRACT_PROXY,
+      payload,
+    ),
+  }
 }
