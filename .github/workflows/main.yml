@@ -1,0 +1,37 @@
+name: Main
+
+on:
+  push:
+    branches:
+      - master
+  pull_request: ~
+
+jobs:
+  run-basic-checks:
+    name: Run linters and unit tests
+    runs-on: [self-hosted]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+      - run: npm install -g yarn
+      - run: yarn install
+      - run: yarn setup
+      - run: yarn lint
+      - run: yarn test
+  run-integration:
+    name: Setup and run integration tests
+    needs: [run-basic-checks]
+    runs-on: [self-hosted]
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+      - run: npm install -g yarn
+      - run: yarn install
+      - run: yarn setup
+      - name: Setup Optimism L2 local network
+        run: yarn script:oe:up
+      - run: yarn test --network optimism

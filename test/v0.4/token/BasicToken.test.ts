@@ -1,15 +1,12 @@
 import { Signer } from '@ethersproject/abstract-signer'
-import { getContractFactory } from '../../../src'
+import { getContractFactory, Versions } from '../../../src'
 
 import { shouldBehaveLikeBasicToken } from '../../behavior/token/BasicToken'
-import { REVERT_REASON_EMPTY } from '../../helpers'
+import * as h from '../../helpers'
 
-const VERSION = 'v0.4'
-
-describe(`BasicToken ${VERSION}`, () => {
+h.describes.HH(`BasicToken ${Versions.v0_4}`, () => {
   const _getContractFactory = (name: string, signer?: Signer) =>
-    getContractFactory(name, signer, VERSION)
-  const _getReasonStr = (_: string) => REVERT_REASON_EMPTY
+    getContractFactory(name, signer, Versions.v0_4)
 
-  shouldBehaveLikeBasicToken(_getContractFactory, _getReasonStr)
+  shouldBehaveLikeBasicToken(_getContractFactory, h.revertShim(Versions.v0_4))
 })
