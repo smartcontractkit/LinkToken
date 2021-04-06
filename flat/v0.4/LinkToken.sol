@@ -342,4 +342,3 @@ contract LinkToken is linkStandardToken, ERC677Token {
   }
 
 }
-Done in 3.73s.

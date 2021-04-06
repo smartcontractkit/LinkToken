@@ -2,9 +2,12 @@ import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
-import { ContractFactory, Contract } from 'ethers'
+import { ContractFactory, Contract, Signer } from 'ethers'
 
-export const shouldBehaveLikeBasicToken = (factory: ContractFactory) => {
+export const shouldBehaveLikeBasicToken = (
+  getContractFactory: (name: string, signer?: Signer) => ContractFactory,
+  getReasonStr: (reason: string) => string,
+) => {
   describe('BasicToken', () => {
     let personas: { [key: string]: SignerWithAddress } = {}
     let defaultAccount: SignerWithAddress
@@ -16,7 +19,10 @@ export const shouldBehaveLikeBasicToken = (factory: ContractFactory) => {
     let token: Contract
 
     beforeEach(async () => {
-      token = await factory.connect(defaultAccount).deploy(personas.Default.address, 100)
+      token = await getContractFactory('BasicTokenMock', defaultAccount).deploy(
+        defaultAccount.address,
+        100,
+      )
     })
 
     it('should return the correct totalSupply after construction', async () => {
@@ -38,7 +44,7 @@ export const shouldBehaveLikeBasicToken = (factory: ContractFactory) => {
     it('should throw an error when trying to transfer more than balance', async function() {
       await expect(
         token.connect(defaultAccount).transfer(personas.Carol.address, 101),
-      ).to.be.revertedWith('VM Exception while processing transaction:')
+      ).to.be.revertedWith(getReasonStr('ERC20: transfer amount exceeds balance'))
     })
   })
 }

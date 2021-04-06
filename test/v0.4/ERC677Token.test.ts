@@ -1,13 +1,14 @@
-import { Token677__factory } from '../../build/types/v0.4/factories/Token677__factory'
-import { Token677ReceiverMock__factory } from '../../build/types/v0.4/factories/Token677ReceiverMock__factory'
-import { NotERC677Compatible__factory } from '../../build/types/v0.4/factories/NotERC677Compatible__factory'
-
+import { Signer } from '@ethersproject/abstract-signer'
+import { getContractFactory } from '../../src'
 import { shouldBehaveLikeERC677Token } from '../behavior/ERC677Token'
+import { REVERT_REASON_EMPTY } from '../helpers'
 
-describe('ERC677Token v0.4', () => {
-  shouldBehaveLikeERC677Token(
-    new Token677__factory(),
-    new Token677ReceiverMock__factory(),
-    new NotERC677Compatible__factory(),
-  )
+const VERSION = 'v0.4'
+
+describe(`ERC677Token ${VERSION}`, () => {
+  const _getContractFactory = (name: string, signer?: Signer) =>
+    getContractFactory(name, signer, VERSION)
+  const _getReasonStr = (_: string) => REVERT_REASON_EMPTY
+
+  shouldBehaveLikeERC677Token(_getContractFactory, _getReasonStr)
 })

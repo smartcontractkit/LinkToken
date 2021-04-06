@@ -1,18 +1,16 @@
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
-import { ContractFactory, Contract, BigNumber } from 'ethers'
+import { ContractFactory, Contract, BigNumber, Signer } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 import * as h from '../helpers'
 
 export const shouldBehaveLikeLinkToken = (
-  linkTokenFactory: ContractFactory,
-  linkReceiverFactory: ContractFactory,
-  Token677ReceiverMock__factory: ContractFactory,
-  notERC677CompatibleFactory: ContractFactory,
+  getContractFactory: (name: string, signer?: Signer) => ContractFactory,
+  getReasonStr: (reason: string) => string,
   extraPublicABI: string[],
 ) => {
-  describe('ERC677Token', () => {
+  describe('LinkToken', () => {
     let owner: SignerWithAddress, sender: SignerWithAddress, recipient: Contract, token: Contract
 
     before(async () => {
@@ -20,7 +18,7 @@ export const shouldBehaveLikeLinkToken = (
     })
 
     beforeEach(async () => {
-      token = await linkTokenFactory.connect(owner).deploy()
+      token = await getContractFactory('LinkToken', owner).deploy()
     })
 
     it('has a limited public ABI', () => {
@@ -55,7 +53,7 @@ export const shouldBehaveLikeLinkToken = (
       let receiver: Contract, transferAmount: number
 
       beforeEach(async () => {
-        receiver = await Token677ReceiverMock__factory.connect(owner).deploy()
+        receiver = await getContractFactory('Token677ReceiverMock', owner).deploy()
         transferAmount = 100
 
         await token.connect(owner).transfer(sender.address, transferAmount)
@@ -65,14 +63,14 @@ export const shouldBehaveLikeLinkToken = (
 
       it('does not let you transfer to the null address', async () => {
         await expect(
-          token.connect(sender).transfer(h.EMPTY_ADDRESS, transferAmount),
-        ).to.be.revertedWith('VM Exception while processing transaction:')
+          token.connect(sender).transfer(ethers.constants.AddressZero, transferAmount),
+        ).to.be.revertedWith(getReasonStr('ERC20: transfer to the zero address'))
       })
 
       it('does not let you transfer to the contract itself', async () => {
         await expect(
           token.connect(sender).transfer(token.address, transferAmount),
-        ).to.be.revertedWith('VM Exception while processing transaction:')
+        ).to.be.revertedWith(getReasonStr('LinkToken: transfer/approve to this contract address'))
       })
 
       it('transfers the tokens', async () => {
@@ -91,14 +89,14 @@ export const shouldBehaveLikeLinkToken = (
         expect(await receiver.calledFallback()).to.be.false
       })
 
-      it('returns true when the transfer succeeds', async () => {
-        const success = await token.connect(sender).transfer(receiver.address, transferAmount)
-        expect(success).to.be.true
+      it('transfer succeeds with response', async () => {
+        const response = await token.connect(sender).transfer(receiver.address, transferAmount)
+        expect(response).to.exist
       })
 
       it('throws when the transfer fails', async () => {
         await expect(token.connect(sender).transfer(receiver.address, 100000)).to.be.revertedWith(
-          'VM Exception while processing transaction:',
+          getReasonStr('ERC20: transfer amount exceeds balance'),
         )
       })
 
@@ -106,7 +104,7 @@ export const shouldBehaveLikeLinkToken = (
         let nonERC677: Contract
 
         beforeEach(async () => {
-          nonERC677 = await notERC677CompatibleFactory.connect(owner).deploy()
+          nonERC677 = await getContractFactory('NotERC677Compatible', owner).deploy()
         })
 
         it('transfers the token', async () => {
@@ -125,7 +123,7 @@ export const shouldBehaveLikeLinkToken = (
       const value = 1000
 
       beforeEach(async () => {
-        recipient = await linkReceiverFactory.connect(owner).deploy()
+        recipient = await getContractFactory('LinkReceiver', owner).deploy()
         const allowance = await token.allowance(owner.address, recipient.address)
         expect(allowance).to.equal(0)
 
@@ -137,27 +135,27 @@ export const shouldBehaveLikeLinkToken = (
         const data =
           '0x' +
           h.functionID('transferAndCall(address,uint256,bytes)') +
-          h.encodeAddress(token.address) +
+          h.encodeAddress(ethers.constants.AddressZero) +
           h.encodeUint256(value) +
           h.encodeUint256(96) +
           h.encodeBytes('')
 
         await expect(owner.sendTransaction({ to: token.address, data })).to.be.revertedWith(
-          'VM Exception while processing transaction:',
+          getReasonStr('ERC20: transfer to the zero address'),
         )
       })
 
       it('does not let you transfer to the contract itself', async () => {
         const data =
           '0x' +
-          'be45fd62' + // transfer(address,uint256,bytes)
-          h.encodeAddress(h.EMPTY_ADDRESS) +
+          h.functionID('transfer(address,uint256)') +
+          h.encodeAddress(token.address) +
           h.encodeUint256(value) +
           h.encodeUint256(96) +
           h.encodeBytes('')
 
         await expect(owner.sendTransaction({ to: token.address, data })).to.be.revertedWith(
-          'VM Exception while processing transaction:',
+          getReasonStr('LinkToken: transfer/approve to this contract address'),
         )
       })
 
@@ -214,14 +212,14 @@ export const shouldBehaveLikeLinkToken = (
       })
 
       it('throws an error when approving the null address', async () => {
-        await expect(token.connect(owner).approve(h.EMPTY_ADDRESS, amount)).to.be.revertedWith(
-          'VM Exception while processing transaction:',
-        )
+        await expect(
+          token.connect(owner).approve(ethers.constants.AddressZero, amount),
+        ).to.be.revertedWith(getReasonStr('ERC20: approve to the zero address'))
       })
 
       it('throws an error when approving the token itself', async () => {
         await expect(token.connect(owner).approve(token.address, amount)).to.be.revertedWith(
-          'VM Exception while processing transaction:',
+          getReasonStr('LinkToken: transfer/approve to this contract address'),
         )
       })
     })
@@ -236,14 +234,14 @@ export const shouldBehaveLikeLinkToken = (
 
       it('throws an error when transferring to the null address', async () => {
         await expect(
-          token.connect(owner).transferFrom(sender.address, h.EMPTY_ADDRESS, amount),
-        ).to.be.revertedWith('VM Exception while processing transaction:')
+          token.connect(owner).transferFrom(sender.address, ethers.constants.AddressZero, amount),
+        ).to.be.revertedWith(getReasonStr('ERC20: transfer to the zero address'))
       })
 
       it('throws an error when transferring to the token itself', async () => {
         await expect(
           token.connect(owner).transferFrom(sender.address, token.address, amount),
-        ).to.be.revertedWith('VM Exception while processing transaction:')
+        ).to.be.revertedWith(getReasonStr('LinkToken: transfer/approve to this contract address'))
       })
     })
   })

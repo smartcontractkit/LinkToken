@@ -1,16 +1,17 @@
 import { ethers } from 'ethers'
 ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.ERROR)
 
-import { Token677__factory } from '../../build/types/v0.6/factories/Token677__factory'
-import { Token677ReceiverMock__factory } from '../../build/types/v0.6/factories/Token677ReceiverMock__factory'
-import { NotERC677Compatible__factory } from '../../build/types/v0.6/factories/NotERC677Compatible__factory'
+import { Signer } from '@ethersproject/abstract-signer'
+import { getContractFactory } from '../../src'
 
 import { shouldBehaveLikeERC677Token } from '../behavior/ERC677Token'
 
-describe('ERC677Token v0.6', () => {
-  shouldBehaveLikeERC677Token(
-    new Token677__factory(),
-    new Token677ReceiverMock__factory(),
-    new NotERC677Compatible__factory(),
-  )
+const VERSION = 'v0.6'
+
+describe(`ERC677Token ${VERSION}`, () => {
+  const _getContractFactory = (name: string, signer?: Signer) =>
+    getContractFactory(name, signer, VERSION)
+  const _getReasonStr = (reason: string) => reason
+
+  shouldBehaveLikeERC677Token(_getContractFactory, _getReasonStr)
 })

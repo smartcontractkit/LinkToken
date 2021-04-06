@@ -1,9 +1,19 @@
 import { ethers } from 'ethers'
 ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.ERROR)
 
-import { StandardTokenMock__factory } from '../../../build/types/v0.6/factories/StandardTokenMock__factory'
+import { Signer } from '@ethersproject/abstract-signer'
+import { getContractFactory } from '../../../src'
+
 import { shouldBehaveLikeBasicToken } from '../../behavior/token/BasicToken'
 
-describe('BasicToken v0.6', () => {
-  shouldBehaveLikeBasicToken(new StandardTokenMock__factory())
+const VERSION = 'v0.6'
+
+describe(`BasicToken ${VERSION}`, () => {
+  const overrides: Record<string, string> = { BasicTokenMock: 'StandardTokenMock' }
+  const _getContractFactory = (name: string, signer?: Signer) =>
+    getContractFactory(overrides[name] || name, signer, VERSION)
+
+  const _getReasonStr = (reason: string) => reason
+
+  shouldBehaveLikeBasicToken(_getContractFactory, _getReasonStr)
 })

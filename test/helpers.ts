@@ -1,8 +1,7 @@
-import * as utils from 'web3-utils'
 import { ethers } from 'ethers'
 import { assert } from 'chai'
 
-export const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000'
+export const REVERT_REASON_EMPTY = 'Transaction reverted without a reason'
 
 export const encodeUint256 = (int: number) => {
   const zeros = '0000000000000000000000000000000000000000000000000000000000000000'
@@ -18,10 +17,9 @@ export const encodeBytes = (bytes: string) => {
   return length + padded
 }
 
-// TODO: TS compile
-export const functionID = (signature: string) =>
-  utils
-    .sha3(signature)!
+export const functionID = (fnSignature: string) =>
+  ethers.utils
+    .keccak256(ethers.utils.toUtf8Bytes(fnSignature))
     .slice(2)
     .slice(0, 8)
 

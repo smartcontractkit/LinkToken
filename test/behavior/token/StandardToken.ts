@@ -2,9 +2,12 @@ import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
-import { ContractFactory, Contract } from 'ethers'
+import { ContractFactory, Contract, Signer } from 'ethers'
 
-export const shouldBehaveLikeStandardToken = (factory: ContractFactory) => {
+export const shouldBehaveLikeStandardToken = (
+  getContractFactory: (name: string, signer?: Signer) => ContractFactory,
+  getReasonStr: (reason: string) => string,
+) => {
   describe('StandardToken', () => {
     let personas: { [key: string]: SignerWithAddress } = {}
     let defaultAccount: SignerWithAddress
@@ -16,7 +19,10 @@ export const shouldBehaveLikeStandardToken = (factory: ContractFactory) => {
     let token: Contract
 
     beforeEach(async () => {
-      token = await factory.connect(defaultAccount).deploy(personas.Carol.address, 100)
+      token = await getContractFactory('StandardTokenMock', defaultAccount).deploy(
+        personas.Carol.address,
+        100,
+      )
     })
 
     it('should return the correct allowance amount after approval', async () => {
@@ -49,7 +55,7 @@ export const shouldBehaveLikeStandardToken = (factory: ContractFactory) => {
         token
           .connect(personas.Eddy)
           .transferFrom(personas.Carol.address, personas.Nelly.address, 100),
-      ).to.be.revertedWith('VM Exception while processing transaction:')
+      ).to.be.revertedWith(getReasonStr('ERC20: transfer amount exceeds allowance'))
     })
 
     describe('validating allowance updates to spender', () => {

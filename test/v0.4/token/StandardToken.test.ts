@@ -1,8 +1,18 @@
-import { StandardTokenMock__factory } from '../../../build/types/v0.4/factories/StandardTokenMock__factory'
+import { Signer } from '@ethersproject/abstract-signer'
+import { getContractFactory } from '../../../src'
+
 import { shouldBehaveLikeBasicToken } from '../../behavior/token/BasicToken'
 import { shouldBehaveLikeStandardToken } from '../../behavior/token/StandardToken'
+import { REVERT_REASON_EMPTY } from '../../helpers'
 
-describe('StandardToken v0.4', () => {
-  shouldBehaveLikeBasicToken(new StandardTokenMock__factory())
-  shouldBehaveLikeStandardToken(new StandardTokenMock__factory())
+const VERSION = 'v0.4'
+
+describe(`StandardToken ${VERSION}`, () => {
+  const overrides: Record<string, string> = { BasicTokenMock: 'StandardTokenMock' }
+  const _getContractFactory = (name: string, signer?: Signer) =>
+    getContractFactory(overrides[name] || name, signer, VERSION)
+  const _getReasonStr = (_: string) => REVERT_REASON_EMPTY
+
+  shouldBehaveLikeBasicToken(_getContractFactory, _getReasonStr)
+  shouldBehaveLikeStandardToken(_getContractFactory, _getReasonStr)
 })

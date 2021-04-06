@@ -705,4 +705,3 @@ abstract contract ERC677Token is ERC20, ERC677 {
     return length > 0;
   }
 }
-Done in 3.50s.

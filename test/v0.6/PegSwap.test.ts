@@ -3,11 +3,11 @@ import { Contract } from 'ethers'
 import { expect } from 'chai'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
-import * as h from '../helpers'
-
 import { PegSwap__factory } from '../../build/types/v0.6/factories/PegSwap__factory'
 import { Token677__factory } from '../../build/types/v0.6/factories/Token677__factory'
 import { StandardTokenMock__factory } from '../../build/types/v0.6/factories/StandardTokenMock__factory'
+
+import * as h from '../helpers'
 
 describe('ERC677Token', () => {
   let swap: Contract,

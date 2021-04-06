@@ -32,12 +32,6 @@ Setup contracts:
 yarn setup
 ```
 
-Compile the contracts:
-
-```bash
-yarn compile
-```
-
 Run tests:
 
 ```bash

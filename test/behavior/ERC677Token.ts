@@ -1,14 +1,13 @@
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
+import { ContractFactory, Contract, Signer } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
-import { ContractFactory, Contract } from 'ethers'
 import * as h from '../helpers'
 
 export const shouldBehaveLikeERC677Token = (
-  token677Factory: ContractFactory,
-  token677ReceiverMockFactory: ContractFactory,
-  notERC677CompatibleFactory: ContractFactory,
+  getContractFactory: (name: string, signer?: Signer) => ContractFactory,
+  getReasonStr: (reason: string) => string,
 ) => {
   describe('ERC677Token', () => {
     let defaultAccount: SignerWithAddress
@@ -21,8 +20,8 @@ export const shouldBehaveLikeERC677Token = (
 
     beforeEach(async () => {
       sender = defaultAccount
-      receiver = await token677ReceiverMockFactory.connect(sender).deploy()
-      token = await token677Factory.connect(sender).deploy(1000)
+      receiver = await getContractFactory('Token677ReceiverMock', sender).deploy()
+      token = await getContractFactory('Token677', sender).deploy(1000)
       transferAmount = 100
 
       await token.connect(sender).transfer(sender.address, transferAmount)
@@ -60,21 +59,21 @@ export const shouldBehaveLikeERC677Token = (
         expect(calledFallback).to.be.true
 
         const tokenSender = await receiver.tokenSender()
-        expect(tokenSender).to.equal(sender.address)
+        expect(tokenSender).to.equal(await sender.getAddress())
 
         const sentValue = await receiver.sentValue()
         expect(sentValue).to.equal(transferAmount)
       })
 
-      it('returns true when the transfer succeeds', async () => {
-        const success = await sender.sendTransaction(params)
-        expect(success).to.be.true
+      it('transfer succeeds with response', async () => {
+        const response = await sender.sendTransaction(params)
+        expect(response).to.exist
       })
 
       it('throws when the transfer fails', async () => {
         const data =
           '0x' +
-          'be45fd62' + // transfer(address,uint256,bytes)
+          h.functionID('transfer(address,uint256)') +
           h.encodeAddress(receiver.address) +
           h.encodeUint256(100000) +
           h.encodeUint256(96) +
@@ -82,7 +81,7 @@ export const shouldBehaveLikeERC677Token = (
         params = { to: token.address, data, gasLimit: 1000000 }
 
         await expect(sender.sendTransaction(params)).to.be.revertedWith(
-          'VM Exception while processing transaction:',
+          getReasonStr('ERC20: transfer amount exceeds balance'),
         )
       })
 
@@ -90,7 +89,7 @@ export const shouldBehaveLikeERC677Token = (
         let nonERC677: Contract
 
         beforeEach(async () => {
-          nonERC677 = await notERC677CompatibleFactory.connect(sender).deploy()
+          nonERC677 = await getContractFactory('NotERC677Compatible', sender).deploy()
           const data =
             '0x' +
             h.functionID('transferAndCall(address,uint256,bytes)') +
@@ -103,7 +102,7 @@ export const shouldBehaveLikeERC677Token = (
 
         it('throws an error', async () => {
           await expect(sender.sendTransaction(params)).to.be.revertedWith(
-            'VM Exception while processing transaction:',
+            getReasonStr('ERC20: transfer amount exceeds balance'),
           )
 
           const balance = await token.balanceOf(nonERC677.address)

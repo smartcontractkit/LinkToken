@@ -814,4 +814,3 @@ contract LinkToken is LinkERC20, ERC677Token {
     _;
   }
 }
-Done in 3.49s.
