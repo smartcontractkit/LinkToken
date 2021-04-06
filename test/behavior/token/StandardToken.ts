@@ -19,10 +19,8 @@ export const shouldBehaveLikeStandardToken = (
     let token: Contract
 
     beforeEach(async () => {
-      token = await getContractFactory('StandardTokenMock', defaultAccount).deploy(
-        personas.Carol.address,
-        100,
-      )
+      const factory = getContractFactory('StandardTokenMock', defaultAccount)
+      token = await factory.deploy(personas.Carol.address, 100)
     })
 
     it('should return the correct allowance amount after approval', async () => {

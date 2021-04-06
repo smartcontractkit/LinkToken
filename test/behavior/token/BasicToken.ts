@@ -19,10 +19,8 @@ export const shouldBehaveLikeBasicToken = (
     let token: Contract
 
     beforeEach(async () => {
-      token = await getContractFactory('BasicTokenMock', defaultAccount).deploy(
-        defaultAccount.address,
-        100,
-      )
+      const factory = getContractFactory('BasicTokenMock', defaultAccount)
+      token = await factory.deploy(defaultAccount.address, 100)
     })
 
     it('should return the correct totalSupply after construction', async () => {
@@ -41,7 +39,7 @@ export const shouldBehaveLikeBasicToken = (
       expect(secondAccountBalance).to.equal(100)
     })
 
-    it('should throw an error when trying to transfer more than balance', async function() {
+    it('should throw an error when trying to transfer more than balance', async function () {
       await expect(
         token.connect(defaultAccount).transfer(personas.Carol.address, 101),
       ).to.be.revertedWith(getReasonStr('ERC20: transfer amount exceeds balance'))

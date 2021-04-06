@@ -9,7 +9,7 @@ import { StandardTokenMock__factory } from '../../build/types/v0.6/factories/Sta
 
 import * as h from '../helpers'
 
-describe('ERC677Token', () => {
+h.describes.HH('ERC677Token', () => {
   let swap: Contract,
     owner: SignerWithAddress,
     base: Contract,
