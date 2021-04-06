@@ -19,6 +19,7 @@
   "scripts": {
     "clean": "tsc -b --clean tsconfig.json && rm -rf build/",
     "setup": "yarn build:contracts",
+    "lint": "echo \"Please set up linter\"",
     "build:contracts": "yarn build:contracts:v0.4 && yarn build:contracts:v0.6 && yarn build:contracts:v0.7 && yarn build:contracts:v0.7:ovm",
     "build:contracts:v0.4": "VERSION=v0.4 hardhat compile --show-stack-traces",
     "build:contracts:v0.6": "VERSION=v0.6 hardhat compile --show-stack-traces",
