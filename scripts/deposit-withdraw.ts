@@ -1,11 +1,7 @@
-import { Wallet, ContractFactory, Contract, providers } from 'ethers'
+import { Wallet, Contract, providers } from 'ethers'
 const { Watcher } = require('@eth-optimism/watcher')
 
-import * as Def__ERC20 from '../build/artifacts/contracts/v0.6/LinkToken.sol/LinkToken.json'
-import * as Def__L1ERC20Gateway from '../build/artifacts/contracts/v0.7/bridge/optimism/OVM_L1ERC20Gateway.sol/OVM_L1ERC20Gateway.json'
-import * as Def__L2DepositedERC20 from '../build/artifacts-ovm/contracts/v0.7/bridge/optimism/OVM_L2DepositedLinkToken.sol/OVM_L2DepositedLinkToken.json'
-
-import { deployGateway, loadEnv } from '../src/optimism'
+import { getContractFactory, optimism } from '../src'
 
 export type ConfiguredGateway = {
   L1_ERC20: Contract
@@ -23,22 +19,23 @@ export const setupOrRetrieveGateway = async (
 ): Promise<ConfiguredGateway> => {
   // Deploy or retrieve L1 ERC20
   let L1_ERC20: Contract
+  const L1ERC20Factory = getContractFactory('LinkToken', l1Wallet, 'v0.6')
   if (!l1ERC20Address) {
     console.log('No L1 ERC20 specified--deploying a new test ERC20 on L1.')
-    const L1ERC20Factory = new ContractFactory(Def__ERC20.abi, Def__ERC20.bytecode, l1Wallet)
+
     L1_ERC20 = await L1ERC20Factory.deploy()
     console.log('New L1_ERC20 deployed to:', L1_ERC20.address)
     l1ERC20Address = L1_ERC20.address
   } else {
     console.log('Connecting to existing L1 ERC20 at:', l1ERC20Address)
-    L1_ERC20 = new Contract(l1ERC20Address, Def__ERC20.abi, l1Wallet)
+    L1_ERC20 = L1ERC20Factory.attach(l1ERC20Address)
   }
 
   let OVM_L1ERC20Gateway: Contract
   let OVM_L2DepositedERC20: Contract
   if (!l1ERC20GatewayAddress) {
     console.log('No gateway contract specified, deploying a new one...')
-    const newGateway = await deployGateway(
+    const newGateway = await optimism.deployGateway(
       l1Wallet,
       l2Wallet,
       L1_ERC20.address,
@@ -48,9 +45,20 @@ export const setupOrRetrieveGateway = async (
     OVM_L1ERC20Gateway = newGateway.OVM_L1ERC20Gateway
     OVM_L2DepositedERC20 = newGateway.OVM_L2DepositedERC20
   } else {
-    OVM_L1ERC20Gateway = new Contract(l1ERC20GatewayAddress, Def__L1ERC20Gateway.abi, l1Wallet)
+    OVM_L1ERC20Gateway = getContractFactory(
+      'OVM_L1ERC20Gateway',
+      l1Wallet,
+      'v0.7',
+      // EVM
+    ).attach(l1ERC20GatewayAddress)
+
     const l2ERC20GatewayAddress = await OVM_L1ERC20Gateway.l2ERC20Gateway()
-    OVM_L2DepositedERC20 = new Contract(l2ERC20GatewayAddress, Def__L2DepositedERC20.abi, l2Wallet)
+    OVM_L2DepositedERC20 = getContractFactory(
+      'OVM_L2DepositedLinkToken',
+      l2Wallet,
+      'v0.7',
+      'ovm',
+    ).attach(l2ERC20GatewayAddress)
   }
 
   console.log('Completed getting full ERC20 gateway.')
@@ -70,7 +78,7 @@ export type CheckBalances = (
 
 export const depositAndWithdraw = async (checkBalances: CheckBalances) => {
   // Load the configuration from environment
-  loadEnv()
+  optimism.loadEnv()
 
   // Grab wallets for both chains
   const l1Provider = new providers.JsonRpcProvider(process.env.L1_WEB3_URL)

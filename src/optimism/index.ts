@@ -1,8 +1,6 @@
 import * as dotenv from 'dotenv'
-import { Wallet, ContractFactory, Contract } from 'ethers'
-
-import * as Def__L1ERC20Gateway from '../../build/artifacts/contracts/v0.7/bridge/optimism/OVM_L1ERC20Gateway.sol/OVM_L1ERC20Gateway.json'
-import * as Def__L2DepositedERC20 from '../../build/artifacts-ovm/contracts/v0.7/bridge/optimism/OVM_L2DepositedLinkToken.sol/OVM_L2DepositedLinkToken.json'
+import { Wallet, Contract } from 'ethers'
+import { getContractFactory } from '../'
 
 export const loadEnv = () => {
   //   // Load env (force 'local' env in unit test)
@@ -23,21 +21,19 @@ export const deployGateway = async (
   OVM_L2DepositedERC20: Contract
 }> => {
   // Deploy L2 ERC20 token
-  const Factory__OVM_L2DepositedERC20 = new ContractFactory(
-    Def__L2DepositedERC20.abi,
-    Def__L2DepositedERC20.bytecode,
+  const Factory__OVM_L2DepositedERC20 = getContractFactory(
+    'OVM_L2DepositedLinkToken',
     l2Wallet,
+    'v0.7',
+    'ovm',
   )
+
   const l2DepositedERC20 = await Factory__OVM_L2DepositedERC20.deploy(l2MessengerAddress)
   await l2DepositedERC20.deployTransaction.wait()
   console.log('OVM_L2DepositedERC20 deployed to:', l2DepositedERC20.address)
 
   // Deploy L1 ERC20 Gateway
-  const Factory__OVM_L1ERC20Gateway = new ContractFactory(
-    Def__L1ERC20Gateway.abi,
-    Def__L1ERC20Gateway.bytecode,
-    l1Wallet,
-  )
+  const Factory__OVM_L1ERC20Gateway = getContractFactory('OVM_L1ERC20Gateway', l1Wallet, 'v0.7')
 
   const l1ERC20Gateway = await Factory__OVM_L1ERC20Gateway.deploy(
     l1ERC20Address,
