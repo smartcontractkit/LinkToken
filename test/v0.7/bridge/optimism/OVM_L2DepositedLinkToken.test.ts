@@ -1,30 +1,39 @@
-import { ContractFactory, Signer } from 'ethers'
-import { OVML2DepositedLinkToken as OVM_L2DepositedLinkToken } from '../../../../build/types/v0.7/OVML2DepositedLinkToken'
-import { OVML2DepositedLinkTokenMock__factory as OVM_L2DepositedLinkTokenMock__factory } from '../../../../build/types/v0.7/factories/OVML2DepositedLinkTokenMock__factory'
-import { OVMCrossDomainMessengerMock__factory as OVM_CrossDomainMessengerMock__factory } from '../../../../build/types/v0.7/factories/OVMCrossDomainMessengerMock__factory'
+import { expect } from 'chai'
+import { Wallet, Contract, ContractFactory, Signer, providers } from 'ethers'
+import { getContractFactory, Targets, Versions, optimism } from '../../../../src'
+import * as h from '../../../helpers'
 
+import { shouldBehaveLikeERC677Token } from '../../../behavior/ERC677Token'
 import { shouldBehaveLikeLinkToken } from '../../../behavior/LinkToken'
-
-import { getContractFactory, Versions } from '../../../../src'
 
 export class OVM_L2DepositedLinkTokenTest__factory {
   readonly signer: Signer
-  constructor(signer?: Signer) {
+  readonly target: Targets
+  constructor(signer?: Signer, target: Targets = Targets.EVM) {
     this.signer = signer || ({} as Signer)
+    this.target = target
   }
 
-  deploy(...args: Array<any>): Promise<OVM_L2DepositedLinkToken> {
+  deploy(...args: Array<any>): Promise<Contract> {
     const initBalance: number = args[0] || '1000000000000000000000000000'
     const _deploy = async () => {
       // Deploy l2CrossDomainMessenger
-      const messengerMock = await new OVM_CrossDomainMessengerMock__factory(this.signer).deploy()
+      const messengerMock = await getContractFactory(
+        'OVM_CrossDomainMessengerMock',
+        this.signer,
+        Versions.v0_7,
+        this.target,
+      ).deploy()
       await messengerMock.deployTransaction.wait()
       const fake_l2CrossDomainMessenger = messengerMock.address
 
       // Deploy l2Token with l2CrossDomainMessenger
-      const l2Token = await new OVM_L2DepositedLinkTokenMock__factory(this.signer).deploy(
-        fake_l2CrossDomainMessenger,
-      )
+      const l2Token = await getContractFactory(
+        'OVM_L2DepositedLinkTokenMock',
+        this.signer,
+        Versions.v0_7,
+        this.target,
+      ).deploy(fake_l2CrossDomainMessenger)
       await l2Token.deployTransaction.wait()
       // Init l2Token with l1TokenGateway
       const address = await this.signer.getAddress()
@@ -76,12 +85,84 @@ const EXTRA_PUBLIC_ABI = [
 
 describe(`OVM_L2DepositedLinkToken ${Versions.v0_7}`, () => {
   const _getContractFactory = (name: string, signer?: Signer) => {
-    if (name === 'LinkToken') {
-      return (new OVM_L2DepositedLinkTokenTest__factory(signer) as unknown) as ContractFactory
+    if (name === 'LinkToken' || name === 'Token677') {
+      return (new OVM_L2DepositedLinkTokenTest__factory(
+        signer,
+        Targets.EVM,
+      ) as unknown) as ContractFactory
     }
     return getContractFactory(name, signer, Versions.v0_6)
   }
   const _getReasonStr = (reason: string) => reason
 
+  shouldBehaveLikeERC677Token(_getContractFactory, _getReasonStr)
   shouldBehaveLikeLinkToken(_getContractFactory, _getReasonStr, EXTRA_PUBLIC_ABI)
+
+  describe(`OVM_L2DepositedLinkToken ${Versions.v0_7} @integration`, () => {
+    // Skip if not OVM integration test
+    ;(h.isIntegration() ? describe : describe.skip)('withdrawal safety', () => {
+      // Load the configuration from environment
+      optimism.loadEnv()
+
+      const provider = new providers.JsonRpcProvider(process.env.L2_WEB3_URL)
+      const wallet = new Wallet(process.env.USER_PRIVATE_KEY || '', provider)
+      let l2Token: Contract
+
+      beforeEach(async function () {
+        this.timeout(20000)
+        l2Token = await new OVM_L2DepositedLinkTokenTest__factory(wallet, Targets.OVM).deploy()
+      })
+
+      it('can withdraw (all fn) as EOA contract', async () => {
+        const amount = '10'
+        const withdrawTx = await l2Token.withdraw(amount)
+        await withdrawTx.wait()
+
+        const withdrawToTx = await l2Token.withdrawTo(wallet.address, amount)
+        await withdrawToTx.wait()
+
+        const withdrawToUnsafeTx = await l2Token.withdrawToUnsafe(wallet.address, amount)
+        await withdrawToUnsafeTx.wait()
+
+        const balance = await l2Token.balanceOf(wallet.address)
+        expect(balance).to.equal('999999999999999999999999970')
+      }).timeout(15000)
+
+      it('can withdrawTo an empty (unseen) account', async () => {
+        const emptyAccPK = '0x' + '12345678'.repeat(8)
+        const emptyAccWallet = new Wallet(emptyAccPK, provider)
+
+        const amount = '10'
+        const withdrawToTx = await l2Token.withdrawTo(emptyAccWallet.address, amount)
+        await withdrawToTx.wait()
+
+        const withdrawToUnsafeTx = await l2Token.withdrawToUnsafe(emptyAccWallet.address, amount)
+        await withdrawToUnsafeTx.wait()
+
+        const balance = await l2Token.balanceOf(wallet.address)
+        expect(balance).to.equal('999999999999999999999999980')
+      }).timeout(10000)
+
+      it("can't withdrawTo contract", async () => {
+        const contractAddr = l2Token.address
+
+        const amount = '10'
+        const withdrawToTx = await l2Token.withdrawTo(contractAddr, amount)
+
+        // revert: Unsafe withdraw to contract
+        await h.txRevert(withdrawToTx.wait())
+      }).timeout(20000)
+
+      it('can withdrawToUnsafe contract', async () => {
+        const contractAddr = l2Token.address
+
+        const amount = '10'
+        const withdrawToUnsafeTx = await l2Token.withdrawToUnsafe(contractAddr, amount)
+        await withdrawToUnsafeTx.wait()
+
+        const balance = await l2Token.balanceOf(wallet.address)
+        expect(balance).to.equal('999999999999999999999999990')
+      }).timeout(10000)
+    })
+  })
 })

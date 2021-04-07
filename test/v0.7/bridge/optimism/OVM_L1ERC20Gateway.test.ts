@@ -1,11 +1,8 @@
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { Contract } from 'ethers'
-import { LinkToken__factory } from '../../../../build/types/v0.6/factories/LinkToken__factory'
-import { OVML1ERC20Gateway__factory as OVM_L1ERC20Gateway__factory } from '../../../../build/types/v0.7/factories/OVML1ERC20Gateway__factory'
-import { OVMCrossDomainMessengerMock__factory as OVM_CrossDomainMessengerMock__factory } from '../../../../build/types/v0.7/factories/OVMCrossDomainMessengerMock__factory'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { Versions } from '../../../../src'
+import { Versions, getContractFactory, Targets } from '../../../../src'
 
 describe(`OVM_L1ERC20Gateway ${Versions.v0_7}`, () => {
   describe('deposit safety', () => {
@@ -18,17 +15,23 @@ describe(`OVM_L1ERC20Gateway ${Versions.v0_7}`, () => {
     let l1Token: Contract, l1Gateway: Contract
 
     beforeEach(async () => {
-      l1Token = await new LinkToken__factory(wallet).deploy()
+      l1Token = await getContractFactory('LinkToken', wallet, Versions.v0_6, Targets.EVM).deploy()
 
-      const messengerMock = await new OVM_CrossDomainMessengerMock__factory(wallet).deploy()
+      const messengerMock = await getContractFactory(
+        'OVM_CrossDomainMessengerMock',
+        wallet,
+        Versions.v0_7,
+        Targets.EVM,
+      ).deploy()
       const fake_l1CrossDomainMessenger = messengerMock.address
       const fake_l2DepositedToken = '0x00000000000000000000000000000000000000ff'
 
-      l1Gateway = await new OVM_L1ERC20Gateway__factory(wallet).deploy(
-        l1Token.address,
-        fake_l2DepositedToken,
-        fake_l1CrossDomainMessenger,
-      )
+      l1Gateway = await getContractFactory(
+        'OVM_L1ERC20Gateway',
+        wallet,
+        Versions.v0_7,
+        Targets.EVM,
+      ).deploy(l1Token.address, fake_l2DepositedToken, fake_l1CrossDomainMessenger)
     })
 
     it('can deposit (all fn) as EOA contract', async () => {

@@ -38,5 +38,5 @@ import * as h from '../../../helpers'
 
     // run test
     await depositAndWithdraw(_checkBalances)
-  }).timeout(90000)
+  }).timeout(120000)
 })

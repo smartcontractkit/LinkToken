@@ -20,11 +20,10 @@ export const encodeBytes = (bytes: string) => {
   return length + padded
 }
 
-export const functionID = (fnSignature: string) =>
-  ethers.utils
-    .keccak256(ethers.utils.toUtf8Bytes(fnSignature))
-    .slice(2)
-    .slice(0, 8)
+export const functionID = (fnSignature: string) => {
+  const { keccak256, toUtf8Bytes } = ethers.utils
+  return keccak256(toUtf8Bytes(fnSignature)).slice(2).slice(0, 8)
+}
 
 /**
  * Check that a contract's abi exposes the expected interface.
@@ -52,4 +51,35 @@ export function publicAbi(
     const index = actualPublic.indexOf(method)
     assert.isAtLeast(index, 0, `#${method} is expected to be public`)
   }
+}
+
+/**
+ * Check that an evm transaction fails
+ *
+ * @param action The asynchronous action to execute, which should cause an evm revert.
+ */
+export async function txRevert(action: (() => Promise<any>) | Promise<any>) {
+  try {
+    if (typeof action === 'function') {
+      await action()
+    } else {
+      await action
+    }
+  } catch (e) {
+    assert(e.message, 'Expected an error to contain a message')
+
+    const ERROR_MESSAGES = ['transaction failed']
+    const hasErrored = ERROR_MESSAGES.some((msg) => e.message.includes(msg))
+
+    assert(
+      hasErrored,
+      `expected following error message to include ${ERROR_MESSAGES.join(' or ')}. Got: "${
+        e.message
+      }"`,
+    )
+    return
+  }
+
+  const err = undefined
+  assert.exists(err, 'Expected an error to be raised')
 }
