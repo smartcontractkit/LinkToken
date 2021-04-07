@@ -6,6 +6,7 @@ import { OVMCrossDomainMessengerMock__factory as OVM_CrossDomainMessengerMock__f
 import { loadEnv } from '../../../../src/optimism'
 
 import * as h from '../../../helpers'
+import { Versions } from '../../../../src'
 
 export class OVM_L2DepositedLinkTokenTest__factory {
   readonly signer: Signer
@@ -47,7 +48,7 @@ export class OVM_L2DepositedLinkTokenTest__factory {
   }
 }
 
-describe('OVM_L2DepositedLinkToken v0.7 @integration', () => {
+describe(`OVM_L2DepositedLinkToken ${Versions.v0_7} @integration`, () => {
   // Skip if not OVM integration test
   ;(h.isIntegration() ? describe : describe.skip)('withdrawal safety', () => {
     // Load the configuration from environment
@@ -57,7 +58,7 @@ describe('OVM_L2DepositedLinkToken v0.7 @integration', () => {
     const wallet = new Wallet(process.env.USER_PRIVATE_KEY || '', provider)
     let l2Token: Contract
 
-    beforeEach(async function() {
+    beforeEach(async function () {
       this.timeout(20000)
       l2Token = await new OVM_L2DepositedLinkTokenTest__factory(wallet).deploy()
     })

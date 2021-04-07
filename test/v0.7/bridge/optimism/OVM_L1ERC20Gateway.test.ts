@@ -5,8 +5,9 @@ import { LinkToken__factory } from '../../../../build/types/v0.6/factories/LinkT
 import { OVML1ERC20Gateway__factory as OVM_L1ERC20Gateway__factory } from '../../../../build/types/v0.7/factories/OVML1ERC20Gateway__factory'
 import { OVMCrossDomainMessengerMock__factory as OVM_CrossDomainMessengerMock__factory } from '../../../../build/types/v0.7/factories/OVMCrossDomainMessengerMock__factory'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
+import { Versions } from '../../../../src'
 
-describe('OVM_L1ERC20Gateway v0.7', () => {
+describe(`OVM_L1ERC20Gateway ${Versions.v0_7}`, () => {
   describe('deposit safety', () => {
     let wallet: SignerWithAddress, walletOther: SignerWithAddress
 

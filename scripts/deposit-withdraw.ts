@@ -1,7 +1,7 @@
 import { Wallet, Contract, providers } from 'ethers'
 const { Watcher } = require('@eth-optimism/watcher')
 
-import { getContractFactory, optimism } from '../src'
+import { getContractFactory, optimism, Targets, Versions } from '../src'
 
 export type ConfiguredGateway = {
   L1_ERC20: Contract
@@ -19,7 +19,7 @@ export const setupOrRetrieveGateway = async (
 ): Promise<ConfiguredGateway> => {
   // Deploy or retrieve L1 ERC20
   let L1_ERC20: Contract
-  const L1ERC20Factory = getContractFactory('LinkToken', l1Wallet, 'v0.6')
+  const L1ERC20Factory = getContractFactory('LinkToken', l1Wallet, Versions.v0_6)
   if (!l1ERC20Address) {
     console.log('No L1 ERC20 specified--deploying a new test ERC20 on L1.')
 
@@ -48,16 +48,16 @@ export const setupOrRetrieveGateway = async (
     OVM_L1ERC20Gateway = getContractFactory(
       'OVM_L1ERC20Gateway',
       l1Wallet,
-      'v0.7',
-      // EVM
+      Versions.v0_7,
+      Targets.EVM,
     ).attach(l1ERC20GatewayAddress)
 
     const l2ERC20GatewayAddress = await OVM_L1ERC20Gateway.l2ERC20Gateway()
     OVM_L2DepositedERC20 = getContractFactory(
       'OVM_L2DepositedLinkToken',
       l2Wallet,
-      'v0.7',
-      'ovm',
+      Versions.v0_7,
+      Targets.OVM,
     ).attach(l2ERC20GatewayAddress)
   }
 
@@ -179,7 +179,5 @@ if (require.main === module) {
   console.log('Running depositAndWithdraw script...')
   const main = depositAndWithdraw
   // start script
-  main(logBalances)
-    .catch(console.error)
-    .finally(process.exit)
+  main(logBalances).catch(console.error).finally(process.exit)
 }

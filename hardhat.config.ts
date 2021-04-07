@@ -1,12 +1,12 @@
 // hardhat.config.ts
 import { HardhatUserConfig, SolcConfig } from 'hardhat/types'
-import { hardhat } from './src'
+import { hardhat, Versions } from './src'
 
 import '@nomiclabs/hardhat-waffle'
 import '@typechain/hardhat'
 import '@eth-optimism/plugins/hardhat/compiler'
 
-const DEFAULT_VERSION = 'v0.6'
+const DEFAULT_VERSION = Versions.v0_6
 
 const settings = {
   optimizer: {
@@ -20,15 +20,15 @@ const settings = {
   },
 }
 
-const versions: Record<string, SolcConfig> = {
-  'v0.4': { version: '0.4.16', settings },
-  'v0.6': { version: '0.6.12', settings },
-  'v0.7': { version: '0.7.6', settings },
+const versions: Record<Versions, SolcConfig> = {
+  [Versions.v0_4]: { version: '0.4.16', settings },
+  [Versions.v0_6]: { version: '0.6.12', settings },
+  [Versions.v0_7]: { version: '0.7.6', settings },
 }
 
 // Require version exists
 const versionLabel = process.env.VERSION || DEFAULT_VERSION
-const compiler = versions[versionLabel]
+const compiler = versions[versionLabel as Versions]
 if (!compiler) throw Error(`Compiler for ${versionLabel} could not be found!`)
 
 const typesDir = process.env.TARGET ? `types-${process.env.TARGET}` : 'types'

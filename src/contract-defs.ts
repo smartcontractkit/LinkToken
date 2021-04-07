@@ -2,8 +2,13 @@ import * as path from 'path'
 import * as glob from 'glob'
 import { ethers, ContractFactory, Signer } from 'ethers'
 import { Interface } from 'ethers/lib/utils'
+import { Targets, Versions } from '.'
 
-export const getContractDefinition = (name: string, version?: string, target?: string): any => {
+export const getContractDefinition = (
+  name: string,
+  version?: Versions,
+  target: Targets = Targets.EVM,
+): any => {
   const match = glob.sync(
     path.resolve(__dirname, '../build') +
       `/artifacts${target ? `-${target}` : ''}` +
@@ -19,8 +24,8 @@ export const getContractDefinition = (name: string, version?: string, target?: s
 
 export const getContractInterface = (
   name: string,
-  version?: string,
-  target?: string,
+  version?: Versions,
+  target: Targets = Targets.EVM,
 ): Interface => {
   const definition = getContractDefinition(name, version, target)
   return new ethers.utils.Interface(definition.abi)
@@ -29,8 +34,8 @@ export const getContractInterface = (
 export const getContractFactory = (
   name: string,
   signer?: Signer,
-  version?: string,
-  target?: string,
+  version?: Versions,
+  target: Targets = Targets.EVM,
 ): ContractFactory => {
   const definition = getContractDefinition(name, version, target)
   const contractInterface = getContractInterface(name, version, target)

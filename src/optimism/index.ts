@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv'
 import { Wallet, Contract } from 'ethers'
-import { getContractFactory } from '../'
+import { getContractFactory, Targets, Versions } from '../'
 
 export const loadEnv = () => {
   //   // Load env (force 'local' env in unit test)
@@ -24,8 +24,8 @@ export const deployGateway = async (
   const Factory__OVM_L2DepositedERC20 = getContractFactory(
     'OVM_L2DepositedLinkToken',
     l2Wallet,
-    'v0.7',
-    'ovm',
+    Versions.v0_7,
+    Targets.OVM,
   )
 
   const l2DepositedERC20 = await Factory__OVM_L2DepositedERC20.deploy(l2MessengerAddress)
@@ -33,7 +33,12 @@ export const deployGateway = async (
   console.log('OVM_L2DepositedERC20 deployed to:', l2DepositedERC20.address)
 
   // Deploy L1 ERC20 Gateway
-  const Factory__OVM_L1ERC20Gateway = getContractFactory('OVM_L1ERC20Gateway', l1Wallet, 'v0.7')
+  const Factory__OVM_L1ERC20Gateway = getContractFactory(
+    'OVM_L1ERC20Gateway',
+    l1Wallet,
+    Versions.v0_7,
+    Targets.EVM,
+  )
 
   const l1ERC20Gateway = await Factory__OVM_L1ERC20Gateway.deploy(
     l1ERC20Address,

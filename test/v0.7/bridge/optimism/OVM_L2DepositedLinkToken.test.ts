@@ -5,7 +5,7 @@ import { OVMCrossDomainMessengerMock__factory as OVM_CrossDomainMessengerMock__f
 
 import { shouldBehaveLikeLinkToken } from '../../../behavior/LinkToken'
 
-import { getContractFactory } from '../../../../src'
+import { getContractFactory, Versions } from '../../../../src'
 
 export class OVM_L2DepositedLinkTokenTest__factory {
   readonly signer: Signer
@@ -74,12 +74,12 @@ const EXTRA_PUBLIC_ABI = [
   ...OVM_L2DepositedLinkTokenMock_PUBLIC_ABI,
 ]
 
-describe('OVM_L2DepositedLinkToken v0.7', () => {
+describe(`OVM_L2DepositedLinkToken ${Versions.v0_7}`, () => {
   const _getContractFactory = (name: string, signer?: Signer) => {
     if (name === 'LinkToken') {
       return (new OVM_L2DepositedLinkTokenTest__factory(signer) as unknown) as ContractFactory
     }
-    return getContractFactory(name, signer, 'v0.6')
+    return getContractFactory(name, signer, Versions.v0_6)
   }
   const _getReasonStr = (reason: string) => reason
 
