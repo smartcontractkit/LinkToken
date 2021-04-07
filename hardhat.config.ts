@@ -8,13 +8,11 @@ import '@eth-optimism/plugins/hardhat/compiler'
 
 const DEFAULT_VERSION = 'v0.6'
 
-const optimizer = {
-  runs: 200,
-  enabled: true,
-}
-
 const settings = {
-  optimizer,
+  optimizer: {
+    runs: 200,
+    enabled: true,
+  },
   metadata: {
     // To support Go code generation from build artifacts
     // we need to remove the metadata from the compiled bytecode.
