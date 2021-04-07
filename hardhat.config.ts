@@ -33,7 +33,7 @@ const versionLabel = process.env.VERSION || DEFAULT_VERSION
 const compiler = versions[versionLabel]
 if (!compiler) throw Error(`Compiler for ${versionLabel} could not be found!`)
 
-const typesDir = process.env.TARGET === 'ovm' ? 'types-ovm' : 'types'
+const typesDir = process.env.TARGET ? `types-${process.env.TARGET}` : 'types'
 
 const config: HardhatUserConfig = {
   paths: {

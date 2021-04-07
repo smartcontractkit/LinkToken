@@ -47,6 +47,14 @@ export class OVM_L2DepositedLinkTokenTest__factory {
   }
 }
 
+const OVM_EOACodeHashSet_PUBLIC_ABI = [
+  'owner',
+  'transferOwnership',
+  'acceptOwnership',
+  'containsEOACodeHash',
+  'addEOACodeHash',
+  'removeEOACodeHash',
+]
 const Abs_L2DepositedToken_PUBLIC_ABI = [
   'messenger',
   'l1TokenGateway',
@@ -58,11 +66,12 @@ const Abs_L2DepositedToken_PUBLIC_ABI = [
   'finalizeDeposit',
 ]
 const OVM_L2DepositedLinkTokenMock_PUBLIC_ABI = ['mockFinalizeDeposit']
-const v6_EXTRA_PUBLIC_ABI = [
+const EXTRA_PUBLIC_ABI = [
   'decreaseAllowance',
   'increaseAllowance',
-  ...OVM_L2DepositedLinkTokenMock_PUBLIC_ABI,
+  ...OVM_EOACodeHashSet_PUBLIC_ABI,
   ...Abs_L2DepositedToken_PUBLIC_ABI,
+  ...OVM_L2DepositedLinkTokenMock_PUBLIC_ABI,
 ]
 
 describe('OVM_L2DepositedLinkToken v0.7', () => {
@@ -74,5 +83,5 @@ describe('OVM_L2DepositedLinkToken v0.7', () => {
   }
   const _getReasonStr = (reason: string) => reason
 
-  shouldBehaveLikeLinkToken(_getContractFactory, _getReasonStr, v6_EXTRA_PUBLIC_ABI)
+  shouldBehaveLikeLinkToken(_getContractFactory, _getReasonStr, EXTRA_PUBLIC_ABI)
 })

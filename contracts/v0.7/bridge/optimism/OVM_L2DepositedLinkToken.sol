@@ -9,7 +9,7 @@ import { LinkToken } from "../../../v0.6/LinkToken.sol";
 import { Abs_L2DepositedToken } from "@eth-optimism/contracts/build/contracts/OVM/bridge/tokens/Abs_L2DepositedToken.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { OpUnsafe } from "../utils/OpUnsafe.sol";
-import { OVM_Address } from "./OVM_Address.sol";
+import { OVM_EOACodeHashSet } from "./OVM_EOACodeHashSet.sol";
 
 /**
  * @title OVM_L2DepositedLinkToken
@@ -20,7 +20,7 @@ import { OVM_Address } from "./OVM_Address.sol";
  * Compiler used: optimistic-solc
  * Runtime target: OVM
  */
-contract OVM_L2DepositedLinkToken is OpUnsafe, Abs_L2DepositedToken, LinkToken {
+contract OVM_L2DepositedLinkToken is OpUnsafe, OVM_EOACodeHashSet, Abs_L2DepositedToken, LinkToken {
 
   /**
    * @param l2CrossDomainMessenger Cross-domain messenger used by this contract.
@@ -74,7 +74,7 @@ contract OVM_L2DepositedLinkToken is OpUnsafe, Abs_L2DepositedToken, LinkToken {
     override
   {
     // Unless explicitly unsafe op, stop withdrawals to contracts (avoid accidentally lost tokens)
-    require(_isUnsafe() || !Address.isContract(_to) || OVM_Address.isEOAContract(_to), "Unsafe withdraw to contract");
+    require(_isUnsafe() || !Address.isContract(_to) || _isEOAContract(_to), "Unsafe withdraw to contract");
 
     _burn(msg.sender, _amount);
   }
