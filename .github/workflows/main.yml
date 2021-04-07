@@ -29,7 +29,13 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '14.x'
+      - name: Setup Optimism L2 local network
+        run: |
+          git clone https://github.com/ethereum-optimism/optimism-integration.git
+          cd optimism-integration
+          ./pull.sh
+          ./up.sh & sleep 20
       - run: npm install -g yarn
       - run: yarn install
       - run: yarn setup
-      - run: yarn test #:integration
+      - run: yarn test:integration
