@@ -8,7 +8,8 @@ export const generateOverrides = (
 ): Record<string, SolcConfig> => {
   const overrides: Record<string, SolcConfig> = {}
   const files = glob.sync(pattern, options)
-  console.log('Generating Hardhat overrides for: ', { files, compiler })
+  console.log('Generating Hardhat overrides for: ')
+  console.dir({ files, compiler }, { depth: null, colors: true })
   files.forEach(f => (overrides[f] = compiler))
   return overrides
 }

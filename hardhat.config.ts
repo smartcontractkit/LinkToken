@@ -12,19 +12,19 @@ const optimizer = {
   enabled: true,
 }
 
+const settings = {
+  optimizer,
+  metadata: {
+    // To support Go code generation from build artifacts
+    // we need to remove the metadata from the compiled bytecode.
+    bytecodeHash: 'none',
+  },
+}
+
 const versions: Record<string, SolcConfig> = {
-  'v0.4': {
-    version: '0.4.16',
-    settings: { optimizer },
-  },
-  'v0.6': {
-    version: '0.6.12',
-    settings: { optimizer },
-  },
-  'v0.7': {
-    version: '0.7.6',
-    settings: { optimizer },
-  },
+  'v0.4': { version: '0.4.16', settings },
+  'v0.6': { version: '0.6.12', settings },
+  'v0.7': { version: '0.7.6', settings },
 }
 
 // Require version exists
