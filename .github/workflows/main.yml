@@ -35,9 +35,5 @@ jobs:
       - run: yarn install
       - run: yarn setup
       - name: Setup Optimism L2 local network
-        run: |
-          git clone https://github.com/ethereum-optimism/optimism.git
-          cd optimism/ops
-          docker-compose build --parallel
-          docker-compose up -d && ./node_modules/@chainlink/optimism-utils/scripts/wait-for-sequencer.sh
+        run: ./node_modules/@chainlink/optimism-utils/scripts/run-ci.sh
       - run: yarn test:integration

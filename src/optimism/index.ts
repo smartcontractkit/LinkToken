@@ -1,13 +1,32 @@
+import * as optimism from '@chainlink/optimism-utils'
 import * as dotenv from 'dotenv'
-import { Wallet, Contract } from 'ethers'
+import { Wallet, Contract, providers } from 'ethers'
 import { getContractFactory, Targets, Versions } from '../'
 
-export const loadEnv = () => {
+export * from '@chainlink/optimism-utils'
+
+export const loadEnv = async (): Promise<optimism.env.OptimismEnv> => {
   //   // Load env (force 'local' env in unit test)
   //   const isTest = process.argv[1].includes('jest')
   //   const networkArg = isTest ? 'local' : process.argv.slice(2)[0] || 'local'
   //   dotenv.config({ path: __dirname + `/../../env/.env.${networkArg}` })
   dotenv.config({ path: __dirname + `/../../env/.env.local` })
+
+  const l1Provider = new providers.JsonRpcProvider(process.env.L1_WEB3_URL)
+  const l2Provider = new providers.JsonRpcProvider(process.env.L2_WEB3_URL)
+
+  l1Provider.pollingInterval = 10
+  l2Provider.pollingInterval = 10
+
+  // Grab wallets for both chains
+  const l1Wallet = new Wallet(process.env.USER_PRIVATE_KEY || '', l1Provider)
+  const l2Wallet = new Wallet(process.env.USER_PRIVATE_KEY || '', l2Provider)
+
+  return await optimism.env.OptimismEnv.new(
+    optimism.utils.LOCAL_ADDRESS_MANAGER_ADDR,
+    l1Wallet,
+    l2Wallet,
+  )
 }
 
 export const deployGateway = async (

@@ -1,5 +1,7 @@
+import { parseEther } from '@ethersproject/units'
 import { expect } from 'chai'
 import { depositAndWithdraw, CheckBalances } from '../../../../scripts/deposit-withdraw'
+import { optimism } from '../../../../src'
 import * as h from '../../../helpers'
 
 // Skip if not OVM integration test
@@ -36,7 +38,10 @@ import * as h from '../../../helpers'
       }
     }
 
+    // Load the configuration from environment
+    const oe = await optimism.loadEnv()
+    await oe.depositL2(parseEther('1'))
     // run test
-    await depositAndWithdraw(_checkBalances)
+    await depositAndWithdraw(oe, _checkBalances)
   }).timeout(60000)
 })

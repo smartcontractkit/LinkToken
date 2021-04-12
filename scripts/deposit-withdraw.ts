@@ -1,7 +1,5 @@
-import { Wallet, Contract, providers } from 'ethers'
-import { env } from '@chainlink/optimism-utils'
-const { Watcher } = require('@eth-optimism/watcher')
-
+import { parseEther } from '@ethersproject/units'
+import { Wallet, Contract } from 'ethers'
 import { getContractFactory, optimism, Targets, Versions } from '../src'
 
 export type ConfiguredGateway = {
@@ -77,46 +75,27 @@ export type CheckBalances = (
   OVM_L2DepositedERC20: Contract,
 ) => Promise<void>
 
-export const depositAndWithdraw = async (checkBalances: CheckBalances) => {
-  // Load the configuration from environment
-  optimism.loadEnv()
-
-  // Grab wallets for both chains
-  const l1Provider = new providers.JsonRpcProvider(process.env.L1_WEB3_URL)
-  const l2Provider = new providers.JsonRpcProvider(process.env.L2_WEB3_URL)
-  const l1Wallet = new Wallet(process.env.USER_PRIVATE_KEY || '', l1Provider)
-  const l2Wallet = new Wallet(process.env.USER_PRIVATE_KEY || '', l2Provider)
-
-  const oe = await env.OptimismEnv.new()
-
+export const depositAndWithdraw = async (
+  oe: optimism.env.OptimismEnv,
+  checkBalances: CheckBalances,
+) => {
   // Grab existing addresses if specified
-  let l1ERC20Address = process.env.L1_ERC20_ADDRESS
+  const l1ERC20Address = process.env.L1_ERC20_ADDRESS
   const l1ERC20GatewayAddress = process.env.L1_ERC20_GATEWAY_ADDRESS
 
   const { L1_ERC20, OVM_L1ERC20Gateway, OVM_L2DepositedERC20 } = await setupOrRetrieveGateway(
-    l1Wallet,
-    l2Wallet,
+    oe.l1Wallet,
+    oe.l2Wallet,
     l1ERC20Address,
     l1ERC20GatewayAddress,
     oe.l1Messenger.address,
     oe.l2Messenger.address,
   )
 
-  // init watcher
-  const watcher = new Watcher({
-    l1: {
-      provider: l1Provider,
-      messengerAddress: oe.l1Messenger.address,
-    },
-    l2: {
-      provider: l2Provider,
-      messengerAddress: oe.l2Messenger.address,
-    },
-  })
-
   // init CheckBalances
 
-  const _checkBalances = () => checkBalances(l1Wallet, L1_ERC20, l2Wallet, OVM_L2DepositedERC20)
+  const _checkBalances = () =>
+    checkBalances(oe.l1Wallet, L1_ERC20, oe.l2Wallet, OVM_L2DepositedERC20)
 
   await _checkBalances()
 
@@ -134,10 +113,10 @@ export const depositAndWithdraw = async (checkBalances: CheckBalances) => {
 
   await _checkBalances()
 
-  const [l1ToL2msgHash] = await watcher.getMessageHashesFromL1Tx(depositTx.hash)
+  const [l1ToL2msgHash] = await oe.watcher.getMessageHashesFromL1Tx(depositTx.hash)
   console.log('got L1->L2 message hash', l1ToL2msgHash)
-  const l2Receipt = await watcher.getL2TransactionReceipt(l1ToL2msgHash)
-  console.log('completed Deposit! L2 tx hash:', l2Receipt.transactionHash)
+  const l2Receipt = await oe.watcher.getL2TransactionReceipt(l1ToL2msgHash)
+  console.log('completed Deposit! L2 tx hash:', l2Receipt!.transactionHash)
 
   await _checkBalances()
 
@@ -149,10 +128,10 @@ export const depositAndWithdraw = async (checkBalances: CheckBalances) => {
 
   await _checkBalances()
 
-  const [l2ToL1msgHash] = await watcher.getMessageHashesFromL2Tx(withdrawalTx.hash)
+  const [l2ToL1msgHash] = await oe.watcher.getMessageHashesFromL2Tx(withdrawalTx.hash)
   console.log('got L2->L1 message hash', l2ToL1msgHash)
-  const l1Receipt = await watcher.getL1TransactionReceipt(l2ToL1msgHash)
-  console.log('completed Withdrawal! L1 tx hash:', l1Receipt.transactionHash)
+  const l1Receipt = await oe.watcher.getL1TransactionReceipt(l2ToL1msgHash)
+  console.log('completed Withdrawal! L1 tx hash:', l1Receipt!.transactionHash)
 
   await _checkBalances()
 }
@@ -174,9 +153,16 @@ const logBalances: CheckBalances = async (l1Wallet, L1_ERC20, l2Wallet, OVM_L2De
   console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n')
 }
 
+const _run = async () => {
+  // Load the configuration from environment
+  const oe = await optimism.loadEnv()
+  // Fund L2 wallet
+  await oe.depositL2(parseEther('1'))
+  // Start scripts
+  await depositAndWithdraw(oe, logBalances)
+}
+
 if (require.main === module) {
   console.log('Running depositAndWithdraw script...')
-  const main = depositAndWithdraw
-  // start script
-  main(logBalances).catch(console.error).finally(process.exit)
+  _run().catch(console.error).finally(process.exit)
 }

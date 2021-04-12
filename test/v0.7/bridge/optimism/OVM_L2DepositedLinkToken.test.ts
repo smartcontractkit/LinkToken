@@ -1,10 +1,11 @@
 import { expect } from 'chai'
-import { Wallet, Contract, ContractFactory, Signer, providers } from 'ethers'
+import { Wallet, Contract, ContractFactory, Signer } from 'ethers'
 import { getContractFactory, Targets, Versions, optimism } from '../../../../src'
 import * as h from '../../../helpers'
 
 import { shouldBehaveLikeERC677Token } from '../../../behavior/ERC677Token'
 import { shouldBehaveLikeLinkToken } from '../../../behavior/LinkToken'
+import { parseEther } from '@ethersproject/units'
 
 export class OVM_L2DepositedLinkTokenTest__factory {
   readonly signer: Signer
@@ -100,17 +101,16 @@ describe(`OVM_L2DepositedLinkToken ${Versions.v0_7}`, () => {
 
   describe(`OVM_L2DepositedLinkToken ${Versions.v0_7} @integration`, () => {
     // Skip if not OVM integration test
-    ;(h.isIntegration() ? describe : describe.skip)('withdrawal safety', () => {
+    ;(h.isIntegration() ? describe : describe.skip)('withdrawal safety', async () => {
       // Load the configuration from environment
-      optimism.loadEnv()
+      const oe = await optimism.loadEnv()
+      await oe.depositL2(parseEther('1'))
 
-      const provider = new providers.JsonRpcProvider(process.env.L2_WEB3_URL)
-      const wallet = new Wallet(process.env.USER_PRIVATE_KEY || '', provider)
       let l2Token: Contract
 
       before(async function () {
         this.timeout(20000)
-        l2Token = await new OVM_L2DepositedLinkTokenTest__factory(wallet, Targets.OVM).deploy()
+        l2Token = await new OVM_L2DepositedLinkTokenTest__factory(oe.l2Wallet, Targets.OVM).deploy()
       })
 
       it('can withdraw (all fn) as EOA contract', async () => {
@@ -118,19 +118,19 @@ describe(`OVM_L2DepositedLinkToken ${Versions.v0_7}`, () => {
         const withdrawTx = await l2Token.withdraw(amount)
         await withdrawTx.wait()
 
-        const withdrawToTx = await l2Token.withdrawTo(wallet.address, amount)
+        const withdrawToTx = await l2Token.withdrawTo(oe.l2Wallet.address, amount)
         await withdrawToTx.wait()
 
-        const withdrawToUnsafeTx = await l2Token.withdrawToUnsafe(wallet.address, amount)
+        const withdrawToUnsafeTx = await l2Token.withdrawToUnsafe(oe.l2Wallet.address, amount)
         await withdrawToUnsafeTx.wait()
 
-        const balance = await l2Token.balanceOf(wallet.address)
+        const balance = await l2Token.balanceOf(oe.l2Wallet.address)
         expect(balance).to.equal('999999999999999999999999970')
       }).timeout(20000)
 
       it('can withdrawTo an empty (unseen) account', async () => {
         const emptyAccPK = '0x' + '12345678'.repeat(8)
-        const emptyAccWallet = new Wallet(emptyAccPK, provider)
+        const emptyAccWallet = new Wallet(emptyAccPK, oe.l2Wallet.provider)
 
         const amount = '10'
         const withdrawToTx = await l2Token.withdrawTo(emptyAccWallet.address, amount)
@@ -139,7 +139,7 @@ describe(`OVM_L2DepositedLinkToken ${Versions.v0_7}`, () => {
         const withdrawToUnsafeTx = await l2Token.withdrawToUnsafe(emptyAccWallet.address, amount)
         await withdrawToUnsafeTx.wait()
 
-        const balance = await l2Token.balanceOf(wallet.address)
+        const balance = await l2Token.balanceOf(oe.l2Wallet.address)
         expect(balance).to.equal('999999999999999999999999950')
       }).timeout(10000)
 
@@ -163,7 +163,7 @@ describe(`OVM_L2DepositedLinkToken ${Versions.v0_7}`, () => {
         const withdrawToUnsafeTx = await l2Token.withdrawToUnsafe(contractAddr, amount)
         await withdrawToUnsafeTx.wait()
 
-        const balance = await l2Token.balanceOf(wallet.address)
+        const balance = await l2Token.balanceOf(oe.l2Wallet.address)
         expect(balance).to.equal('999999999999999999999999940')
       }).timeout(10000)
     })
