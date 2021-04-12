@@ -1,4 +1,5 @@
 import { Wallet, Contract, providers } from 'ethers'
+import { env } from '@chainlink/optimism-utils'
 const { Watcher } = require('@eth-optimism/watcher')
 
 import { getContractFactory, optimism, Targets, Versions } from '../src'
@@ -86,9 +87,7 @@ export const depositAndWithdraw = async (checkBalances: CheckBalances) => {
   const l1Wallet = new Wallet(process.env.USER_PRIVATE_KEY || '', l1Provider)
   const l2Wallet = new Wallet(process.env.USER_PRIVATE_KEY || '', l2Provider)
 
-  // Grab messenger addresses
-  const l1MessengerAddress = process.env.L1_MESSENGER_ADDRESS
-  const l2MessengerAddress = '0x4200000000000000000000000000000000000007'
+  const oe = await env.OptimismEnv.new()
 
   // Grab existing addresses if specified
   let l1ERC20Address = process.env.L1_ERC20_ADDRESS
@@ -99,19 +98,19 @@ export const depositAndWithdraw = async (checkBalances: CheckBalances) => {
     l2Wallet,
     l1ERC20Address,
     l1ERC20GatewayAddress,
-    l1MessengerAddress,
-    l2MessengerAddress,
+    oe.l1Messenger.address,
+    oe.l2Messenger.address,
   )
 
   // init watcher
   const watcher = new Watcher({
     l1: {
       provider: l1Provider,
-      messengerAddress: l1MessengerAddress,
+      messengerAddress: oe.l1Messenger.address,
     },
     l2: {
       provider: l2Provider,
-      messengerAddress: l2MessengerAddress,
+      messengerAddress: oe.l2Messenger.address,
     },
   })
 

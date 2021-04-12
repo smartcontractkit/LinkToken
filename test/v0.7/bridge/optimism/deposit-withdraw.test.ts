@@ -3,7 +3,7 @@ import { depositAndWithdraw, CheckBalances } from '../../../../scripts/deposit-w
 import * as h from '../../../helpers'
 
 // Skip if not OVM integration test
-;(h.isIntegration() ? describe : describe.skip)('deposit-withdraw', () => {
+;(h.isIntegration() ? describe : describe.skip)('Optimism deposit-withdraw @integration', () => {
   it('deposit L1->L2, withdraw L2->L1 @integration', async () => {
     let step = 0
     const _checkBalances: CheckBalances = async (
@@ -38,5 +38,5 @@ import * as h from '../../../helpers'
 
     // run test
     await depositAndWithdraw(_checkBalances)
-  }).timeout(120000)
+  }).timeout(60000)
 })

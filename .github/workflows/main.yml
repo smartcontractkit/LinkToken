@@ -23,6 +23,7 @@ jobs:
       - run: yarn test
   run-integration:
     name: Setup and run integration tests
+    needs: [run-basic-checks]
     runs-on: ubuntu-latest
     # runs-on: [self-hosted, sdlc-ghr-staging]
     steps:
@@ -30,13 +31,13 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '14.x'
-      - name: Setup Optimism L2 local network
-        run: |
-          git clone https://github.com/ethereum-optimism/optimism-integration.git
-          cd optimism-integration
-          ./pull.sh
-          ./up.sh & sleep 30
       - run: npm install -g yarn
       - run: yarn install
       - run: yarn setup
+      - name: Setup Optimism L2 local network
+        run: |
+          git clone https://github.com/ethereum-optimism/optimism.git
+          cd optimism/ops
+          docker-compose build --parallel
+          docker-compose up -d && ./node_modules/@chainlink/optimism-utils/scripts/wait-for-sequencer.sh
       - run: yarn test:integration

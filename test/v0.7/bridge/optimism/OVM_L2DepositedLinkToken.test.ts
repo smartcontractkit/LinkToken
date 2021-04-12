@@ -108,7 +108,7 @@ describe(`OVM_L2DepositedLinkToken ${Versions.v0_7}`, () => {
       const wallet = new Wallet(process.env.USER_PRIVATE_KEY || '', provider)
       let l2Token: Contract
 
-      beforeEach(async function () {
+      before(async function () {
         this.timeout(20000)
         l2Token = await new OVM_L2DepositedLinkTokenTest__factory(wallet, Targets.OVM).deploy()
       })
@@ -126,7 +126,7 @@ describe(`OVM_L2DepositedLinkToken ${Versions.v0_7}`, () => {
 
         const balance = await l2Token.balanceOf(wallet.address)
         expect(balance).to.equal('999999999999999999999999970')
-      }).timeout(15000)
+      }).timeout(20000)
 
       it('can withdrawTo an empty (unseen) account', async () => {
         const emptyAccPK = '0x' + '12345678'.repeat(8)
@@ -140,18 +140,21 @@ describe(`OVM_L2DepositedLinkToken ${Versions.v0_7}`, () => {
         await withdrawToUnsafeTx.wait()
 
         const balance = await l2Token.balanceOf(wallet.address)
-        expect(balance).to.equal('999999999999999999999999980')
+        expect(balance).to.equal('999999999999999999999999950')
       }).timeout(10000)
 
       it("can't withdrawTo contract", async () => {
         const contractAddr = l2Token.address
 
         const amount = '10'
-        const withdrawToTx = await l2Token.withdrawTo(contractAddr, amount)
+        const withdrawToTx = await l2Token.withdrawTo(contractAddr, amount, {
+          // TODO: Fix ERROR { "reason":"cannot estimate gas; transaction may fail or may require manual gas limit","code":"UNPREDICTABLE_GAS_LIMIT" }
+          gasLimit: 1_000_000,
+        })
 
         // revert: Unsafe withdraw to contract
         await h.txRevert(withdrawToTx.wait())
-      }).timeout(20000)
+      }).timeout(10000)
 
       it('can withdrawToUnsafe contract', async () => {
         const contractAddr = l2Token.address
@@ -161,7 +164,7 @@ describe(`OVM_L2DepositedLinkToken ${Versions.v0_7}`, () => {
         await withdrawToUnsafeTx.wait()
 
         const balance = await l2Token.balanceOf(wallet.address)
-        expect(balance).to.equal('999999999999999999999999990')
+        expect(balance).to.equal('999999999999999999999999940')
       }).timeout(10000)
     })
   })

@@ -1,11 +1,13 @@
 // hardhat.config.ts
 import { HardhatUserConfig, SolcConfig } from 'hardhat/types'
-import { hardhat, Versions } from './src'
-
 import '@nomiclabs/hardhat-waffle'
 import '@typechain/hardhat'
+// TODO: import '@eth-optimism/hardhat-ovm'
 import '@eth-optimism/plugins/hardhat/compiler'
 
+import { hardhat, Versions } from './src'
+
+const DEFAULT_NETWORK = 'hardhat'
 const DEFAULT_VERSION = Versions.v0_6
 
 const settings = {
@@ -31,9 +33,19 @@ const versionLabel = process.env.VERSION || DEFAULT_VERSION
 const compiler = versions[versionLabel as Versions]
 if (!compiler) throw Error(`Compiler for ${versionLabel} could not be found!`)
 
-const typesDir = process.env.TARGET ? `types-${process.env.TARGET}` : 'types'
+// Setup networks
+const networks: { [key: string]: any } = {
+  optimism: {
+    url: 'http://127.0.0.1:8545',
+    ovm: true, // ensures contracts will be compiled to OVM target.
+  },
+}
+const targetNetwork = hardhat.argvNetwork(DEFAULT_NETWORK)
+const typesDir = networks[targetNetwork]?.ovm ? `types-ovm` : 'types'
 
 const config: HardhatUserConfig = {
+  defaultNetwork: DEFAULT_NETWORK,
+  networks,
   paths: {
     sources: `./contracts/${versionLabel}`,
     cache: './build/cache',
