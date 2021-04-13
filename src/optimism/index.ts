@@ -5,12 +5,19 @@ import { getContractFactory, Targets, Versions } from '../'
 
 export * from '@chainlink/optimism-utils'
 
-export const loadEnv = async (): Promise<optimism.env.OptimismEnv> => {
-  //   // Load env (force 'local' env in unit test)
-  //   const isTest = process.argv[1].includes('jest')
-  //   const networkArg = isTest ? 'local' : process.argv.slice(2)[0] || 'local'
-  //   dotenv.config({ path: __dirname + `/../../env/.env.${networkArg}` })
-  dotenv.config({ path: __dirname + `/../../env/.env.local` })
+export const loadEnv = async (envName: string = 'local'): Promise<optimism.env.OptimismEnv> => {
+  // Load env configuration by name
+  dotenv.config({ path: __dirname + `/../../env/.env.${envName}` })
+
+  // Predefined AddressManager addresses
+  const addressManager: { [key: string]: string } = {
+    local: optimism.utils.LOCAL_ADDRESS_MANAGER_ADDR,
+    kovan: optimism.utils.KOVAN_ADDRESS_MANAGER_ADDR,
+    mainnet: optimism.utils.MAINNET_ADDRESS_MANAGER_ADDR,
+  }
+
+  const addressManagerAddr = process.env.ADDRESS_MANAGER_ADDR || addressManager[envName]
+  if (!addressManagerAddr) throw Error(`Unknown AddressManager for network: ${envName}`)
 
   const l1Provider = new providers.JsonRpcProvider(process.env.L1_WEB3_URL)
   const l2Provider = new providers.JsonRpcProvider(process.env.L2_WEB3_URL)
@@ -19,14 +26,10 @@ export const loadEnv = async (): Promise<optimism.env.OptimismEnv> => {
   l2Provider.pollingInterval = 10
 
   // Grab wallets for both chains
-  const l1Wallet = new Wallet(process.env.USER_PRIVATE_KEY || '', l1Provider)
-  const l2Wallet = new Wallet(process.env.USER_PRIVATE_KEY || '', l2Provider)
+  const l1Wallet = new Wallet(process.env.PRIVATE_KEY!, l1Provider)
+  const l2Wallet = l1Wallet.connect(l2Provider)
 
-  return await optimism.env.OptimismEnv.new(
-    optimism.utils.LOCAL_ADDRESS_MANAGER_ADDR,
-    l1Wallet,
-    l2Wallet,
-  )
+  return await optimism.env.OptimismEnv.new(addressManagerAddr, l1Wallet, l2Wallet)
 }
 
 export const deployGateway = async (

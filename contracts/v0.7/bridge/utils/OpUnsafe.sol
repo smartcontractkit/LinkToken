@@ -2,7 +2,7 @@
 pragma solidity >0.6.0 <0.8.0;
 
 /**
- * @dev Contract module that helps declare and check safe/unsafe calls to a function.
+ * @dev Contract module that used to mark and check safe/unsafe calls to a function.
  *
  * Inheriting from `OpUnsafe` will make the {unsafe} and {safe} modifiers
  * available, which can be applied to functions to indicate safe or unsafe operations.
