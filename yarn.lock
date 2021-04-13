@@ -12,9 +12,10 @@
 
 "@chainlink/optimism-utils@https://github.com/smartcontractkit/optimism-utils.git":
   version "0.0.1-alpha"
-  resolved "https://github.com/smartcontractkit/optimism-utils.git#347b4510ff91d90b1d14a581e0a6ce322a6ba5bf"
+  resolved "https://github.com/smartcontractkit/optimism-utils.git#13d0a1d0d5aa47550e392dca09c3fac2385f12f5"
   dependencies:
     "@eth-optimism/contracts" "^0.2.0"
+    "@eth-optimism/core-utils" "^0.2.1"
     ethers "^5.1.0"
 
 "@ensdomains/ens@^0.4.4":
@@ -46,6 +47,20 @@
     ganache-core "^2.13.2"
     glob "^7.1.6"
 
+"@eth-optimism/contracts@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@eth-optimism/contracts/-/contracts-0.2.3.tgz#e106c6c2499d142808abd29d59bc54c7331f7024"
+  integrity sha512-sfciDwaKkNFkdwrwr/4qg1Jl2Rlzmyp5R+Jhenu5lHr6rbtxwYfhraaYj4FuWwg8OX1+nAG4SWnU3I9AIADvUA==
+  dependencies:
+    "@eth-optimism/core-utils" "^0.2.1"
+    "@eth-optimism/solc" "^0.6.12-alpha.1"
+    "@ethersproject/abstract-provider" "^5.0.8"
+    "@ethersproject/contracts" "^5.0.5"
+    "@openzeppelin/contracts" "^3.3.0"
+    "@typechain/hardhat" "^1.0.1"
+    ganache-core "^2.13.2"
+    glob "^7.1.6"
+
 "@eth-optimism/core-utils@^0.1.10":
   version "0.1.10"
   resolved "https://registry.yarnpkg.com/@eth-optimism/core-utils/-/core-utils-0.1.10.tgz#bbed838cb7c9354e8b90029c47b7556ceaa756bf"
@@ -57,12 +72,37 @@
     ethers "^5.0.31"
     pino "^6.11.1"
 
-"@eth-optimism/plugins@^1.0.0-alpha.3":
-  version "1.0.0-alpha.3"
-  resolved "https://registry.yarnpkg.com/@eth-optimism/plugins/-/plugins-1.0.0-alpha.3.tgz#acda356e1422ed919a21770c3bb03a5576be2e72"
-  integrity sha512-PWogmjeV3ofH8yx7DV4ZcY6QiRFeWwrLFp0HLlgo5g7k3y/TL/oMjDTDrjuQ0DWQC7iaIQErML70KmBT/mdfLw==
+"@eth-optimism/core-utils@^0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@eth-optimism/core-utils/-/core-utils-0.2.1.tgz#95965ed76ec80c694d5b24375619b9b43ade6962"
+  integrity sha512-OYLb3mZ47yupGSLfPirbtu3N0od7qIk8sqSA5r+fdtNURHJCzl2dw25jNu3QhbtHePNGE7ACXTaT+YXoii/Uhg==
+  dependencies:
+    "@ethersproject/abstract-provider" "^5.0.9"
+    ethers "^5.0.31"
+    lodash "^4.17.21"
+    pino "^6.11.1"
+
+"@eth-optimism/hardhat-ovm@^0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@eth-optimism/hardhat-ovm/-/hardhat-ovm-0.0.2.tgz#3317fece96db0b79cc9a1e70ceb933a8b437da6d"
+  integrity sha512-olo7Bsx2GeII2b9a1JZI7bvItvflVkAwowtjtdxMmAzl3+GX3uK+mltG9+v59DJZ8GAkcaFlaL0vXQ4rMT/XrQ==
   dependencies:
     node-fetch "^2.6.1"
+
+"@eth-optimism/solc@^0.6.12-alpha.1":
+  version "0.6.12-alpha.1"
+  resolved "https://registry.yarnpkg.com/@eth-optimism/solc/-/solc-0.6.12-alpha.1.tgz#041876f83b34c6afe2f19dfe9626568df6ed8590"
+  integrity sha512-Ky73mo+2iNJs/VTaT751nMeZ7hXns0TBAlffTOxIOsScjAZ/zi/KWsDUo3r89aV2JKXcYAU/bLidxF40MVJeUw==
+  dependencies:
+    command-exists "^1.2.8"
+    commander "3.0.2"
+    follow-redirects "^1.12.1"
+    fs-extra "^0.30.0"
+    js-sha3 "0.8.0"
+    memorystream "^0.3.1"
+    require-from-string "^2.0.0"
+    semver "^5.5.0"
+    tmp "0.0.33"
 
 "@ethereum-waffle/chai@^3.3.0":
   version "3.3.1"
@@ -5275,7 +5315,7 @@ lodash@4.17.20:
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
   integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
 
-lodash@^4.17.11, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.20, lodash@^4.17.4:
+lodash@^4.17.11, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.17.4:
   version "4.17.21"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==

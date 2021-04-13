@@ -2,8 +2,7 @@
 import { HardhatUserConfig, SolcConfig } from 'hardhat/types'
 import '@nomiclabs/hardhat-waffle'
 import '@typechain/hardhat'
-// TODO: import '@eth-optimism/hardhat-ovm'
-import '@eth-optimism/plugins/hardhat/compiler'
+import '@eth-optimism/hardhat-ovm'
 
 import { hardhat, Versions } from './src'
 

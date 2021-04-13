@@ -6,7 +6,7 @@ pragma experimental ABIEncoderV2;
 import { LinkToken } from "../../../v0.6/LinkToken.sol";
 
 /* Library Imports */
-import { Abs_L2DepositedToken } from "@eth-optimism/contracts/build/contracts/OVM/bridge/tokens/Abs_L2DepositedToken.sol";
+import { Abs_L2DepositedToken } from "@eth-optimism/contracts/dist/contracts/OVM/bridge/tokens/Abs_L2DepositedToken.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { OpUnsafe } from "../utils/OpUnsafe.sol";
 import { OVM_EOACodeHashSet } from "./OVM_EOACodeHashSet.sol";

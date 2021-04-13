@@ -4,9 +4,9 @@ pragma solidity >0.5.0 <0.8.0;
 pragma experimental ABIEncoderV2;
 
 /* Interface Imports */
-import { iOVM_L1TokenGateway } from "@eth-optimism/contracts/build/contracts/iOVM/bridge/tokens/iOVM_L1TokenGateway.sol";
-import { Abs_L1TokenGateway } from "@eth-optimism/contracts/build/contracts/OVM/bridge/tokens/Abs_L1TokenGateway.sol";
-import { iOVM_ERC20 } from "@eth-optimism/contracts/build/contracts/iOVM/predeploys/iOVM_ERC20.sol";
+import { iOVM_L1TokenGateway } from "@eth-optimism/contracts/dist/contracts/iOVM/bridge/tokens/iOVM_L1TokenGateway.sol";
+import { Abs_L1TokenGateway } from "@eth-optimism/contracts/dist/contracts/OVM/bridge/tokens/Abs_L1TokenGateway.sol";
+import { iOVM_ERC20 } from "@eth-optimism/contracts/dist/contracts/iOVM/predeploys/iOVM_ERC20.sol";
 
 /* Library Imports */
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";

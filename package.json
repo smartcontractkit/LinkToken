@@ -33,12 +33,12 @@
   },
   "dependencies": {
     "@chainlink/contracts": "^0.1.6",
-    "@eth-optimism/contracts": "^0.2.0",
+    "@eth-optimism/contracts": "^0.2.3",
     "@openzeppelin/contracts": "^3.4.0"
   },
   "devDependencies": {
     "@chainlink/optimism-utils": "https://github.com/smartcontractkit/optimism-utils.git",
-    "@eth-optimism/plugins": "^1.0.0-alpha.3",
+    "@eth-optimism/hardhat-ovm": "^0.0.2",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@typechain/ethers-v5": "^6.0.5",
