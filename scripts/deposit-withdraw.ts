@@ -1,3 +1,4 @@
+import { Direction, waitForXDomainTransaction } from '@chainlink/optimism-utils/dist/watcher-utils'
 import { parseEther } from '@ethersproject/units'
 import { Wallet, Contract } from 'ethers'
 import { getContractFactory, optimism, Targets, Versions } from '../src'
@@ -105,33 +106,23 @@ export const depositAndWithdraw = async (
   console.log('Approved: https://kovan.etherscan.io/tx/' + approveTx.hash)
   await approveTx.wait()
 
+  const { watcher } = oe
+
   // Deposit
   console.log('Depositing into L1 gateway contract...')
-  const depositTx = await OVM_L1ERC20Gateway.deposit(1, { gasLimit: 1000000 })
-  console.log('Deposited: https://kovan.etherscan.io/tx/' + depositTx.hash)
-  await depositTx.wait()
-
-  await _checkBalances()
-
-  const [l1ToL2msgHash] = await oe.watcher.getMessageHashesFromL1Tx(depositTx.hash)
-  console.log('got L1->L2 message hash', l1ToL2msgHash)
-  const l2Receipt = await oe.watcher.getL2TransactionReceipt(l1ToL2msgHash)
-  console.log('completed Deposit! L2 tx hash:', l2Receipt!.transactionHash)
+  const depositTx = OVM_L1ERC20Gateway.deposit(1, { gasLimit: 1000000 })
+  const receiptsDepositTx = await waitForXDomainTransaction(watcher, depositTx, Direction.L1ToL2)
+  console.log('Deposited: https://kovan.etherscan.io/tx/' + receiptsDepositTx.tx.hash)
+  console.log('completed Deposit! L2 tx hash:', receiptsDepositTx.remoteTx.hash)
 
   await _checkBalances()
 
   // Withdraw
   console.log('Withdrawing from L2 deposit contract...')
-  const withdrawalTx = await OVM_L2DepositedERC20.withdraw(1, { gasLimit: 5000000 })
-  await withdrawalTx.wait()
-  console.log('Withdrawal tx hash:' + withdrawalTx.hash)
-
-  await _checkBalances()
-
-  const [l2ToL1msgHash] = await oe.watcher.getMessageHashesFromL2Tx(withdrawalTx.hash)
-  console.log('got L2->L1 message hash', l2ToL1msgHash)
-  const l1Receipt = await oe.watcher.getL1TransactionReceipt(l2ToL1msgHash)
-  console.log('completed Withdrawal! L1 tx hash:', l1Receipt!.transactionHash)
+  const withdrawTx = OVM_L2DepositedERC20.withdraw(1, { gasLimit: 5000000 })
+  const receiptsWithdrawTx = await waitForXDomainTransaction(watcher, withdrawTx, Direction.L2ToL1)
+  console.log('Withdrawal tx hash:' + receiptsWithdrawTx.tx.hash)
+  console.log('completed Withdrawal! L1 tx hash:', receiptsWithdrawTx.remoteTx.hash)
 
   await _checkBalances()
 }
