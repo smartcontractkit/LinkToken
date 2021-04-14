@@ -17,11 +17,11 @@ contract TransparentUpgradeableProxy is OZ_TransparentUpgradeableProxy {
    */
   constructor(
     address _logic,
-    address admin_,
+    address _admin,
     bytes memory _data
   )
     public
     payable
-    OZ_TransparentUpgradeableProxy(_logic, admin_, _data)
+    OZ_TransparentUpgradeableProxy(_logic, _admin, _data)
   {}
 }
