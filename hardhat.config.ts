@@ -9,9 +9,9 @@ import { hardhat, Versions } from './src'
 const DEFAULT_NETWORK = 'hardhat'
 const DEFAULT_VERSION = Versions.v0_6
 
-const settings = {
+const _settings = (runs: number) => ({
   optimizer: {
-    runs: 200,
+    runs,
     enabled: true,
   },
   metadata: {
@@ -19,12 +19,12 @@ const settings = {
     // we need to remove the metadata from the compiled bytecode.
     bytecodeHash: 'none',
   },
-}
+})
 
 const versions: Record<Versions, SolcConfig> = {
-  [Versions.v0_4]: { version: '0.4.16', settings },
-  [Versions.v0_6]: { version: '0.6.12', settings },
-  [Versions.v0_7]: { version: '0.7.6', settings },
+  [Versions.v0_4]: { version: '0.4.16', settings: _settings(200) },
+  [Versions.v0_6]: { version: '0.6.12', settings: _settings(200) },
+  [Versions.v0_7]: { version: '0.7.6', settings: _settings(1_000_000) },
 }
 
 // Require version exists
