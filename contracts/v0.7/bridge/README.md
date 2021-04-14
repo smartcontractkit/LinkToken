@@ -5,6 +5,8 @@
 
 ## Optimism L2 bridge
 
+The Optimistic Virtual Machine (OVM) is a scalable form of the EVM. Optimistic Rollup, by [Optimism](https://optimism.io), is the core scaling solution which enables the off-chain OVM to achieve cheap, instant transactions that still inherit L1 security. The OVM is an EVM-based VM which supports optimistically executing EVM smart contracts on a layer 1 blockchain like Ethereum. It is structured in such a way that it is possible to verify individual steps of its computation on Ethereum mainnet. This allows the mainnet to enforce validity of state roots with fraud proofs in the layer 2 Optimistic Rollup chain. For more information consult the [Optimism developer documentation](https://community.optimism.io/docs/).
+
 The set of contracts needed for the Optimism L2 LinkToken bridge can be found in the [./optimism](./optimism) dir.
 
 - `./optimism/OVM_EOACodeHashSet.sol`: Abstract helper contract used to keep track of OVM EOA contract set (OVM specific)

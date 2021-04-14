@@ -8,3 +8,6 @@ coverage.json
 
 # Misc
 .DS_STORE
+
+# Optimism monorepo
+optimism/

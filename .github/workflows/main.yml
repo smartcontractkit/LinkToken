@@ -35,5 +35,5 @@ jobs:
       - run: yarn install
       - run: yarn setup
       - name: Setup Optimism L2 local network
-        run: ./node_modules/@chainlink/optimism-utils/scripts/run-ci.sh
+        run: yarn script:oe:up
       - run: yarn test:integration

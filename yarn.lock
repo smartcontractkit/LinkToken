@@ -12,7 +12,7 @@
 
 "@chainlink/optimism-utils@https://github.com/smartcontractkit/optimism-utils.git":
   version "0.0.1-alpha"
-  resolved "https://github.com/smartcontractkit/optimism-utils.git#7cc7f52385271f88a4875cb79fb437fe23db13a9"
+  resolved "https://github.com/smartcontractkit/optimism-utils.git#46af85090068a118c57abeb2a20ab91a4de7ae81"
   dependencies:
     "@eth-optimism/contracts" "^0.2.4"
     "@eth-optimism/core-utils" "^0.2.1"

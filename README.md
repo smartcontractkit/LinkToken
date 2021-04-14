@@ -16,7 +16,7 @@ Security audit for [v0.4 version of the contracts](./contracts/v0.4/) is availab
 - Name: ChainLink Token
 - Symbol: LINK
 
-## Installation
+## Setup
 
 The project contains [v0.4 contracts](./contracts/v0.4/) that were used for LINK Ethereum Mainnet deployment in 2017. For deployments moving forward, we use the updated [v0.6 contracts](./contracts/v0.6/) which use a more recent version of solc and the OpenZeppelin token standards. These updates include a minor ABI change around approval/allowance naming.
 
@@ -24,13 +24,15 @@ The project contains [v0.4 contracts](./contracts/v0.4/) that were used for LINK
 yarn install
 ```
 
-## Testing
-
 Setup contracts:
 
 ```bash
 yarn setup
 ```
+
+This will compile all versions of the contracts.
+
+## Testing
 
 Run tests:
 
@@ -38,4 +40,34 @@ Run tests:
 yarn test
 ```
 
-This will test both v0.4 and v0.6 versions of the contracts.
+This will run unit tests for all versions of the contracts.
+
+## Integration testing
+
+Integration tests are currently setup for Optimism bridge contracts, and to run them make sure you have a local network running first.
+
+The network can be started using a helpful script, which will clone the [Optimism monorepo](https://github.com/ethereum-optimism/optimism), build the :
+
+```bash
+yarn script:oe:up
+```
+
+Run tests:
+
+```bash
+yarn test:integration
+```
+
+This will run unit tests for all versions of the contracts, plus supported integration tests against the local L1 & L2 networks.
+
+The network can be stopped using another script:
+
+```bash
+yarn script:oe:down
+```
+
+Or use the clean script, which will also delete all the images:
+
+```bash
+yarn script:oe:clean
+```
