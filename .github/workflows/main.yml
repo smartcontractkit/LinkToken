@@ -9,8 +9,7 @@ on:
 jobs:
   run-basic-checks:
     name: Run linters and unit tests
-    runs-on: ubuntu-latest
-    # runs-on: [self-hosted, sdlc-ghr-prod]
+    runs-on: [self-hosted]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
@@ -24,8 +23,7 @@ jobs:
   run-integration:
     name: Setup and run integration tests
     needs: [run-basic-checks]
-    runs-on: ubuntu-latest
-    # runs-on: [self-hosted, sdlc-ghr-staging]
+    runs-on: [self-hosted]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
