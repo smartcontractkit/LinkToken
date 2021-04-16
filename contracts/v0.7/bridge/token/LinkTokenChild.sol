@@ -33,7 +33,7 @@ contract LinkTokenChild is IERC20Child, AccessControl, LinkToken {
   modifier only(
     bytes32 role
   ) {
-    require(hasRole(role, _msgSender()), "LinkTokenChild: Insufficient permissions");
+    require(hasRole(role, _msgSender()), "LinkTokenChild: missing role");
     _;
   }
 

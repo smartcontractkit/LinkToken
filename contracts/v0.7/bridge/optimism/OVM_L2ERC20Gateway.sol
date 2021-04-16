@@ -2,17 +2,21 @@
 pragma solidity >0.6.0 <0.8.0;
 pragma experimental ABIEncoderV2;
 
-/* Contract Imports */
-import { LinkToken } from "../../../v0.6/LinkToken.sol";
+/* Interface Imports */
+import { IERC20Child } from "../token/IERC20Child.sol";
 
 /* Library Imports */
-import { Abs_L2DepositedToken } from "@eth-optimism/contracts/dist/contracts/OVM/bridge/tokens/Abs_L2DepositedToken.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+
+/* Contract Imports */
+import { iOVM_L1TokenGateway } from "@eth-optimism/contracts/dist/contracts/iOVM/bridge/tokens/iOVM_L1TokenGateway.sol";
+import { Abs_L2DepositedToken } from "@eth-optimism/contracts/dist/contracts/OVM/bridge/tokens/Abs_L2DepositedToken.sol";
+import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
 import { OpUnsafe } from "../utils/OpUnsafe.sol";
 import { OVM_EOACodeHashSet } from "./OVM_EOACodeHashSet.sol";
 
 /**
- * @title OVM_L2DepositedLinkToken
+ * @title OVM_L2ERC20Gateway
  * @dev The L2 Deposited LinkToken is an token implementation which represents L1 assets deposited into L2.
  * This contract mints new tokens when it hears about deposits into the L1 token gateway.
  * This contract also burns the tokens intended for withdrawal, informing the L1 gateway to release L1 funds.
@@ -20,27 +24,35 @@ import { OVM_EOACodeHashSet } from "./OVM_EOACodeHashSet.sol";
  * Compiler used: optimistic-solc
  * Runtime target: OVM
  */
-contract OVM_L2DepositedLinkToken is OpUnsafe, OVM_EOACodeHashSet, Abs_L2DepositedToken, LinkToken {
+contract OVM_L2ERC20Gateway is OpUnsafe, OVM_EOACodeHashSet, Initializable, Abs_L2DepositedToken {
+  // Bridged L2 token
+  IERC20Child public s_l2ERC20;
 
-  /**
-   * @param l2CrossDomainMessenger Cross-domain messenger used by this contract.
-   */
-  constructor(
-    address l2CrossDomainMessenger
-  )
+  // This contract lives behind a proxy, so the constructor parameters will go unused.
+  constructor()
+    Abs_L2DepositedToken(
+      address(0) // _l2CrossDomainMessenger
+    )
     public
-    Abs_L2DepositedToken(l2CrossDomainMessenger)
   {}
 
   /**
-   * @dev Overrides parent contract so no tokens are minted on deployment.
-   * @inheritdoc LinkToken
+   * @param l1ERC20Gateway L1 Gateway address on the chain being withdrawn into
+   * @param l2Messenger Cross-domain messenger used by this contract.
+   * @param l2ERC20 L2 ERC20 address this contract deposits for
    */
-  function _onCreate()
-    internal
-    override
+  function init(
+    address l1ERC20Gateway,
+    address l2Messenger
+    IERC20Child l2ERC20,
+  )
+    initializer()
+    public
   {
-    // noop
+    s_l2ERC20 = l2ERC20;
+    // Init parent contracts
+    super.init(iOVM_L1TokenGateway(l1ERC20Gateway));
+    messenger = l2Messenger;
   }
 
   /**
@@ -76,7 +88,14 @@ contract OVM_L2DepositedLinkToken is OpUnsafe, OVM_EOACodeHashSet, Abs_L2Deposit
     // Unless explicitly unsafe op, stop withdrawals to contracts (avoid accidentally lost tokens)
     require(_isUnsafe() || !Address.isContract(_to) || _isEOAContract(_to), "Unsafe withdraw to contract");
 
-    _burn(msg.sender, _amount);
+    // Take the newly deposited funds (must be approved)
+    s_l2ERC20.transferFrom(
+      msg.sender,
+      address(this),
+      _amount
+    );
+    // And withdraw them to L1
+    s_l2ERC20.withdraw(_amount);
   }
 
   /**
@@ -90,6 +109,6 @@ contract OVM_L2DepositedLinkToken is OpUnsafe, OVM_EOACodeHashSet, Abs_L2Deposit
     internal
     override
   {
-    _mint(_to, _amount);
+    s_l2ERC20.deposit(_to, _amount);
   }
 }

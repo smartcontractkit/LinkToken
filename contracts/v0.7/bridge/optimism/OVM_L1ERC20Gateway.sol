@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: MIT
 // @unsupported: ovm
-pragma solidity >0.5.0 <0.8.0;
+pragma solidity >0.6.0 <0.8.0;
 pragma experimental ABIEncoderV2;
 
 /* Interface Imports */
-import { iOVM_L1TokenGateway } from "@eth-optimism/contracts/dist/contracts/iOVM/bridge/tokens/iOVM_L1TokenGateway.sol";
-import { Abs_L1TokenGateway } from "@eth-optimism/contracts/dist/contracts/OVM/bridge/tokens/Abs_L1TokenGateway.sol";
-import { iOVM_ERC20 } from "@eth-optimism/contracts/dist/contracts/iOVM/predeploys/iOVM_ERC20.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /* Library Imports */
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
+
+/* Contract Imports */
+import { Abs_L1TokenGateway } from "@eth-optimism/contracts/dist/contracts/OVM/bridge/tokens/Abs_L1TokenGateway.sol";
+import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
 import { OpUnsafe } from "../utils/OpUnsafe.sol";
 
 /**
@@ -26,34 +28,55 @@ import { OpUnsafe } from "../utils/OpUnsafe.sol";
  * Compiler used: solc
  * Runtime target: EVM
  */
-contract OVM_L1ERC20Gateway is OpUnsafe, Abs_L1TokenGateway {
+contract OVM_L1ERC20Gateway is OpUnsafe, Initializable, Abs_L1TokenGateway {
+  // L1 token we are bridging to L2
+  IERC20 public s_l1ERC20;
 
-  /********************************
-   * External Contract References *
-   ********************************/
-
-  iOVM_ERC20 public l1ERC20;
-
-  /***************
-   * Constructor *
-   ***************/
+  // This contract lives behind a proxy, so the constructor parameters will go unused.
+  constructor()
+    Abs_L1TokenGateway(
+      address(0), // _l2DepositedToken
+      address(0) // _l1messenger
+    )
+    public
+  {}
 
   /**
-   * @param _l1ERC20 L1 ERC20 address this contract stores deposits for
-   * @param _l2DepositedERC20 L2 Gateway address on the chain being deposited into
+   * @param l2ERC20Gateway L2 Gateway address on the chain being deposited into
+   * @param l1Messenger Cross-domain messenger used by this contract.
+   * @param l1ERC20 L1 ERC20 address this contract stores deposits for
    */
-  constructor(
-    iOVM_ERC20 _l1ERC20,
-    address _l2DepositedERC20,
-    address _l1messenger
+  function init(
+    address l2ERC20Gateway,
+    address l1Messenger
+    IERC20 l1ERC20,
   )
+    initializer()
     public
-    Abs_L1TokenGateway(
-      _l2DepositedERC20,
-      _l1messenger
-    )
   {
-    l1ERC20 = _l1ERC20;
+    s_l1ERC20 = l1ERC20;
+    // Init parent contracts
+    l2DepositedToken = l2ERC20Gateway;
+    messenger = l1Messenger;
+  }
+
+  /// @dev Modifier requiring the contract to be initialized
+  modifier onlyInitialized() {
+    require(address(l2DepositedToken) != address(0), "Contract not initialized");
+    _;
+  }
+
+  /// @dev Returns L2 ERC20 Gateway address (AKA l2DepositedToken).
+  function l2ERC20Gateway()
+    public
+    view
+    returns (address)
+  {
+    // Default Optimism ERC20 bridge implemenation combines the L2 gateway and token
+    // into a single OVM_L2DepositedERC20 contract. From the perspective of L1 gateway,
+    // this should be just an implementation detail, so here we expose an address in a
+    // different more general name "l2ERC20Gateway".
+    return l2DepositedToken;
   }
 
 
@@ -99,12 +122,13 @@ contract OVM_L1ERC20Gateway is OpUnsafe, Abs_L1TokenGateway {
   )
     internal
     override
+    onlyInitialized()
   {
     // Unless explicitly unsafe op, stop deposits to contracts (avoid accidentally lost tokens)
     require(_isUnsafe() || !Address.isContract(_to), "Unsafe deposit to contract");
 
-    // Hold on to the newly deposited funds
-    l1ERC20.transferFrom(
+    // Hold on to the newly deposited funds (must be approved)
+    s_l1ERC20.transferFrom(
       _from,
       address(this),
       _amount
@@ -124,8 +148,9 @@ contract OVM_L1ERC20Gateway is OpUnsafe, Abs_L1TokenGateway {
   )
     internal
     override
+    onlyInitialized()
   {
     // Transfer withdrawn funds out to withdrawer
-    l1ERC20.transfer(_to, _amount);
+    s_l1ERC20.transfer(_to, _amount);
   }
 }

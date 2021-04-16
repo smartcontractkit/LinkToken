@@ -2,8 +2,10 @@
 pragma solidity >0.6.0 <0.8.0;
 
 /* Library Imports */
-import { ConfirmedOwner } from "@chainlink/contracts/src/v0.7/dev/ConfirmedOwner.sol";
 import { EnumerableSet } from "@openzeppelin/contracts/utils/EnumerableSet.sol";
+
+/* Contract Imports */
+import { ConfirmedOwner } from "@chainlink/contracts/src/v0.7/dev/ConfirmedOwner.sol";
 
 /**
  * @dev Abstract helper contract used to keep track of OVM EOA contract set (OVM specific)

@@ -10,7 +10,7 @@ interface IERC20Child is IERC20 {
    * @notice called by bridge gateway when tokens are deposited on root chain
    * Should handle deposits by minting the required amount for the recipient
    *
-   * @param recipient recipient address for whom deposit is being done
+   * @param recipient an address for whom deposit is being done
    * @param amount total amount to deposit/mint
    */
   function deposit(address recipient, uint256 amount) external;
