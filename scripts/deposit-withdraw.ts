@@ -1,71 +1,92 @@
 import { Direction, waitForXDomainTransaction } from '@chainlink/optimism-utils/dist/watcher-utils'
 import { parseEther } from '@ethersproject/units'
-import { Wallet, Contract } from 'ethers'
+import { Wallet, Contract, BigNumberish } from 'ethers'
 import { getContractFactory, optimism, Targets, Versions } from '../src'
 
-export type ConfiguredGateway = {
+export type ConfiguredBridge = {
   L1_ERC20: Contract
   OVM_L1ERC20Gateway: Contract
-  OVM_L2DepositedERC20: Contract
+  L2_ERC20: Contract
+  OVM_L2ERC20Gateway: Contract
 }
 
-export const setupOrRetrieveGateway = async (
+export const setupOrRetrieveBridge = async (
   l1Wallet: Wallet,
   l2Wallet: Wallet,
-  l1ERC20Address?: string,
-  l1ERC20GatewayAddress?: string,
-  l1MessengerAddress?: string,
-  l2MessengerAddress?: string,
-): Promise<ConfiguredGateway> => {
+  l1MessengerAddr: string,
+  l2MessengerAddr: string,
+  l1ERC20Addr?: string,
+  l2ERC20Addr?: string,
+  l1ERC20GatewayAddr?: string,
+): Promise<ConfiguredBridge> => {
   // Deploy or retrieve L1 ERC20
   let L1_ERC20: Contract
-  const L1ERC20Factory = getContractFactory('LinkToken', l1Wallet, Versions.v0_6)
-  if (!l1ERC20Address) {
-    console.log('No L1 ERC20 specified--deploying a new test ERC20 on L1.')
-
-    L1_ERC20 = await L1ERC20Factory.deploy()
-    console.log('New L1_ERC20 deployed to:', L1_ERC20.address)
-    l1ERC20Address = L1_ERC20.address
+  const L1ERC20Factory = getContractFactory('LinkToken', l1Wallet, Versions.v0_6, Targets.EVM)
+  if (!l1ERC20Addr) {
+    console.log('No L1 ERC20 specified - deploying a new test L1 ERC20 (LinkToken).')
+    L1_ERC20 = await optimism.deploy(L1ERC20Factory, 'LinkToken (L1 ERC20)')
   } else {
-    console.log('Connecting to existing L1 ERC20 at:', l1ERC20Address)
-    L1_ERC20 = L1ERC20Factory.attach(l1ERC20Address)
+    console.log('Connecting to an existing L1 ERC20 at:', l1ERC20Addr)
+    L1_ERC20 = L1ERC20Factory.attach(l1ERC20Addr)
   }
 
+  // Deploy or retrieve L2 ERC20
+  let L2_ERC20: Contract
+  const L2ERC20Factory = getContractFactory('LinkTokenChild', l2Wallet, Versions.v0_7, Targets.OVM)
+  if (!l2ERC20Addr) {
+    console.log('No L2 ERC20 specified - deploying a new test L2 ERC20 (LinkTokenChild).')
+    L2_ERC20 = await optimism.deploy(L2ERC20Factory, 'LinkTokenChild (L2 ERC20)')
+  } else {
+    console.log('Connecting to an existing L2 ERC20 at:', l2ERC20Addr)
+    L2_ERC20 = L2ERC20Factory.attach(l2ERC20Addr)
+  }
+  const gatewayRole = await L2_ERC20.BRIDGE_GATEWAY_ROLE()
+
   let OVM_L1ERC20Gateway: Contract
-  let OVM_L2DepositedERC20: Contract
-  if (!l1ERC20GatewayAddress) {
+  let OVM_L2ERC20Gateway: Contract
+  if (!l1ERC20GatewayAddr) {
     console.log('No gateway contract specified, deploying a new one...')
-    const newGateway = await optimism.deployGateway(
+    ;({ OVM_L1ERC20Gateway, OVM_L2ERC20Gateway } = await optimism.deployGateways(
       l1Wallet,
       l2Wallet,
       L1_ERC20.address,
-      l1MessengerAddress!,
-      l2MessengerAddress!,
+      L2_ERC20.address,
+      l1MessengerAddr,
+      l2MessengerAddr,
+    ))
+
+    console.log(
+      'Adding LinkTokenChild.BRIDGE_GATEWAY_ROLE to OVM_L2ERC20Gateway at ',
+      OVM_L2ERC20Gateway.address,
     )
-    OVM_L1ERC20Gateway = newGateway.OVM_L1ERC20Gateway
-    OVM_L2DepositedERC20 = newGateway.OVM_L2DepositedERC20
+    L2_ERC20.grantRole(gatewayRole, OVM_L2ERC20Gateway.address)
   } else {
     OVM_L1ERC20Gateway = getContractFactory(
       'OVM_L1ERC20Gateway',
       l1Wallet,
       Versions.v0_7,
       Targets.EVM,
-    ).attach(l1ERC20GatewayAddress)
+    ).attach(l1ERC20GatewayAddr)
 
-    const l2ERC20GatewayAddress = await OVM_L1ERC20Gateway.l2ERC20Gateway()
-    OVM_L2DepositedERC20 = getContractFactory(
-      'OVM_L2DepositedLinkToken',
+    const l2ERC20GatewayAddr = await OVM_L1ERC20Gateway.l2ERC20Gateway()
+    OVM_L2ERC20Gateway = getContractFactory(
+      'OVM_L2ERC20Gateway',
       l2Wallet,
       Versions.v0_7,
       Targets.OVM,
-    ).attach(l2ERC20GatewayAddress)
+    ).attach(l2ERC20GatewayAddr)
+    // TODO: check L2_ERC20.address matches
+    const hasGatewayRole = await L2_ERC20.hasRole(gatewayRole, OVM_L2ERC20Gateway.address)
+    if (!hasGatewayRole)
+      throw Error(`OVM_L2ERC20Gateway should have L2_ERC20.BRIDGE_GATEWAY_ROLE role`)
   }
 
   console.log('Completed getting full ERC20 gateway.')
   return {
     L1_ERC20,
     OVM_L1ERC20Gateway,
-    OVM_L2DepositedERC20,
+    L2_ERC20,
+    OVM_L2ERC20Gateway,
   }
 }
 
@@ -73,7 +94,7 @@ export type CheckBalances = (
   l1Wallet: Wallet,
   L1_ERC20: Contract,
   l2Wallet: Wallet,
-  OVM_L2DepositedERC20: Contract,
+  L2_ERC20: Contract,
 ) => Promise<void>
 
 export const depositAndWithdraw = async (
@@ -81,45 +102,56 @@ export const depositAndWithdraw = async (
   checkBalances: CheckBalances,
 ) => {
   // Grab existing addresses if specified
-  const l1ERC20Address = process.env.L1_ERC20_ADDRESS
-  const l1ERC20GatewayAddress = process.env.L1_ERC20_GATEWAY_ADDRESS
+  const l1ERC20Addr = process.env.L1_ERC20_ADDRESS
+  const l2ERC20Addr = process.env.L2_ERC20_ADDRESS
+  const l1ERC20GatewayAddr = process.env.L1_ERC20_GATEWAY_ADDRESS
 
-  const { L1_ERC20, OVM_L1ERC20Gateway, OVM_L2DepositedERC20 } = await setupOrRetrieveGateway(
+  const bridge = await setupOrRetrieveBridge(
     oe.l1Wallet,
     oe.l2Wallet,
-    l1ERC20Address,
-    l1ERC20GatewayAddress,
     oe.l1Messenger.address,
     oe.l2Messenger.address,
+    l1ERC20Addr,
+    l2ERC20Addr,
+    l1ERC20GatewayAddr,
   )
 
-  // init CheckBalances
+  const _approve = async (_token: Contract, _spenderAddr: string, _amount: BigNumberish) => {
+    const approveTx = await _token.approve(_spenderAddr, _amount)
+    console.log('Approved: https://kovan.etherscan.io/tx/' + approveTx.hash)
+    await approveTx.wait()
+  }
 
   const _checkBalances = () =>
-    checkBalances(oe.l1Wallet, L1_ERC20, oe.l2Wallet, OVM_L2DepositedERC20)
+    checkBalances(oe.l1Wallet, bridge.L1_ERC20, oe.l2Wallet, bridge.L2_ERC20)
 
   await _checkBalances()
 
-  // Approve
+  // Approve L1 Gateway
   console.log('Approving L1 gateway contract...')
-  const approveTx = await L1_ERC20.approve(OVM_L1ERC20Gateway.address, 1)
-  console.log('Approved: https://kovan.etherscan.io/tx/' + approveTx.hash)
-  await approveTx.wait()
+  await _approve(bridge.L1_ERC20, bridge.OVM_L1ERC20Gateway.address, 1)
 
   const { watcher } = oe
 
   // Deposit
   console.log('Depositing into L1 gateway contract...')
-  const depositTx = OVM_L1ERC20Gateway.deposit(1, { gasLimit: 1000000 })
+  const depositTx = bridge.OVM_L1ERC20Gateway.deposit(1)
   const receiptsDepositTx = await waitForXDomainTransaction(watcher, depositTx, Direction.L1ToL2)
   console.log('Deposited: https://kovan.etherscan.io/tx/' + receiptsDepositTx.tx.hash)
   console.log('completed Deposit! L2 tx hash:', receiptsDepositTx.remoteTx.hash)
 
   await _checkBalances()
 
+  // Approve L2 Gateway
+  console.log('Approving L2 gateway contract...')
+  await _approve(bridge.L2_ERC20, bridge.OVM_L2ERC20Gateway.address, 1)
+
   // Withdraw
   console.log('Withdrawing from L2 deposit contract...')
-  const withdrawTx = OVM_L2DepositedERC20.withdraw(1, { gasLimit: 5000000 })
+  const withdrawTx = bridge.OVM_L2ERC20Gateway.withdraw(1, {
+    // TODO: Fix ERROR { "reason":"cannot estimate gas; transaction may fail or may require manual gas limit","code":"UNPREDICTABLE_GAS_LIMIT" }
+    gasLimit: 5000000,
+  })
   const receiptsWithdrawTx = await waitForXDomainTransaction(watcher, withdrawTx, Direction.L2ToL1)
   console.log('Withdrawal tx hash:' + receiptsWithdrawTx.tx.hash)
   console.log('completed Withdrawal! L1 tx hash:', receiptsWithdrawTx.remoteTx.hash)
@@ -127,7 +159,7 @@ export const depositAndWithdraw = async (
   await _checkBalances()
 }
 
-const logBalances: CheckBalances = async (l1Wallet, L1_ERC20, l2Wallet, OVM_L2DepositedERC20) => {
+const logBalances: CheckBalances = async (l1Wallet, L1_ERC20, l2Wallet, L2_ERC20) => {
   console.log('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
   if (L1_ERC20) {
     const l1Balance = await L1_ERC20.balanceOf(l1Wallet.address)
@@ -135,11 +167,11 @@ const logBalances: CheckBalances = async (l1Wallet, L1_ERC20, l2Wallet, OVM_L2De
   } else {
     console.log('no L1_ERC20 configured')
   }
-  if (OVM_L2DepositedERC20) {
-    const l2Balance = await OVM_L2DepositedERC20.balanceOf(l2Wallet.address)
+  if (L2_ERC20) {
+    const l2Balance = await L2_ERC20.balanceOf(l2Wallet.address)
     console.log('L2 balance of', l2Wallet.address, 'is', l2Balance.toString())
   } else {
-    console.log('no OVM_L2DepositedERC20 configured')
+    console.log('no L2_ERC20 configured')
   }
   console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n')
 }

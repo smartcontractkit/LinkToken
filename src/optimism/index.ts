@@ -1,6 +1,6 @@
 import * as optimism from '@chainlink/optimism-utils'
 import * as dotenv from 'dotenv'
-import { Wallet, Contract, providers } from 'ethers'
+import { Wallet, Contract, providers, ContractFactory, Signer } from 'ethers'
 import { getContractFactory, Targets, Versions } from '../'
 
 export * from '@chainlink/optimism-utils'
@@ -32,51 +32,72 @@ export const loadEnv = async (envName: string = 'local'): Promise<optimism.env.O
   return await optimism.env.OptimismEnv.new(addressManagerAddr, l1Wallet, l2Wallet)
 }
 
-export const deployGateway = async (
+export const deployGateways = async (
   l1Wallet: Wallet,
   l2Wallet: Wallet,
   l1ERC20Address: string,
+  l2ERC20Address: string,
   l1MessengerAddress: string,
   l2MessengerAddress: string,
 ): Promise<{
   OVM_L1ERC20Gateway: Contract
-  OVM_L2DepositedERC20: Contract
+  OVM_L2ERC20Gateway: Contract
 }> => {
-  // Deploy L2 ERC20 token
-  const Factory__OVM_L2DepositedERC20 = getContractFactory(
-    'OVM_L2DepositedLinkToken',
-    l2Wallet,
-    Versions.v0_7,
-    Targets.OVM,
-  )
+  // Deploy L2 ERC20 Gateway
+  const l2ERC20Gateway = await deployL2ERC20Gateway(l2Wallet)
 
-  const l2DepositedERC20 = await Factory__OVM_L2DepositedERC20.deploy(l2MessengerAddress)
-  await l2DepositedERC20.deployTransaction.wait()
-  console.log('OVM_L2DepositedERC20 deployed to:', l2DepositedERC20.address)
+  // Deploy & Init L1 ERC20 Gateway
+  const l1ERC20Gateway = await deployL1ERC20Gateway(l1Wallet)
 
-  // Deploy L1 ERC20 Gateway
-  const Factory__OVM_L1ERC20Gateway = getContractFactory(
-    'OVM_L1ERC20Gateway',
-    l1Wallet,
-    Versions.v0_7,
-    Targets.EVM,
-  )
-
-  const l1ERC20Gateway = await Factory__OVM_L1ERC20Gateway.deploy(
-    l1ERC20Address,
-    l2DepositedERC20.address,
-    l1MessengerAddress,
-  )
-  await l1ERC20Gateway.deployTransaction.wait()
-  console.log('OVM_L1ERC20Gateway deployed to:', l1ERC20Gateway.address)
+  const l1InitPayload = [l2ERC20Gateway.address, l1MessengerAddress, l1ERC20Address]
+  const l1InitTx = await l1ERC20Gateway.init(...l1InitPayload)
+  await l1InitTx.wait()
+  console.log('OVM_L1ERC20Gateway initialized with:', l1InitPayload)
 
   // Init L2 ERC20 Gateway
-  console.log('Connecting L2 WETH with L1 Deposit contract...')
-  const initTx = await l2DepositedERC20.init(l1ERC20Gateway.address)
-  await initTx.wait()
+  const l2InitPayload = [l1ERC20Gateway.address, l2MessengerAddress, l2ERC20Address]
+  // TODO: What to do with DevEx here? (overloaded fn)
+  const l2InitTx = await l2ERC20Gateway.init_2(...l2InitPayload)
+  await l2InitTx.wait()
+  console.log('OVM_L2ERC20Gateway initialized with:', l2InitPayload)
 
   return {
     OVM_L1ERC20Gateway: l1ERC20Gateway,
-    OVM_L2DepositedERC20: l2DepositedERC20,
+    OVM_L2ERC20Gateway: l2ERC20Gateway,
   }
+}
+
+export const deployL1ERC20Gateway = (l1Signer: Signer) =>
+  deploy(
+    getContractFactory('OVM_L1ERC20Gateway', l1Signer, Versions.v0_7, Targets.EVM),
+    'OVM_L1ERC20Gateway',
+  )
+
+export const deployL2ERC20Gateway = (l2Signer: Signer) =>
+  deploy(
+    getContractFactory('OVM_L2ERC20Gateway', l2Signer, Versions.v0_7, Targets.OVM),
+    'OVM_L2ERC20Gateway',
+  )
+
+export const deploy = async (
+  factory: ContractFactory,
+  name: string,
+  payload: any[] = [],
+): Promise<Contract> => {
+  const contract = await factory.deploy(...payload)
+  await contract.deployTransaction.wait()
+  await assertDeployed(contract)
+  console.log(`${name} deployed to:`, contract.address)
+  return contract
+}
+
+// To assert if contract is successfully deployed on OVM, we need to check
+// if there is code for reported contract address. This check is necessary
+// because Optimism Sequencer doesn't flag failed deployments as a failure.
+export const assertDeployed = async (contract: Contract) => {
+  await contract.deployed()
+
+  const code = await contract.provider.getCode(contract.address)
+  if (code && code.length > 2) return
+  throw Error(`Error: Deployment unsuccessful - no code at ${contract.address}`)
 }

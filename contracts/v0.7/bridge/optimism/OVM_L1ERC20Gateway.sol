@@ -48,12 +48,13 @@ contract OVM_L1ERC20Gateway is OpUnsafe, Initializable, Abs_L1TokenGateway {
    */
   function init(
     address l2ERC20Gateway,
-    address l1Messenger
-    IERC20 l1ERC20,
+    address l1Messenger,
+    IERC20 l1ERC20
   )
-    initializer()
     public
+    initializer()
   {
+    // TODO: require != address(0)?
     s_l1ERC20 = l1ERC20;
     // Init parent contracts
     l2DepositedToken = l2ERC20Gateway;

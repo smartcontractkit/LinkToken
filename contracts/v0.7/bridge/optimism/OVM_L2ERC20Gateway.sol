@@ -41,14 +41,16 @@ contract OVM_L2ERC20Gateway is OpUnsafe, OVM_EOACodeHashSet, Initializable, Abs_
    * @param l2Messenger Cross-domain messenger used by this contract.
    * @param l2ERC20 L2 ERC20 address this contract deposits for
    */
-  function init(
+   // TODO: What to do with DevEx here? (overloaded fn)
+  function init_2(
     address l1ERC20Gateway,
-    address l2Messenger
-    IERC20Child l2ERC20,
+    address l2Messenger,
+    IERC20Child l2ERC20
   )
-    initializer()
     public
+    initializer()
   {
+    // TODO: require != address(0)?
     s_l2ERC20 = l2ERC20;
     // Init parent contracts
     super.init(iOVM_L1TokenGateway(l1ERC20Gateway));

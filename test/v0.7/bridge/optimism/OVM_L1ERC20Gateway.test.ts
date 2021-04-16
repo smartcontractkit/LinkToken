@@ -2,7 +2,7 @@ import { ethers } from 'hardhat'
 import { expect } from 'chai'
 import { Contract } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
-import { Versions, getContractFactory, Targets } from '../../../../src'
+import { Versions, getContractFactory, Targets, optimism } from '../../../../src'
 
 describe(`OVM_L1ERC20Gateway ${Versions.v0_7}`, () => {
   describe('deposit safety', () => {
@@ -24,14 +24,13 @@ describe(`OVM_L1ERC20Gateway ${Versions.v0_7}`, () => {
         Targets.EVM,
       ).deploy()
       const fake_l1CrossDomainMessenger = messengerMock.address
-      const fake_l2DepositedToken = '0x00000000000000000000000000000000000000ff'
+      const fake_l2ERC20Gateway = '0x00000000000000000000000000000000000000ff'
 
-      l1Gateway = await getContractFactory(
-        'OVM_L1ERC20Gateway',
-        wallet,
-        Versions.v0_7,
-        Targets.EVM,
-      ).deploy(l1Token.address, fake_l2DepositedToken, fake_l1CrossDomainMessenger)
+      l1Gateway = await optimism.deployL1ERC20Gateway(wallet)
+      // Init L2 ERC20 Gateway
+      const l1InitPayload = [fake_l2ERC20Gateway, fake_l1CrossDomainMessenger, l1Token.address]
+      const l1InitTx = await l1Gateway.init(...l1InitPayload)
+      await l1InitTx.wait()
     })
 
     it('can deposit (all fn) as EOA contract', async () => {
