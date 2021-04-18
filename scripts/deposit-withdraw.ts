@@ -1,13 +1,13 @@
 import { Direction, waitForXDomainTransaction } from '@chainlink/optimism-utils/dist/watcher-utils'
 import { parseEther } from '@ethersproject/units'
 import { Wallet, Contract, BigNumberish } from 'ethers'
-import { getContractFactory, optimism, Targets, Versions } from '../src'
+import { getContractFactory, deploy, optimism, Targets, Versions } from '../src'
 
 export type ConfiguredBridge = {
-  L1_ERC20: Contract
-  OVM_L1ERC20Gateway: Contract
-  L2_ERC20: Contract
-  OVM_L2ERC20Gateway: Contract
+  l1ERC20: Contract
+  l1ERC20Gateway: Contract
+  l2ERC20: Contract
+  l2ERC20Gateway: Contract
 }
 
 export const setupOrRetrieveBridge = async (
@@ -20,86 +20,92 @@ export const setupOrRetrieveBridge = async (
   l1ERC20GatewayAddr?: string,
 ): Promise<ConfiguredBridge> => {
   // Deploy or retrieve L1 ERC20
-  let L1_ERC20: Contract
-  const L1ERC20Factory = getContractFactory('LinkToken', l1Wallet, Versions.v0_6, Targets.EVM)
+  let l1ERC20: Contract
+  const l1ERC20__Factory = getContractFactory('LinkToken', l1Wallet, Versions.v0_6, Targets.EVM)
   if (!l1ERC20Addr) {
     console.log('No L1 ERC20 specified - deploying a new test L1 ERC20 (LinkToken).')
-    L1_ERC20 = await optimism.deploy(L1ERC20Factory, 'LinkToken (L1 ERC20)')
+    l1ERC20 = await deploy(l1ERC20__Factory, 'LinkToken (L1 ERC20)')
   } else {
     console.log('Connecting to an existing L1 ERC20 at:', l1ERC20Addr)
-    L1_ERC20 = L1ERC20Factory.attach(l1ERC20Addr)
+    l1ERC20 = l1ERC20__Factory.attach(l1ERC20Addr)
   }
 
   // Deploy or retrieve L2 ERC20
-  let L2_ERC20: Contract
-  const L2ERC20Factory = getContractFactory('LinkTokenChild', l2Wallet, Versions.v0_7, Targets.OVM)
+  let l2ERC20: Contract
+  const l2ERC20_Factory = getContractFactory('LinkTokenChild', l2Wallet, Versions.v0_7, Targets.OVM)
   if (!l2ERC20Addr) {
     console.log('No L2 ERC20 specified - deploying a new test L2 ERC20 (LinkTokenChild).')
-    L2_ERC20 = await optimism.deploy(L2ERC20Factory, 'LinkTokenChild (L2 ERC20)')
+    l2ERC20 = await deploy(l2ERC20_Factory, 'LinkTokenChild (L2 ERC20)')
   } else {
     console.log('Connecting to an existing L2 ERC20 at:', l2ERC20Addr)
-    L2_ERC20 = L2ERC20Factory.attach(l2ERC20Addr)
+    l2ERC20 = l2ERC20_Factory.attach(l2ERC20Addr)
   }
-  const gatewayRole = await L2_ERC20.BRIDGE_GATEWAY_ROLE()
 
-  let OVM_L1ERC20Gateway: Contract
-  let OVM_L2ERC20Gateway: Contract
+  // Get the required gateway role
+  const gatewayRole = await l2ERC20.BRIDGE_GATEWAY_ROLE()
+
+  let l1ERC20Gateway: Contract
+  let l2ERC20Gateway: Contract
   if (!l1ERC20GatewayAddr) {
-    console.log('No gateway contract specified, deploying a new one...')
-    ;({ OVM_L1ERC20Gateway, OVM_L2ERC20Gateway } = await optimism.deployGateways(
+    console.log('No L1 gateway specified, deploying a new L1-L2 bridge...')
+    ;({ l1ERC20Gateway, l2ERC20Gateway } = await optimism.deployGateways(
       l1Wallet,
       l2Wallet,
-      L1_ERC20.address,
-      L2_ERC20.address,
+      l1ERC20.address,
+      l2ERC20.address,
       l1MessengerAddr,
       l2MessengerAddr,
     ))
-
-    console.log(
-      'Adding LinkTokenChild.BRIDGE_GATEWAY_ROLE to OVM_L2ERC20Gateway at ',
-      OVM_L2ERC20Gateway.address,
-    )
-    L2_ERC20.grantRole(gatewayRole, OVM_L2ERC20Gateway.address)
+    // Grant the required gateway role
+    await optimism.grantRole(l2ERC20, l2ERC20Gateway)
   } else {
-    OVM_L1ERC20Gateway = getContractFactory(
+    // Use the specified OVM_L1ERC20Gateway address to construct L1-L2 bridge
+    l1ERC20Gateway = getContractFactory(
       'OVM_L1ERC20Gateway',
       l1Wallet,
       Versions.v0_7,
       Targets.EVM,
     ).attach(l1ERC20GatewayAddr)
 
-    const l2ERC20GatewayAddr = await OVM_L1ERC20Gateway.l2ERC20Gateway()
-    OVM_L2ERC20Gateway = getContractFactory(
+    const l2ERC20GatewayAddr = await l1ERC20Gateway.l2ERC20Gateway()
+    l2ERC20Gateway = getContractFactory(
       'OVM_L2ERC20Gateway',
       l2Wallet,
       Versions.v0_7,
       Targets.OVM,
     ).attach(l2ERC20GatewayAddr)
-    // TODO: check L2_ERC20.address matches
-    const hasGatewayRole = await L2_ERC20.hasRole(gatewayRole, OVM_L2ERC20Gateway.address)
-    if (!hasGatewayRole)
-      throw Error(`OVM_L2ERC20Gateway should have L2_ERC20.BRIDGE_GATEWAY_ROLE role`)
+    // TODO: check l2ERC20.address matches
+
+    // Check role
+    const hasGatewayRole = await l2ERC20.hasRole(gatewayRole, l2ERC20Gateway.address)
+    if (!hasGatewayRole) {
+      throw Error(`OVM_L2ERC20Gateway should have l2ERC20.BRIDGE_GATEWAY_ROLE role`)
+    }
   }
 
-  console.log('Completed getting full ERC20 gateway.')
-  return {
-    L1_ERC20,
-    OVM_L1ERC20Gateway,
-    L2_ERC20,
-    OVM_L2ERC20Gateway,
+  // Configured bridge
+  const bridge = {
+    l1ERC20,
+    l1ERC20Gateway,
+    l2ERC20,
+    l2ERC20Gateway,
   }
+  logBridge(bridge)
+  return bridge
 }
 
 export type CheckBalances = (
   l1Wallet: Wallet,
-  L1_ERC20: Contract,
+  l1ERC20: Contract,
   l2Wallet: Wallet,
-  L2_ERC20: Contract,
+  l2ERC20: Contract,
 ) => Promise<void>
 
 export const depositAndWithdraw = async (
   oe: optimism.env.OptimismEnv,
   checkBalances: CheckBalances,
+  amount: BigNumberish = 1,
+  transferAndCall: boolean = false,
 ) => {
   // Grab existing addresses if specified
   const l1ERC20Addr = process.env.L1_ERC20_ADDRESS
@@ -116,64 +122,81 @@ export const depositAndWithdraw = async (
     l1ERC20GatewayAddr,
   )
 
-  const _approve = async (_token: Contract, _spenderAddr: string, _amount: BigNumberish) => {
-    const approveTx = await _token.approve(_spenderAddr, _amount)
-    console.log('Approved: https://kovan.etherscan.io/tx/' + approveTx.hash)
-    await approveTx.wait()
-  }
+  const _approve = transferAndCall
+    ? () => {} // no approve when using transferAndCall
+    : async (_token: Contract, _spenderAddr: string, _amount: BigNumberish) => {
+        console.log(`Approving spender: ${_spenderAddr} for ${_amount}`)
+        const approveTx = await _token.approve(_spenderAddr, _amount)
+        console.log('Approved: https://kovan.etherscan.io/tx/' + approveTx.hash)
+        await approveTx.wait()
+      }
 
   const _checkBalances = () =>
-    checkBalances(oe.l1Wallet, bridge.L1_ERC20, oe.l2Wallet, bridge.L2_ERC20)
+    checkBalances(oe.l1Wallet, bridge.l1ERC20, oe.l2Wallet, bridge.l2ERC20)
 
   await _checkBalances()
 
   // Approve L1 Gateway
-  console.log('Approving L1 gateway contract...')
-  await _approve(bridge.L1_ERC20, bridge.OVM_L1ERC20Gateway.address, 1)
+  await _approve(bridge.l1ERC20, bridge.l1ERC20Gateway.address, amount)
 
   const { watcher } = oe
 
   // Deposit
   console.log('Depositing into L1 gateway contract...')
-  const depositTx = bridge.OVM_L1ERC20Gateway.deposit(1)
+  const depositTx = transferAndCall
+    ? bridge.l1ERC20.transferAndCall(bridge.l1ERC20Gateway.address, amount, Buffer.from(''))
+    : bridge.l1ERC20Gateway.deposit(amount, optimism.TX_OVERRIDES_OE_BUG)
   const receiptsDepositTx = await waitForXDomainTransaction(watcher, depositTx, Direction.L1ToL2)
   console.log('Deposited: https://kovan.etherscan.io/tx/' + receiptsDepositTx.tx.hash)
-  console.log('completed Deposit! L2 tx hash:', receiptsDepositTx.remoteTx.hash)
+  console.log('Completed Deposit! L2 tx hash:', receiptsDepositTx.remoteTx.hash)
 
   await _checkBalances()
 
   // Approve L2 Gateway
-  console.log('Approving L2 gateway contract...')
-  await _approve(bridge.L2_ERC20, bridge.OVM_L2ERC20Gateway.address, 1)
+  await _approve(bridge.l2ERC20, bridge.l2ERC20Gateway.address, amount)
 
   // Withdraw
-  console.log('Withdrawing from L2 deposit contract...')
-  const withdrawTx = bridge.OVM_L2ERC20Gateway.withdraw(1, {
-    // TODO: Fix ERROR { "reason":"cannot estimate gas; transaction may fail or may require manual gas limit","code":"UNPREDICTABLE_GAS_LIMIT" }
-    gasLimit: 5000000,
-  })
+  console.log('Withdrawing from L2 gateway contract...')
+  const withdrawTx = transferAndCall
+    ? bridge.l2ERC20.transferAndCall(bridge.l2ERC20Gateway.address, amount, Buffer.from(''))
+    : bridge.l2ERC20Gateway.withdraw(amount, optimism.TX_OVERRIDES_OE_BUG)
   const receiptsWithdrawTx = await waitForXDomainTransaction(watcher, withdrawTx, Direction.L2ToL1)
   console.log('Withdrawal tx hash:' + receiptsWithdrawTx.tx.hash)
-  console.log('completed Withdrawal! L1 tx hash:', receiptsWithdrawTx.remoteTx.hash)
+  console.log('Completed Withdrawal! L1 tx hash:', receiptsWithdrawTx.remoteTx.hash)
 
   await _checkBalances()
 }
 
-const logBalances: CheckBalances = async (l1Wallet, L1_ERC20, l2Wallet, L2_ERC20) => {
-  console.log('\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-  if (L1_ERC20) {
-    const l1Balance = await L1_ERC20.balanceOf(l1Wallet.address)
+const logBalances: CheckBalances = async (l1Wallet, l1ERC20, l2Wallet, l2ERC20) => {
+  console.log()
+  console.log('Checking balances: ')
+  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+  if (l1ERC20) {
+    const l1Balance = await l1ERC20.balanceOf(l1Wallet.address)
     console.log('L1 balance of', l1Wallet.address, 'is', l1Balance.toString())
   } else {
-    console.log('no L1_ERC20 configured')
+    console.log('L1 ERC20 NOT configured')
   }
-  if (L2_ERC20) {
-    const l2Balance = await L2_ERC20.balanceOf(l2Wallet.address)
+  if (l2ERC20) {
+    const l2Balance = await l2ERC20.balanceOf(l2Wallet.address)
     console.log('L2 balance of', l2Wallet.address, 'is', l2Balance.toString())
   } else {
-    console.log('no L2_ERC20 configured')
+    console.log('L2 ERC20 NOT configured')
   }
-  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n')
+  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+  console.log()
+}
+
+const logBridge = async (bridge: ConfiguredBridge) => {
+  console.log()
+  console.log('Full L1-L2 configured bridge: ')
+  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+  console.log('L1 ERC20:         ', bridge.l1ERC20.address)
+  console.log('L1 ERC20 Gateway: ', bridge.l1ERC20Gateway.address)
+  console.log('L2 ERC20:         ', bridge.l2ERC20.address)
+  console.log('L2 ERC20 Gateway: ', bridge.l2ERC20Gateway.address)
+  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+  console.log()
 }
 
 const _run = async () => {

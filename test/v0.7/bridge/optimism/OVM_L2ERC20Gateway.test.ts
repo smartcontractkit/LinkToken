@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import { Wallet, Contract } from 'ethers'
-import { getContractFactory, Targets, Versions, optimism } from '../../../../src'
+import { getContractFactory, deploy, Targets, Versions, optimism } from '../../../../src'
 import * as h from '../../../helpers'
 
 import { parseEther } from '@ethersproject/units'
@@ -22,20 +22,20 @@ describe(`OVM_L2ERC20Gateway ${Versions.v0_7}`, () => {
         await oe.depositL2(parseEther('1'))
 
         // Deploy LinkTokenChild contract
-        l2Token = await optimism.deploy(
+        l2Token = await deploy(
           _getFactory('LinkTokenChild', oe.l2Wallet, Versions.v0_7, Targets.OVM),
           'LinkTokenChild',
         )
 
         // Deploy l2CrossDomainMessenger
-        const messengerMock = await optimism.deploy(
+        const messengerMock = await deploy(
           _getFactory('OVM_CrossDomainMessengerMock', oe.l2Wallet, Versions.v0_7, Targets.OVM),
           'OVM_CrossDomainMessengerMock',
         )
         const fake_l2CrossDomainMessenger = messengerMock.address
 
         // Deploy l2Gateway with l2CrossDomainMessenger
-        l2Gateway = await optimism.deploy(
+        l2Gateway = await deploy(
           _getFactory('OVM_L2ERC20Gateway', oe.l2Wallet, Versions.v0_7, Targets.OVM),
           'OVM_L2ERC20Gateway',
         )
@@ -105,10 +105,11 @@ describe(`OVM_L2ERC20Gateway ${Versions.v0_7}`, () => {
         const approveTx = await l2Token.approve(l2Gateway.address, amount)
         await approveTx.wait()
 
-        const withdrawToTx = await l2Gateway.withdrawTo(contractAddr, amount, {
-          // TODO: Fix ERROR { "reason":"cannot estimate gas; transaction may fail or may require manual gas limit","code":"UNPREDICTABLE_GAS_LIMIT" }
-          gasLimit: 1_000_000,
-        })
+        const withdrawToTx = await l2Gateway.withdrawTo(
+          contractAddr,
+          amount,
+          optimism.TX_OVERRIDES_OE_BUG,
+        )
 
         // TODO: fetch revert reason
         // revert: Unsafe withdraw to contract
@@ -153,7 +154,7 @@ describe(`OVM_L2ERC20Gateway ${Versions.v0_7}`, () => {
         })
 
         it("can't transferAndCall from contract", async () => {
-          const erc677CallerMock = await optimism.deploy(
+          const erc677CallerMock = await deploy(
             _getFactory('ERC677CallerMock', oe.l2Wallet, Versions.v0_7, Targets.OVM),
             'ERC677CallerMock',
           )
@@ -165,10 +166,10 @@ describe(`OVM_L2ERC20Gateway ${Versions.v0_7}`, () => {
 
           // Mock contract tries (fails) to transferAndCall to L1 Gateway
           const payload = [l2Token.address, l2Gateway.address, amount, Buffer.from('')]
-          const callTransferAndCallTx = await erc677CallerMock.callTransferAndCall(...payload, {
-            // TODO: Fix ERROR { "reason":"cannot estimate gas; transaction may fail or may require manual gas limit","code":"UNPREDICTABLE_GAS_LIMIT" }
-            gasLimit: 1_000_000,
-          })
+          const callTransferAndCallTx = await erc677CallerMock.callTransferAndCall(
+            ...payload,
+            optimism.TX_OVERRIDES_OE_BUG,
+          )
 
           // TODO: fetch revert reason
           // revert: Unsafe deposit to contract
@@ -179,10 +180,10 @@ describe(`OVM_L2ERC20Gateway ${Versions.v0_7}`, () => {
       it("can't call onTokenTransfer directly", async () => {
         const amount = '10'
         const payload = [l2Token.address, amount, Buffer.from('')]
-        const onTokenTransferTx = await l2Gateway.onTokenTransfer(...payload, {
-          // TODO: Fix ERROR { "reason":"cannot estimate gas; transaction may fail or may require manual gas limit","code":"UNPREDICTABLE_GAS_LIMIT" }
-          gasLimit: 1_000_000,
-        })
+        const onTokenTransferTx = await l2Gateway.onTokenTransfer(
+          ...payload,
+          optimism.TX_OVERRIDES_OE_BUG,
+        )
 
         // TODO: fetch revert reason
         // revert: onTokenTransfer sender not valid

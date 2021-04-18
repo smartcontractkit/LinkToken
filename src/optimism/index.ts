@@ -1,7 +1,8 @@
 import * as optimism from '@chainlink/optimism-utils'
 import * as dotenv from 'dotenv'
-import { Wallet, Contract, providers, ContractFactory, Signer } from 'ethers'
+import { Wallet, Contract, providers, Signer, ethers, utils } from 'ethers'
 import { getContractFactory, Targets, Versions } from '../'
+import { deploy, deployProxy } from '../contract-defs'
 
 export * from '@chainlink/optimism-utils'
 
@@ -32,6 +33,12 @@ export const loadEnv = async (envName: string = 'local'): Promise<optimism.env.O
   return await optimism.env.OptimismEnv.new(addressManagerAddr, l1Wallet, l2Wallet)
 }
 
+// TODO: Fix ERROR { "reason":"cannot estimate gas; transaction may fail or may require manual gas limit","code":"UNPREDICTABLE_GAS_LIMIT" }
+export const TX_OVERRIDES_OE_BUG = {
+  gasPrice: utils.parseUnits('1', 'gwei'),
+  gasLimit: 1_000_000,
+}
+
 export const deployGateways = async (
   l1Wallet: Wallet,
   l2Wallet: Wallet,
@@ -40,17 +47,18 @@ export const deployGateways = async (
   l1MessengerAddress: string,
   l2MessengerAddress: string,
 ): Promise<{
-  OVM_L1ERC20Gateway: Contract
-  OVM_L2ERC20Gateway: Contract
+  l1ERC20Gateway: Contract
+  l2ERC20Gateway: Contract
 }> => {
+  const proxy = false
   // Deploy L2 ERC20 Gateway
-  const l2ERC20Gateway = await deployL2ERC20Gateway(l2Wallet)
+  const l2ERC20Gateway = await deployL2ERC20Gateway(l2Wallet, proxy)
 
   // Deploy & Init L1 ERC20 Gateway
-  const l1ERC20Gateway = await deployL1ERC20Gateway(l1Wallet)
+  const l1ERC20Gateway = await deployL1ERC20Gateway(l1Wallet, proxy)
 
   const l1InitPayload = [l2ERC20Gateway.address, l1MessengerAddress, l1ERC20Address]
-  const l1InitTx = await l1ERC20Gateway.init(...l1InitPayload)
+  const l1InitTx = await l1ERC20Gateway.init(...l1InitPayload, TX_OVERRIDES_OE_BUG)
   await l1InitTx.wait()
   console.log('OVM_L1ERC20Gateway initialized with:', l1InitPayload)
 
@@ -62,42 +70,48 @@ export const deployGateways = async (
   console.log('OVM_L2ERC20Gateway initialized with:', l2InitPayload)
 
   return {
-    OVM_L1ERC20Gateway: l1ERC20Gateway,
-    OVM_L2ERC20Gateway: l2ERC20Gateway,
+    l1ERC20Gateway,
+    l2ERC20Gateway,
   }
 }
 
-export const deployL1ERC20Gateway = (l1Signer: Signer) =>
-  deploy(
+export const grantRole = async (l2ERC20: Contract, l2ERC20Gateway: Contract) => {
+  const message = `Adding LinkTokenChild.BRIDGE_GATEWAY_ROLE to OVM_L2ERC20Gateway at: ${l2ERC20Gateway.address}`
+  console.log(message)
+  // Get the required gateway role
+  const gatewayRole = await l2ERC20.BRIDGE_GATEWAY_ROLE()
+  const grantRoleTx = await l2ERC20.grantRole(gatewayRole, l2ERC20Gateway.address)
+  await grantRoleTx.wait()
+}
+
+export const deployL1ERC20Gateway = async (l1Signer: Signer, proxy: boolean = false) => {
+  // Deploy L1 ERC20 Gateway
+  const l1ERC20Gateway = await deploy(
     getContractFactory('OVM_L1ERC20Gateway', l1Signer, Versions.v0_7, Targets.EVM),
     'OVM_L1ERC20Gateway',
   )
 
-export const deployL2ERC20Gateway = (l2Signer: Signer) =>
-  deploy(
+  if (!proxy) return l1ERC20Gateway
+
+  // Deploy L2 ERC20 Gateway Proxy
+  const logic = l1ERC20Gateway
+  // TODO: set admin different than signer
+  const admin = ethers.constants.AddressZero
+  return deployProxy(l1Signer, Targets.EVM, logic, admin)
+}
+
+export const deployL2ERC20Gateway = async (l2Signer: Signer, proxy: boolean = false) => {
+  // Deploy L2 ERC20 Gateway
+  const l2ERC20Gateway = await deploy(
     getContractFactory('OVM_L2ERC20Gateway', l2Signer, Versions.v0_7, Targets.OVM),
     'OVM_L2ERC20Gateway',
   )
 
-export const deploy = async (
-  factory: ContractFactory,
-  name: string,
-  payload: any[] = [],
-): Promise<Contract> => {
-  const contract = await factory.deploy(...payload)
-  await contract.deployTransaction.wait()
-  await assertDeployed(contract)
-  console.log(`${name} deployed to:`, contract.address)
-  return contract
-}
+  if (!proxy) return l2ERC20Gateway
 
-// To assert if contract is successfully deployed on OVM, we need to check
-// if there is code for reported contract address. This check is necessary
-// because Optimism Sequencer doesn't flag failed deployments as a failure.
-export const assertDeployed = async (contract: Contract) => {
-  await contract.deployed()
-
-  const code = await contract.provider.getCode(contract.address)
-  if (code && code.length > 2) return
-  throw Error(`Error: Deployment unsuccessful - no code at ${contract.address}`)
+  // Deploy L2 ERC20 Gateway Proxy
+  const logic = l2ERC20Gateway
+  // TODO: set admin different than signer
+  const admin = ethers.constants.AddressZero
+  return deployProxy(l2Signer, Targets.OVM, logic, admin)
 }
