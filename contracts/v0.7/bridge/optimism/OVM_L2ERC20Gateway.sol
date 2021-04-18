@@ -4,6 +4,7 @@ pragma experimental ABIEncoderV2;
 
 /* Interface Imports */
 import { IERC20Child } from "../token/IERC20Child.sol";
+import { ERC677Receiver } from "../../../v0.6/token/ERC677Receiver.sol";
 
 /* Library Imports */
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
@@ -24,7 +25,7 @@ import { OVM_EOACodeHashSet } from "./OVM_EOACodeHashSet.sol";
  * Compiler used: optimistic-solc
  * Runtime target: OVM
  */
-contract OVM_L2ERC20Gateway is OpUnsafe, OVM_EOACodeHashSet, Initializable, Abs_L2DepositedToken {
+contract OVM_L2ERC20Gateway is ERC677Receiver, OpUnsafe, OVM_EOACodeHashSet, Initializable, Abs_L2DepositedToken {
   // Bridged L2 token
   IERC20Child public s_l2ERC20;
 
@@ -90,12 +91,16 @@ contract OVM_L2ERC20Gateway is OpUnsafe, OVM_EOACodeHashSet, Initializable, Abs_
     // Unless explicitly unsafe op, stop withdrawals to contracts (avoid accidentally lost tokens)
     require(_isUnsafe() || !Address.isContract(_to) || _isEOAContract(_to), "Unsafe withdraw to contract");
 
-    // Take the newly deposited funds (must be approved)
-    s_l2ERC20.transferFrom(
-      msg.sender,
-      address(this),
-      _amount
-    );
+     // Check if funds already transfered via trasferAndCall (skipping)
+    if (msg.sender != address(s_l2ERC20)) {
+      // Take the newly deposited funds (must be approved)
+      s_l2ERC20.transferFrom(
+        msg.sender,
+        address(this),
+        _amount
+      );
+    }
+
     // And withdraw them to L1
     s_l2ERC20.withdraw(_amount);
   }
@@ -112,5 +117,23 @@ contract OVM_L2ERC20Gateway is OpUnsafe, OVM_EOACodeHashSet, Initializable, Abs_
     override
   {
     s_l2ERC20.deposit(_to, _amount);
+  }
+
+  /**
+   * @dev Hook on successful token transfer that initializes withdrawal
+   * @notice Avoids two step approve/transferFrom, and only works for EOA.
+   * @inheritdoc ERC677Receiver
+   */
+  function onTokenTransfer(
+    address _sender,
+    uint _value,
+    bytes memory /* _data */
+  )
+    external
+    override
+  {
+    require(msg.sender == address(s_l2ERC20), "onTokenTransfer sender not valid");
+    address to = _sender;
+    _initiateWithdrawal(to, _value);
   }
 }

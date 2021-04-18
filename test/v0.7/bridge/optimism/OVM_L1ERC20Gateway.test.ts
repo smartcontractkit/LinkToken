@@ -90,5 +90,50 @@ describe(`OVM_L1ERC20Gateway ${Versions.v0_7}`, () => {
       const balanceGateway = await l1Token.balanceOf(l1Gateway.address)
       expect(balanceGateway).to.equal(totalAmount)
     })
+
+    // TODO: refactor as reusable behavior
+    describe('ERC677Receiver', () => {
+      it('can transferAndCall from EOA', async () => {
+        // Skip approval
+        const totalAmount = '30'
+        const amount = '10'
+        await l1Token.transferAndCall(l1Gateway.address, amount, Buffer.from(''))
+        await l1Token.transferAndCall(l1Gateway.address, amount, Buffer.from(''))
+        await l1Token.transferAndCall(l1Gateway.address, amount, Buffer.from(''))
+
+        const balanceWallet = await l1Token.balanceOf(wallet.address)
+        expect(balanceWallet).to.equal('999999999999999999999999970')
+
+        const balanceGateway = await l1Token.balanceOf(l1Gateway.address)
+        expect(balanceGateway).to.equal(totalAmount)
+      })
+
+      it("can't transferAndCall from contract", async () => {
+        const erc677CallerMock = await getContractFactory(
+          'ERC677CallerMock',
+          wallet,
+          Versions.v0_7,
+          Targets.EVM,
+        ).deploy()
+
+        // Fund the mock contract
+        const amount = '10'
+        await l1Token.transfer(erc677CallerMock.address, amount)
+
+        // Mock contract tries (fails) to transferAndCall to L1 Gateway
+        const payload = [l1Token.address, l1Gateway.address, amount, Buffer.from('')]
+        await expect(erc677CallerMock.callTransferAndCall(...payload)).to.be.revertedWith(
+          'Unsafe deposit to contract',
+        )
+      })
+
+      it("can't call onTokenTransfer directly", async () => {
+        const amount = '10'
+        const payload = [l1Token.address, amount, Buffer.from('')]
+        await expect(l1Gateway.onTokenTransfer(...payload)).to.be.revertedWith(
+          'onTokenTransfer sender not valid',
+        )
+      })
+    })
   })
 })

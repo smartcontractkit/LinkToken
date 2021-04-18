@@ -5,6 +5,9 @@ import * as h from '../../../helpers'
 
 import { parseEther } from '@ethersproject/units'
 
+// short alias
+const _getFactory = getContractFactory
+
 describe(`OVM_L2ERC20Gateway ${Versions.v0_7}`, () => {
   // Skip if not OVM integration test
   ;(h.isIntegration() ? describe : describe.skip)(`@integration`, () => {
@@ -17,8 +20,6 @@ describe(`OVM_L2ERC20Gateway ${Versions.v0_7}`, () => {
         // Load the configuration from environment
         oe = await optimism.loadEnv()
         await oe.depositL2(parseEther('1'))
-
-        const _getFactory = getContractFactory
 
         // Deploy LinkTokenChild contract
         l2Token = await optimism.deploy(
@@ -109,6 +110,7 @@ describe(`OVM_L2ERC20Gateway ${Versions.v0_7}`, () => {
           gasLimit: 1_000_000,
         })
 
+        // TODO: fetch revert reason
         // revert: Unsafe withdraw to contract
         await h.txRevert(withdrawToTx.wait())
       }).timeout(10000)
@@ -126,6 +128,66 @@ describe(`OVM_L2ERC20Gateway ${Versions.v0_7}`, () => {
         const balance = await l2Token.balanceOf(oe.l2Wallet.address)
         expect(balance).to.equal('999999999999999999999999940')
       }).timeout(10000)
+
+      // TODO: refactor as reusable behavior
+      describe('ERC677Receiver', () => {
+        it('can transferAndCall from EOA', async () => {
+          // Skip approval
+          const amount = '10'
+
+          const payload = [l2Gateway.address, amount, Buffer.from('')]
+          const transferAndCallTx1 = await l2Token.transferAndCall(...payload)
+          await transferAndCallTx1.wait()
+
+          const transferAndCallTx2 = await l2Token.transferAndCall(...payload)
+          await transferAndCallTx2.wait()
+
+          const transferAndCallTx3 = await l2Token.transferAndCall(...payload)
+          await transferAndCallTx3.wait()
+
+          const balanceWallet = await l2Token.balanceOf(oe.l2Wallet.address)
+          expect(balanceWallet).to.equal('999999999999999999999999910')
+
+          const balanceGateway = await l2Token.balanceOf(l2Gateway.address)
+          expect(balanceGateway).to.equal(0) // all burnt
+        })
+
+        it("can't transferAndCall from contract", async () => {
+          const erc677CallerMock = await optimism.deploy(
+            _getFactory('ERC677CallerMock', oe.l2Wallet, Versions.v0_7, Targets.OVM),
+            'ERC677CallerMock',
+          )
+
+          // Fund the mock contract
+          const amount = '10'
+          const transferTx = await l2Token.transfer(erc677CallerMock.address, amount)
+          await transferTx.wait()
+
+          // Mock contract tries (fails) to transferAndCall to L1 Gateway
+          const payload = [l2Token.address, l2Gateway.address, amount, Buffer.from('')]
+          const callTransferAndCallTx = await erc677CallerMock.callTransferAndCall(...payload, {
+            // TODO: Fix ERROR { "reason":"cannot estimate gas; transaction may fail or may require manual gas limit","code":"UNPREDICTABLE_GAS_LIMIT" }
+            gasLimit: 1_000_000,
+          })
+
+          // TODO: fetch revert reason
+          // revert: Unsafe deposit to contract
+          await h.txRevert(callTransferAndCallTx.wait())
+        })
+      })
+
+      it("can't call onTokenTransfer directly", async () => {
+        const amount = '10'
+        const payload = [l2Token.address, amount, Buffer.from('')]
+        const onTokenTransferTx = await l2Gateway.onTokenTransfer(...payload, {
+          // TODO: Fix ERROR { "reason":"cannot estimate gas; transaction may fail or may require manual gas limit","code":"UNPREDICTABLE_GAS_LIMIT" }
+          gasLimit: 1_000_000,
+        })
+
+        // TODO: fetch revert reason
+        // revert: onTokenTransfer sender not valid
+        await h.txRevert(onTokenTransferTx.wait())
+      })
     })
   })
 })

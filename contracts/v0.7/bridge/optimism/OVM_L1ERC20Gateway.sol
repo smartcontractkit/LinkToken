@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 
 /* Interface Imports */
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { ERC677Receiver } from "../../../v0.6/token/ERC677Receiver.sol";
 
 /* Library Imports */
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
@@ -28,7 +29,7 @@ import { OpUnsafe } from "../utils/OpUnsafe.sol";
  * Compiler used: solc
  * Runtime target: EVM
  */
-contract OVM_L1ERC20Gateway is OpUnsafe, Initializable, Abs_L1TokenGateway {
+contract OVM_L1ERC20Gateway is ERC677Receiver, OpUnsafe, Initializable, Abs_L1TokenGateway {
   // L1 token we are bridging to L2
   IERC20 public s_l1ERC20;
 
@@ -128,6 +129,9 @@ contract OVM_L1ERC20Gateway is OpUnsafe, Initializable, Abs_L1TokenGateway {
     // Unless explicitly unsafe op, stop deposits to contracts (avoid accidentally lost tokens)
     require(_isUnsafe() || !Address.isContract(_to), "Unsafe deposit to contract");
 
+    // Funds already transfered via trasferAndCall (skipping)
+    if (msg.sender == address(s_l1ERC20)) return;
+
     // Hold on to the newly deposited funds (must be approved)
     s_l1ERC20.transferFrom(
       _from,
@@ -153,5 +157,24 @@ contract OVM_L1ERC20Gateway is OpUnsafe, Initializable, Abs_L1TokenGateway {
   {
     // Transfer withdrawn funds out to withdrawer
     s_l1ERC20.transfer(_to, _amount);
+  }
+
+  /**
+   * @dev Hook on successful token transfer that initializes deposit
+   * @notice Avoids two step approve/transferFrom, and only works for EOA.
+   * @inheritdoc ERC677Receiver
+   */
+  function onTokenTransfer(
+    address _sender,
+    uint _value,
+    bytes memory /* _data */
+  )
+    external
+    override
+  {
+    require(msg.sender == address(s_l1ERC20), "onTokenTransfer sender not valid");
+    address from = _sender;
+    address to = _sender;
+    _initiateDeposit(from, to, _value);
   }
 }

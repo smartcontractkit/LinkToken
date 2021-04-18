@@ -22,7 +22,7 @@ import * as h from '../../../helpers'
           return await _expect('1000000000000000000000000000', '0')
         case 1:
           return await _expect('999999999999999999999999999', '1')
-        case 3:
+        case 2:
           return await _expect('1000000000000000000000000000', '0')
         default:
           expect(step).to.be.lte(4)
