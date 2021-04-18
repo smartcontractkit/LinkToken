@@ -46,13 +46,16 @@ contract OVM_L2ERC20Gateway is ERC677Receiver, OpUnsafe, OVM_EOACodeHashSet, Ini
   function init_2(
     address l1ERC20Gateway,
     address l2Messenger,
-    IERC20Child l2ERC20
+    address l2ERC20
   )
     public
     initializer()
   {
-    // TODO: require != address(0)?
-    s_l2ERC20 = l2ERC20;
+    require(l1ERC20Gateway != address(0), "Init to zero address");
+    require(l2Messenger != address(0), "Init to zero address");
+    require(l2ERC20 != address(0), "Init to zero address");
+
+    s_l2ERC20 = IERC20Child(l2ERC20);
     // Init parent contracts
     super.init(iOVM_L1TokenGateway(l1ERC20Gateway));
     messenger = l2Messenger;
