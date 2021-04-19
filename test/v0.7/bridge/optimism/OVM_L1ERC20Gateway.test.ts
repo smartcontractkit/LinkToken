@@ -71,9 +71,7 @@ describe(`OVM_L1ERC20Gateway ${Versions.v0_7}`, () => {
       const contractAddr = l1Token.address
       const amount = totalAmount
 
-      await expect(l1Gateway.depositTo(contractAddr, amount)).to.be.revertedWith(
-        'Unsafe deposit to contract',
-      )
+      await expect(l1Gateway.depositTo(contractAddr, amount)).to.be.revertedWith('Account not EOA')
     })
 
     it('can depositToUnsafe contract', async () => {
@@ -123,7 +121,7 @@ describe(`OVM_L1ERC20Gateway ${Versions.v0_7}`, () => {
         // Mock contract tries (fails) to transferAndCall to L1 Gateway
         const payload = [l1Token.address, l1Gateway.address, amount, Buffer.from('')]
         await expect(erc677CallerMock.callTransferAndCall(...payload)).to.be.revertedWith(
-          'Unsafe deposit to contract',
+          'Account not EOA',
         )
       })
 

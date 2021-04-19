@@ -1,7 +1,6 @@
 # LINK Token Bridge v0.7
 
 - `./LinkTokenChild.sol`: A mintable & burnable child LinkToken contract to be used on child networks.
-- `./utils/OpUnsafe.sol`: Contract module that used to mark and check safe/unsafe calls to a function.
 
 ## Optimism L2 bridge
 

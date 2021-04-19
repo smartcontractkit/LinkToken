@@ -13,7 +13,6 @@ import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
 import { iOVM_L1TokenGateway } from "@eth-optimism/contracts/iOVM/bridge/tokens/iOVM_L1TokenGateway.sol";
 import { Abs_L2DepositedToken } from "@eth-optimism/contracts/OVM/bridge/tokens/Abs_L2DepositedToken.sol";
-import { OpUnsafe } from "../utils/OpUnsafe.sol";
 import { OVM_EOACodeHashSet } from "./OVM_EOACodeHashSet.sol";
 
 /**
@@ -25,7 +24,7 @@ import { OVM_EOACodeHashSet } from "./OVM_EOACodeHashSet.sol";
  * Compiler used: optimistic-solc
  * Runtime target: OVM
  */
-contract OVM_L2ERC20Gateway is ERC677Receiver, /* Initializable ,*/ OpUnsafe, OVM_EOACodeHashSet, Abs_L2DepositedToken {
+contract OVM_L2ERC20Gateway is ERC677Receiver, /* Initializable ,*/ OVM_EOACodeHashSet, Abs_L2DepositedToken {
   // Bridged L2 token
   IERC20Child public s_l2ERC20;
 
@@ -95,6 +94,13 @@ contract OVM_L2ERC20Gateway is ERC677Receiver, /* Initializable ,*/ OpUnsafe, OV
     s_l2ERC20 = IERC20Child(l2ERC20);
   }
 
+  /// @dev Modifier requiring sender to be EOA
+  modifier onlyEOA(address acc) {
+    // Used to stop withdrawals to contracts (avoid accidentally lost tokens)
+    require(!Address.isContract(acc) || _isEOAContract(acc), "Account not EOA");
+    _;
+  }
+
   /**
    * @dev Hook on successful token transfer that initializes withdrawal
    * @notice Avoids two step approve/transferFrom, only accessible by EOA sender via ERC677 transferAndCall.
@@ -107,9 +113,39 @@ contract OVM_L2ERC20Gateway is ERC677Receiver, /* Initializable ,*/ OpUnsafe, OV
   )
     external
     override
+    onlyEOA(_sender)
   {
     require(msg.sender == address(s_l2ERC20), "onTokenTransfer sender not valid");
     _initiateWithdrawal(_sender, _value);
+  }
+
+  /**
+   * @notice Only accessible by EOA sender.
+   * @inheritdoc Abs_L2DepositedToken
+   */
+  function withdraw(
+    uint _amount
+  )
+    external
+    override
+    onlyEOA(msg.sender)
+  {
+    _initiateWithdrawal(msg.sender, _amount);
+  }
+
+  /**
+   * @notice Recipient account must be EOA.
+   * @inheritdoc Abs_L2DepositedToken
+   */
+  function withdrawTo(
+    address _to,
+    uint _amount
+  )
+    external
+    override
+    onlyEOA(_to)
+  {
+    _initiateWithdrawal(_to, _amount);
   }
 
   /**
@@ -125,7 +161,6 @@ contract OVM_L2ERC20Gateway is ERC677Receiver, /* Initializable ,*/ OpUnsafe, OV
     uint _amount
   )
     external
-    unsafe()
   {
     _initiateWithdrawal(_to, _amount);
   }
@@ -142,9 +177,6 @@ contract OVM_L2ERC20Gateway is ERC677Receiver, /* Initializable ,*/ OpUnsafe, OV
     override
     onlyInitialized()
   {
-    // Unless explicitly unsafe op, stop withdrawals to contracts (avoid accidentally lost tokens)
-    require(_isUnsafe() || !Address.isContract(_to) || _isEOAContract(_to), "Unsafe withdraw to contract");
-
     // Check if funds already transfered via trasferAndCall (skipping)
     if (msg.sender != address(s_l2ERC20)) {
       // Take the newly deposited funds (must be approved)

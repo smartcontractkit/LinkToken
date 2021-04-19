@@ -13,7 +13,6 @@ import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 /* Contract Imports */
 import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
 import { Abs_L1TokenGateway } from "@eth-optimism/contracts/OVM/bridge/tokens/Abs_L1TokenGateway.sol";
-import { OpUnsafe } from "../utils/OpUnsafe.sol";
 
 /**
  * @title OVM_L1ERC20Gateway
@@ -29,7 +28,7 @@ import { OpUnsafe } from "../utils/OpUnsafe.sol";
  * Compiler used: solc
  * Runtime target: EVM
  */
-contract OVM_L1ERC20Gateway is ERC677Receiver, Initializable, OpUnsafe, Abs_L1TokenGateway {
+contract OVM_L1ERC20Gateway is ERC677Receiver, Initializable, Abs_L1TokenGateway {
   // L1 token we are bridging to L2
   IERC20 public s_l1ERC20;
 
@@ -107,6 +106,13 @@ contract OVM_L1ERC20Gateway is ERC677Receiver, Initializable, OpUnsafe, Abs_L1To
     _;
   }
 
+  /// @dev Modifier requiring sender to be EOA
+  modifier onlyEOA(address acc) {
+    // Used to stop withdrawals to contracts (avoid accidentally lost tokens)
+    require(!Address.isContract(acc), "Account not EOA");
+    _;
+  }
+
   /// @dev Returns L2 ERC20 Gateway address (AKA l2DepositedToken).
   function l2ERC20Gateway()
     public
@@ -132,9 +138,39 @@ contract OVM_L1ERC20Gateway is ERC677Receiver, Initializable, OpUnsafe, Abs_L1To
   )
     external
     override
+    onlyEOA(_sender)
   {
     require(msg.sender == address(s_l1ERC20), "onTokenTransfer sender not valid");
     _initiateDeposit(_sender, _sender, _value);
+  }
+
+  /**
+   * @notice Only accessible by EOA sender.
+   * @inheritdoc Abs_L1TokenGateway
+   */
+  function deposit(
+    uint _amount
+  )
+    external
+    override
+    onlyEOA(msg.sender)
+  {
+    _initiateDeposit(msg.sender, msg.sender, _amount);
+  }
+
+  /**
+   * @notice Recipient account must be EOA.
+   * @inheritdoc Abs_L1TokenGateway
+   */
+  function depositTo(
+    address _to,
+    uint _amount
+  )
+    external
+    override
+    onlyEOA(_to)
+  {
+    _initiateDeposit(msg.sender, _to, _amount);
   }
 
   /**
@@ -150,7 +186,6 @@ contract OVM_L1ERC20Gateway is ERC677Receiver, Initializable, OpUnsafe, Abs_L1To
     uint _amount
   )
     external
-    unsafe()
   {
     _initiateDeposit(msg.sender, _to, _amount);
   }
@@ -172,9 +207,6 @@ contract OVM_L1ERC20Gateway is ERC677Receiver, Initializable, OpUnsafe, Abs_L1To
     override
     onlyInitialized()
   {
-    // Unless explicitly unsafe op, stop deposits to contracts (avoid accidentally lost tokens)
-    require(_isUnsafe() || !Address.isContract(_to), "Unsafe deposit to contract");
-
     // Funds already transfered via trasferAndCall (skipping)
     if (msg.sender == address(s_l1ERC20)) return;
 

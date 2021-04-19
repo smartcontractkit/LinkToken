@@ -111,7 +111,7 @@ describe(`OVM_L2ERC20Gateway ${Versions.v0_7}`, () => {
         )
 
         // TODO: fetch revert reason
-        // revert: Unsafe withdraw to contract
+        // revert: Account not EOA
         await h.txRevert(withdrawToTx.wait())
       }).timeout(10000)
 
@@ -171,7 +171,7 @@ describe(`OVM_L2ERC20Gateway ${Versions.v0_7}`, () => {
           )
 
           // TODO: fetch revert reason
-          // revert: Unsafe deposit to contract
+          // revert: Account not EOA
           await h.txRevert(callTransferAndCallTx.wait())
         })
       }).timeout(10000)

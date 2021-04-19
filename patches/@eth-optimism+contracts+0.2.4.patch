@@ -1,0 +1,46 @@
+diff --git a/node_modules/@eth-optimism/contracts/OVM/bridge/tokens/Abs_L1TokenGateway.sol b/node_modules/@eth-optimism/contracts/OVM/bridge/tokens/Abs_L1TokenGateway.sol
+index 0ea573f..5d01139 100644
+--- a/node_modules/@eth-optimism/contracts/OVM/bridge/tokens/Abs_L1TokenGateway.sol
++++ b/node_modules/@eth-optimism/contracts/OVM/bridge/tokens/Abs_L1TokenGateway.sol
+@@ -118,8 +118,9 @@ abstract contract Abs_L1TokenGateway is iOVM_L1TokenGateway, OVM_CrossDomainEnab
+     function deposit(
+         uint _amount
+     )
+-        public
++        external
+         override
++        virtual
+     {
+         _initiateDeposit(msg.sender, msg.sender, _amount);
+     }
+@@ -133,8 +134,9 @@ abstract contract Abs_L1TokenGateway is iOVM_L1TokenGateway, OVM_CrossDomainEnab
+         address _to,
+         uint _amount
+     )
+-        public
++        external
+         override
++        virtual
+     {
+         _initiateDeposit(msg.sender, _to, _amount);
+     }
+diff --git a/node_modules/@eth-optimism/contracts/OVM/bridge/tokens/Abs_L2DepositedToken.sol b/node_modules/@eth-optimism/contracts/OVM/bridge/tokens/Abs_L2DepositedToken.sol
+index c0245a8..dbdb9b4 100644
+--- a/node_modules/@eth-optimism/contracts/OVM/bridge/tokens/Abs_L2DepositedToken.sol
++++ b/node_modules/@eth-optimism/contracts/OVM/bridge/tokens/Abs_L2DepositedToken.sol
+@@ -150,6 +150,7 @@ abstract contract Abs_L2DepositedToken is iOVM_L2DepositedToken, OVM_CrossDomain
+     )
+         external
+         override
++        virtual
+         onlyInitialized()
+     {
+         _initiateWithdrawal(msg.sender, _amount);
+@@ -166,6 +167,7 @@ abstract contract Abs_L2DepositedToken is iOVM_L2DepositedToken, OVM_CrossDomain
+     )
+         external
+         override
++        virtual
+         onlyInitialized()
+     {
+         _initiateWithdrawal(_to, _amount);
