@@ -26,13 +26,15 @@ abstract contract OVM_EOACodeHashSet is ConfirmedOwner {
   EnumerableSet.Bytes32Set private s_codeHasheSet;
 
   // Declare the genesis OVM_ProxyEOA.sol EXTCODEHASH
-  bytes32 constant OVM_EOA_CODE_HASH = 0x93bb081a7dd92bde63b4d0aa9b8612352b2ec585176a80efc0a2a277ecfc010e;
+  bytes32 constant OVM_EOA_CODE_HASH_V0 = 0x93bb081a7dd92bde63b4d0aa9b8612352b2ec585176a80efc0a2a277ecfc010e;
+  bytes32 constant OVM_EOA_CODE_HASH_V1 = 0x8b4ea2cb36c232a7bab9d385b7054ff04752ec4c0fad5dc2ed4b1c18d982154c;
 
   /// @notice Adds genesis OVM_ProxyEOA.sol EXTCODEHASH to the default set.
   constructor()
     ConfirmedOwner(msg.sender)
   {
-    s_codeHasheSet.add(OVM_EOA_CODE_HASH);
+    s_codeHasheSet.add(OVM_EOA_CODE_HASH_V0);
+    s_codeHasheSet.add(OVM_EOA_CODE_HASH_V1);
   }
 
   /// @notice Reverts if called by anyone other than whitelisted EOA contracts.
