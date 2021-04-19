@@ -11,7 +11,7 @@ import { ERC677Receiver } from "../../../v0.6/token/ERC677Receiver.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 /* Contract Imports */
-import { Abs_L1TokenGateway } from "@eth-optimism/contracts/dist/contracts/OVM/bridge/tokens/Abs_L1TokenGateway.sol";
+import { Abs_L1TokenGateway } from "@eth-optimism/contracts/OVM/bridge/tokens/Abs_L1TokenGateway.sol";
 import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
 import { OpUnsafe } from "../utils/OpUnsafe.sol";
 

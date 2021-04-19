@@ -10,8 +10,8 @@ import { ERC677Receiver } from "../../../v0.6/token/ERC677Receiver.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 /* Contract Imports */
-import { iOVM_L1TokenGateway } from "@eth-optimism/contracts/dist/contracts/iOVM/bridge/tokens/iOVM_L1TokenGateway.sol";
-import { Abs_L2DepositedToken } from "@eth-optimism/contracts/dist/contracts/OVM/bridge/tokens/Abs_L2DepositedToken.sol";
+import { iOVM_L1TokenGateway } from "@eth-optimism/contracts/iOVM/bridge/tokens/iOVM_L1TokenGateway.sol";
+import { Abs_L2DepositedToken } from "@eth-optimism/contracts/OVM/bridge/tokens/Abs_L2DepositedToken.sol";
 import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
 import { OpUnsafe } from "../utils/OpUnsafe.sol";
 import { OVM_EOACodeHashSet } from "./OVM_EOACodeHashSet.sol";
