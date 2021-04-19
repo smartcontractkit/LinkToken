@@ -1,8 +1,11 @@
 // hardhat.config.ts
 import { HardhatUserConfig, SolcConfig } from 'hardhat/types'
-import '@nomiclabs/hardhat-waffle'
+// Plugins
 import '@typechain/hardhat'
+import '@nomiclabs/hardhat-waffle'
 import '@eth-optimism/hardhat-ovm'
+import 'hardhat-contract-sizer'
+import 'hardhat-gas-reporter'
 
 import { hardhat, Versions } from './src'
 
@@ -62,6 +65,16 @@ const config: HardhatUserConfig = {
   },
   mocha: {
     timeout: 5000,
+  },
+  contractSizer: {
+    alphaSort: true,
+    runOnCompile: true,
+    disambiguatePaths: true,
+  },
+  gasReporter: {
+    currency: 'USD',
+    gasPrice: 100,
+    showTimeSpent: true,
   },
 }
 
