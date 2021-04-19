@@ -30,7 +30,7 @@ contract LinkTokenChild is IERC20Child, AccessControl, LinkToken {
    *
    * @param role the required role
    */
-  modifier only(
+  modifier onlyRole(
     bytes32 role
   ) {
     require(hasRole(role, _msgSender()), "LinkTokenChild: missing role");
@@ -48,7 +48,7 @@ contract LinkTokenChild is IERC20Child, AccessControl, LinkToken {
     external
     override
     virtual
-    only(BRIDGE_GATEWAY_ROLE)
+    onlyRole(BRIDGE_GATEWAY_ROLE)
   {
     _mint(recipient, amount);
   }
@@ -63,7 +63,7 @@ contract LinkTokenChild is IERC20Child, AccessControl, LinkToken {
     external
     override
     virtual
-    only(BRIDGE_GATEWAY_ROLE)
+    onlyRole(BRIDGE_GATEWAY_ROLE)
   {
     _burn(_msgSender(), amount);
   }

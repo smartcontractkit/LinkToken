@@ -33,7 +33,7 @@ contract OVM_L1ERC20Gateway is ERC677Receiver, OpUnsafe, Initializable, Abs_L1To
   // L1 token we are bridging to L2
   IERC20 public s_l1ERC20;
 
-  // This contract lives behind a proxy, so the constructor parameters will go unused.
+  /// @dev This contract lives behind a proxy, so the constructor parameters will go unused.
   constructor()
     Abs_L1TokenGateway(
       address(0), // _l2DepositedToken
@@ -84,10 +84,22 @@ contract OVM_L1ERC20Gateway is ERC677Receiver, OpUnsafe, Initializable, Abs_L1To
     return l2DepositedToken;
   }
 
-
-  /**************
-   * Depositing *
-   **************/
+  /**
+   * @dev Hook on successful token transfer that initializes deposit
+   * @notice Avoids two step approve/transferFrom, and only works for EOA.
+   * @inheritdoc ERC677Receiver
+   */
+  function onTokenTransfer(
+    address _sender,
+    uint _value,
+    bytes memory /* _data */
+  )
+    external
+    override
+  {
+    require(msg.sender == address(s_l1ERC20), "onTokenTransfer sender not valid");
+    _initiateDeposit(_sender, _sender, _value);
+  }
 
   /**
    * @dev deposit an amount of ERC20 to a recipients's balance on L2
@@ -101,16 +113,11 @@ contract OVM_L1ERC20Gateway is ERC677Receiver, OpUnsafe, Initializable, Abs_L1To
     address _to,
     uint _amount
   )
-    public
+    external
     unsafe()
   {
     _initiateDeposit(msg.sender, _to, _amount);
   }
-
-
-  /**************
-   * Accounting *
-   **************/
 
   /**
    * @dev When a deposit is initiated on L1, the L1 Gateway
@@ -160,24 +167,5 @@ contract OVM_L1ERC20Gateway is ERC677Receiver, OpUnsafe, Initializable, Abs_L1To
   {
     // Transfer withdrawn funds out to withdrawer
     s_l1ERC20.transfer(_to, _amount);
-  }
-
-  /**
-   * @dev Hook on successful token transfer that initializes deposit
-   * @notice Avoids two step approve/transferFrom, and only works for EOA.
-   * @inheritdoc ERC677Receiver
-   */
-  function onTokenTransfer(
-    address _sender,
-    uint _value,
-    bytes memory /* _data */
-  )
-    external
-    override
-  {
-    require(msg.sender == address(s_l1ERC20), "onTokenTransfer sender not valid");
-    address from = _sender;
-    address to = _sender;
-    _initiateDeposit(from, to, _value);
   }
 }

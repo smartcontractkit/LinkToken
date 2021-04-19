@@ -29,7 +29,7 @@ contract OVM_L2ERC20Gateway is ERC677Receiver, OpUnsafe, OVM_EOACodeHashSet, Ini
   // Bridged L2 token
   IERC20Child public s_l2ERC20;
 
-  // This contract lives behind a proxy, so the constructor parameters will go unused.
+  /// @dev This contract lives behind a proxy, so the constructor parameters will go unused.
   constructor()
     Abs_L2DepositedToken(
       address(0) // _l2CrossDomainMessenger
@@ -62,6 +62,23 @@ contract OVM_L2ERC20Gateway is ERC677Receiver, OpUnsafe, OVM_EOACodeHashSet, Ini
   }
 
   /**
+   * @dev Hook on successful token transfer that initializes withdrawal
+   * @notice Avoids two step approve/transferFrom, and only works for EOA.
+   * @inheritdoc ERC677Receiver
+   */
+  function onTokenTransfer(
+    address _sender,
+    uint _value,
+    bytes memory /* _data */
+  )
+    external
+    override
+  {
+    require(msg.sender == address(s_l2ERC20), "onTokenTransfer sender not valid");
+    _initiateWithdrawal(_sender, _value);
+  }
+
+  /**
    * @dev initiate a withdraw of some token to a recipient's account on L1
    * WARNING: This is a potentially unsafe operation that could end up with lost tokens,
    * if tokens are sent to a contract. Be careful!
@@ -74,7 +91,6 @@ contract OVM_L2ERC20Gateway is ERC677Receiver, OpUnsafe, OVM_EOACodeHashSet, Ini
     uint _amount
   )
     external
-    onlyInitialized()
     unsafe()
   {
     _initiateWithdrawal(_to, _amount);
@@ -90,11 +106,12 @@ contract OVM_L2ERC20Gateway is ERC677Receiver, OpUnsafe, OVM_EOACodeHashSet, Ini
   )
     internal
     override
+    onlyInitialized()
   {
     // Unless explicitly unsafe op, stop withdrawals to contracts (avoid accidentally lost tokens)
     require(_isUnsafe() || !Address.isContract(_to) || _isEOAContract(_to), "Unsafe withdraw to contract");
 
-     // Check if funds already transfered via trasferAndCall (skipping)
+    // Check if funds already transfered via trasferAndCall (skipping)
     if (msg.sender != address(s_l2ERC20)) {
       // Take the newly deposited funds (must be approved)
       s_l2ERC20.transferFrom(
@@ -118,25 +135,8 @@ contract OVM_L2ERC20Gateway is ERC677Receiver, OpUnsafe, OVM_EOACodeHashSet, Ini
   )
     internal
     override
+    onlyInitialized()
   {
     s_l2ERC20.deposit(_to, _amount);
-  }
-
-  /**
-   * @dev Hook on successful token transfer that initializes withdrawal
-   * @notice Avoids two step approve/transferFrom, and only works for EOA.
-   * @inheritdoc ERC677Receiver
-   */
-  function onTokenTransfer(
-    address _sender,
-    uint _value,
-    bytes memory /* _data */
-  )
-    external
-    override
-  {
-    require(msg.sender == address(s_l2ERC20), "onTokenTransfer sender not valid");
-    address to = _sender;
-    _initiateWithdrawal(to, _value);
   }
 }

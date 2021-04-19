@@ -21,7 +21,7 @@ import { ConfirmedOwner } from "@chainlink/contracts/src/v0.7/dev/ConfirmedOwner
 abstract contract OVM_EOACodeHashSet is ConfirmedOwner {
   // Add the EnumerableSet library
   using EnumerableSet for EnumerableSet.Bytes32Set;
- 
+
   // Declare a Bytes32Set of code hashes
   EnumerableSet.Bytes32Set private s_codeHasheSet;
 

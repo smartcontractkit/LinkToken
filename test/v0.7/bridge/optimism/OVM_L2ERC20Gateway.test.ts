@@ -179,7 +179,7 @@ describe(`OVM_L2ERC20Gateway ${Versions.v0_7}`, () => {
 
       it("can't call onTokenTransfer directly", async () => {
         const amount = '10'
-        const payload = [l2Token.address, amount, Buffer.from('')]
+        const payload = [oe.l2Wallet.address, amount, Buffer.from('')]
         const onTokenTransferTx = await l2Gateway.onTokenTransfer(
           ...payload,
           optimism.TX_OVERRIDES_OE_BUG,

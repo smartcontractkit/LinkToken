@@ -129,7 +129,7 @@ describe(`OVM_L1ERC20Gateway ${Versions.v0_7}`, () => {
 
       it("can't call onTokenTransfer directly", async () => {
         const amount = '10'
-        const payload = [l1Token.address, amount, Buffer.from('')]
+        const payload = [wallet.address, amount, Buffer.from('')]
         await expect(l1Gateway.onTokenTransfer(...payload)).to.be.revertedWith(
           'onTokenTransfer sender not valid',
         )
