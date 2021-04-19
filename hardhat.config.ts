@@ -4,7 +4,7 @@ import '@nomiclabs/hardhat-waffle'
 import '@typechain/hardhat'
 import '@eth-optimism/hardhat-ovm'
 
-import { hardhat, Versions } from './src'
+import { argv, hardhat, Versions } from './src'
 
 const DEFAULT_NETWORK = 'hardhat'
 const DEFAULT_VERSION = Versions.v0_6
@@ -39,7 +39,7 @@ const networks: { [key: string]: any } = {
     ovm: true, // ensures contracts will be compiled to OVM target.
   },
 }
-const targetNetwork = hardhat.argvNetwork(DEFAULT_NETWORK)
+const targetNetwork = (argv.network as string) || DEFAULT_NETWORK
 const typesDir = networks[targetNetwork]?.ovm ? `types-ovm` : 'types'
 
 const config: HardhatUserConfig = {

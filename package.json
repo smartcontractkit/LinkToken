@@ -43,7 +43,8 @@
     "ethers": "^5.1.0",
     "glob": "^7.1.6",
     "hardhat": "^2.2.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "yargs": "^16.2.0"
   },
   "devDependencies": {
     "@eth-optimism/hardhat-ovm": "^0.0.2",
@@ -56,6 +57,7 @@
     "@types/lodash": "^4.14.168",
     "@types/mocha": "^8.2.2",
     "@types/node": "^14.14.37",
+    "@types/yargs": "^16.0.1",
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.3.0",
     "moment": "^2.15.2",

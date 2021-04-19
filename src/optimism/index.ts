@@ -1,5 +1,5 @@
-import * as optimism from '@chainlink/optimism-utils'
 import * as dotenv from 'dotenv'
+import * as optimism from '@chainlink/optimism-utils'
 import { Wallet, Contract, providers, Signer, ethers, utils } from 'ethers'
 import { getContractFactory, Targets, Versions } from '../'
 import { deploy, deployProxy } from '../contract-defs'

@@ -151,7 +151,7 @@ describe(`OVM_L2ERC20Gateway ${Versions.v0_7}`, () => {
 
           const balanceGateway = await l2Token.balanceOf(l2Gateway.address)
           expect(balanceGateway).to.equal(0) // all burnt
-        })
+        }).timeout(10000)
 
         it("can't transferAndCall from contract", async () => {
           const erc677CallerMock = await deploy(
@@ -175,7 +175,7 @@ describe(`OVM_L2ERC20Gateway ${Versions.v0_7}`, () => {
           // revert: Unsafe deposit to contract
           await h.txRevert(callTransferAndCallTx.wait())
         })
-      })
+      }).timeout(10000)
 
       it("can't call onTokenTransfer directly", async () => {
         const amount = '10'

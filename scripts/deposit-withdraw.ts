@@ -1,7 +1,7 @@
-import { Direction, waitForXDomainTransaction } from '@chainlink/optimism-utils/dist/watcher-utils'
-import { parseEther } from '@ethersproject/units'
 import { Wallet, Contract, BigNumberish } from 'ethers'
-import { getContractFactory, deploy, optimism, Targets, Versions } from '../src'
+import { parseEther } from '@ethersproject/units'
+import { Direction, waitForXDomainTransaction } from '@chainlink/optimism-utils/dist/watcher-utils'
+import { argv, getContractFactory, deploy, optimism, Targets, Versions } from '../src'
 
 export type ConfiguredBridge = {
   l1ERC20: Contract
@@ -127,8 +127,9 @@ export const depositAndWithdraw = async (
     : async (_token: Contract, _spenderAddr: string, _amount: BigNumberish) => {
         console.log(`Approving spender: ${_spenderAddr} for ${_amount}`)
         const approveTx = await _token.approve(_spenderAddr, _amount)
-        console.log('Approved: https://kovan.etherscan.io/tx/' + approveTx.hash)
         await approveTx.wait()
+        console.log('Approved: https://kovan.etherscan.io/tx/' + approveTx.hash)
+        console.log()
       }
 
   const _checkBalances = () =>
@@ -201,7 +202,8 @@ const logBridge = async (bridge: ConfiguredBridge) => {
 
 const _run = async () => {
   // Load the configuration from environment
-  const oe = await optimism.loadEnv()
+  const targetNetwork = (argv.network as string) || 'local'
+  const oe = await optimism.loadEnv(targetNetwork)
   // Fund L2 wallet
   await oe.depositL2(parseEther('1'))
   // Start scripts

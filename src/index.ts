@@ -1,3 +1,5 @@
+import yargs from 'yargs/yargs'
+import { hideBin } from 'yargs/helpers'
 export * as hardhat from './hardhat'
 export * as optimism from './optimism'
 export * from './contract-defs'
@@ -12,3 +14,6 @@ export const enum Targets {
   EVM = '', // default target
   OVM = 'ovm',
 }
+
+// Parse CLI arguments
+export const argv = yargs(hideBin(process.argv)).argv

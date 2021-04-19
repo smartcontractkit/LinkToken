@@ -14,12 +14,3 @@ export const generateOverrides = (
   files.forEach((f) => (overrides[f] = compiler))
   return overrides
 }
-
-// Parse the --network flag from CLI arguments
-export const argvNetwork = (defaultNetwork: string = 'hardhat') => {
-  const { argv } = process
-  const networkFlagIndex = argv.indexOf('--network')
-  if (networkFlagIndex === -1) return defaultNetwork
-  const networkValueIndex = networkFlagIndex + 1
-  return argv.length === networkValueIndex ? defaultNetwork : argv[networkValueIndex]
-}
