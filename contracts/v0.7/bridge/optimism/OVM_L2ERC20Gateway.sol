@@ -10,9 +10,9 @@ import { ERC677Receiver } from "../../../v0.6/token/ERC677Receiver.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 /* Contract Imports */
+import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
 import { iOVM_L1TokenGateway } from "@eth-optimism/contracts/iOVM/bridge/tokens/iOVM_L1TokenGateway.sol";
 import { Abs_L2DepositedToken } from "@eth-optimism/contracts/OVM/bridge/tokens/Abs_L2DepositedToken.sol";
-import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
 import { OpUnsafe } from "../utils/OpUnsafe.sol";
 import { OVM_EOACodeHashSet } from "./OVM_EOACodeHashSet.sol";
 
@@ -25,7 +25,7 @@ import { OVM_EOACodeHashSet } from "./OVM_EOACodeHashSet.sol";
  * Compiler used: optimistic-solc
  * Runtime target: OVM
  */
-contract OVM_L2ERC20Gateway is ERC677Receiver, OpUnsafe, OVM_EOACodeHashSet, Initializable, Abs_L2DepositedToken {
+contract OVM_L2ERC20Gateway is ERC677Receiver, /* Initializable ,*/ OpUnsafe, OVM_EOACodeHashSet, Abs_L2DepositedToken {
   // Bridged L2 token
   IERC20Child public s_l2ERC20;
 
@@ -42,28 +42,62 @@ contract OVM_L2ERC20Gateway is ERC677Receiver, OpUnsafe, OVM_EOACodeHashSet, Ini
    * @param l2Messenger Cross-domain messenger used by this contract.
    * @param l2ERC20 L2 ERC20 address this contract deposits for
    */
-   // TODO: What to do with DevEx here? (overloaded fn)
-  function init_2(
+  function initialize(
     address l1ERC20Gateway,
     address l2Messenger,
     address l2ERC20
   )
     public
+    virtual
     initializer()
   {
+    __OVM_L2ERC20Gateway_init(l1ERC20Gateway, l2Messenger, l2ERC20);
+  }
+
+  /**
+   * @param l1ERC20Gateway L1 Gateway address on the chain being withdrawn into
+   * @param l2Messenger Cross-domain messenger used by this contract.
+   * @param l2ERC20 L2 ERC20 address this contract deposits for
+   */
+  function __OVM_L2ERC20Gateway_init(
+    address l1ERC20Gateway,
+    address l2Messenger,
+    address l2ERC20
+  )
+    internal
+    initializer()
+  {
+    __Context_init_unchained();
+    __Ownable_init_unchained();
+
+    // Init parent contracts
     require(l1ERC20Gateway != address(0), "Init to zero address");
     require(l2Messenger != address(0), "Init to zero address");
-    require(l2ERC20 != address(0), "Init to zero address");
-
-    s_l2ERC20 = IERC20Child(l2ERC20);
-    // Init parent contracts
-    super.init(iOVM_L1TokenGateway(l1ERC20Gateway));
+    // Abs_L2DepositedToken
+    init(iOVM_L1TokenGateway(l1ERC20Gateway));
+    // OVM_CrossDomainEnabled
     messenger = l2Messenger;
+
+    __OVM_EOACodeHashSet_init_unchained();
+    __OVM_L2ERC20Gateway_init_unchained(l2ERC20);
+  }
+
+  /**
+   * @param l2ERC20 L2 ERC20 address this contract deposits for
+   */
+  function __OVM_L2ERC20Gateway_init_unchained(
+    address l2ERC20
+  )
+    internal
+    initializer()
+  {
+    require(l2ERC20 != address(0), "Init to zero address");
+    s_l2ERC20 = IERC20Child(l2ERC20);
   }
 
   /**
    * @dev Hook on successful token transfer that initializes withdrawal
-   * @notice Avoids two step approve/transferFrom, and only works for EOA.
+   * @notice Avoids two step approve/transferFrom, only accessible by EOA sender via ERC677 transferAndCall.
    * @inheritdoc ERC677Receiver
    */
   function onTokenTransfer(

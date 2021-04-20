@@ -5,7 +5,8 @@ pragma solidity >0.6.0 <0.8.0;
 import { EnumerableSet } from "@openzeppelin/contracts/utils/EnumerableSet.sol";
 
 /* Contract Imports */
-import { ConfirmedOwner } from "@chainlink/contracts/src/v0.7/dev/ConfirmedOwner.sol";
+import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
+import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 /**
  * @dev Abstract helper contract used to keep track of OVM EOA contract set (OVM specific)
@@ -18,7 +19,7 @@ import { ConfirmedOwner } from "@chainlink/contracts/src/v0.7/dev/ConfirmedOwner
  * As the OVM_ProxyEOA.sol contract source could potentially change in the future (i.e., due to a fork),
  * here we actually track a set of possible EOA proxy contracts.
  */
-abstract contract OVM_EOACodeHashSet is ConfirmedOwner {
+abstract contract OVM_EOACodeHashSet is /* Initializable ,*/ OwnableUpgradeable {
   // Add the EnumerableSet library
   using EnumerableSet for EnumerableSet.Bytes32Set;
 
@@ -29,9 +30,19 @@ abstract contract OVM_EOACodeHashSet is ConfirmedOwner {
   bytes32 constant OVM_EOA_CODE_HASH_V0 = 0x93bb081a7dd92bde63b4d0aa9b8612352b2ec585176a80efc0a2a277ecfc010e;
   bytes32 constant OVM_EOA_CODE_HASH_V1 = 0x8b4ea2cb36c232a7bab9d385b7054ff04752ec4c0fad5dc2ed4b1c18d982154c;
 
+  function __OVM_EOACodeHashSet_init()
+    internal
+    initializer()
+  {
+      __Context_init_unchained();
+      __Ownable_init_unchained();
+      __OVM_EOACodeHashSet_init_unchained();
+  }
+
   /// @notice Adds genesis OVM_ProxyEOA.sol EXTCODEHASH to the default set.
-  constructor()
-    ConfirmedOwner(msg.sender)
+  function __OVM_EOACodeHashSet_init_unchained()
+    internal
+    initializer()
   {
     s_codeHasheSet.add(OVM_EOA_CODE_HASH_V0);
     s_codeHasheSet.add(OVM_EOA_CODE_HASH_V1);

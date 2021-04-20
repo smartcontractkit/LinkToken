@@ -27,9 +27,9 @@ describe(`OVM_L1ERC20Gateway ${Versions.v0_7}`, () => {
       const fake_l2ERC20Gateway = '0x00000000000000000000000000000000000000ff'
 
       l1Gateway = await optimism.deployL1ERC20Gateway(wallet)
-      // Init L2 ERC20 Gateway
+      // Init L2 ERC20 Gateways
       const l1InitPayload = [fake_l2ERC20Gateway, fake_l1CrossDomainMessenger, l1Token.address]
-      const l1InitTx = await l1Gateway.init(...l1InitPayload)
+      const l1InitTx = await l1Gateway.initialize(...l1InitPayload)
       await l1InitTx.wait()
     })
 

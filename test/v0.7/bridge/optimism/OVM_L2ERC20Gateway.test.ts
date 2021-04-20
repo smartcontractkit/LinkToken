@@ -43,8 +43,7 @@ describe(`OVM_L2ERC20Gateway ${Versions.v0_7}`, () => {
         // Init L2 ERC20 Gateway
         const fake_l1ERC20Gateway = '0x00000000000000000000000000000000000000ff'
         const l2InitPayload = [fake_l1ERC20Gateway, fake_l2CrossDomainMessenger, l2Token.address]
-        // TODO: What to do with DevEx here? (overloaded fn)
-        const l2InitTx = await l2Gateway.init_2(...l2InitPayload)
+        const l2InitTx = await l2Gateway.initialize(...l2InitPayload)
         await l2InitTx.wait()
 
         // Grant BRIDGE_GATEWAY_ROLE role

@@ -143,10 +143,11 @@ export const depositAndWithdraw = async (
   const { watcher } = oe
 
   // Deposit
+
   console.log('Depositing into L1 gateway contract...')
   const depositTx = transferAndCall
     ? bridge.l1ERC20.transferAndCall(bridge.l1ERC20Gateway.address, amount, Buffer.from(''))
-    : bridge.l1ERC20Gateway.deposit(amount, optimism.TX_OVERRIDES_OE_BUG)
+    : bridge.l1ERC20Gateway.deposit(amount)
   const receiptsDepositTx = await waitForXDomainTransaction(watcher, depositTx, Direction.L1ToL2)
   console.log('Deposited: https://kovan.etherscan.io/tx/' + receiptsDepositTx.tx.hash)
   console.log('Completed Deposit! L2 tx hash:', receiptsDepositTx.remoteTx.hash)
@@ -160,7 +161,7 @@ export const depositAndWithdraw = async (
   console.log('Withdrawing from L2 gateway contract...')
   const withdrawTx = transferAndCall
     ? bridge.l2ERC20.transferAndCall(bridge.l2ERC20Gateway.address, amount, Buffer.from(''))
-    : bridge.l2ERC20Gateway.withdraw(amount, optimism.TX_OVERRIDES_OE_BUG)
+    : bridge.l2ERC20Gateway.withdraw(amount)
   const receiptsWithdrawTx = await waitForXDomainTransaction(watcher, withdrawTx, Direction.L2ToL1)
   console.log('Withdrawal tx hash:' + receiptsWithdrawTx.tx.hash)
   console.log('Completed Withdrawal! L1 tx hash:', receiptsWithdrawTx.remoteTx.hash)
@@ -184,7 +185,7 @@ const logBalances: CheckBalances = async (l1Wallet, l1ERC20, l2Wallet, l2ERC20) 
   } else {
     console.log('L2 ERC20 NOT configured')
   }
-  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
   console.log()
 }
 
@@ -196,7 +197,7 @@ const logBridge = async (bridge: ConfiguredBridge) => {
   console.log('L1 ERC20 Gateway: ', bridge.l1ERC20Gateway.address)
   console.log('L2 ERC20:         ', bridge.l2ERC20.address)
   console.log('L2 ERC20 Gateway: ', bridge.l2ERC20Gateway.address)
-  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+  console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
   console.log()
 }
 
@@ -207,7 +208,12 @@ const _run = async () => {
   // Fund L2 wallet
   await oe.depositL2(parseEther('1'))
   // Start scripts
-  await depositAndWithdraw(oe, logBalances)
+  await depositAndWithdraw(
+    oe,
+    logBalances,
+    (argv.amount as number) || 1,
+    (argv.transferAndCall as boolean) || false,
+  )
 }
 
 if (require.main === module) {

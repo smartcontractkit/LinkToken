@@ -11,8 +11,8 @@ import { ERC677Receiver } from "../../../v0.6/token/ERC677Receiver.sol";
 import { Address } from "@openzeppelin/contracts/utils/Address.sol";
 
 /* Contract Imports */
-import { Abs_L1TokenGateway } from "@eth-optimism/contracts/OVM/bridge/tokens/Abs_L1TokenGateway.sol";
 import { Initializable } from "@openzeppelin/contracts/proxy/Initializable.sol";
+import { Abs_L1TokenGateway } from "@eth-optimism/contracts/OVM/bridge/tokens/Abs_L1TokenGateway.sol";
 import { OpUnsafe } from "../utils/OpUnsafe.sol";
 
 /**
@@ -29,7 +29,7 @@ import { OpUnsafe } from "../utils/OpUnsafe.sol";
  * Compiler used: solc
  * Runtime target: EVM
  */
-contract OVM_L1ERC20Gateway is ERC677Receiver, OpUnsafe, Initializable, Abs_L1TokenGateway {
+contract OVM_L1ERC20Gateway is ERC677Receiver, Initializable, OpUnsafe, Abs_L1TokenGateway {
   // L1 token we are bridging to L2
   IERC20 public s_l1ERC20;
 
@@ -47,22 +47,58 @@ contract OVM_L1ERC20Gateway is ERC677Receiver, OpUnsafe, Initializable, Abs_L1To
    * @param l1Messenger Cross-domain messenger used by this contract.
    * @param l1ERC20 L1 ERC20 address this contract stores deposits for
    */
-  function init(
+  function initialize(
     address l2ERC20Gateway,
     address l1Messenger,
     address l1ERC20
   )
     public
+    virtual
     initializer()
   {
+    __OVM_L1ERC20Gateway_init(l2ERC20Gateway, l1Messenger, l1ERC20);
+  }
+
+  /**
+   * @param l2ERC20Gateway L2 Gateway address on the chain being deposited into
+   * @param l1Messenger Cross-domain messenger used by this contract.
+   * @param l1ERC20 L1 ERC20 address this contract stores deposits for
+   */
+  function __OVM_L1ERC20Gateway_init(
+    address l2ERC20Gateway,
+    address l1Messenger,
+    address l1ERC20
+  )
+    internal
+    initializer()
+  {
+    // Init parent contracts
     require(l2ERC20Gateway != address(0), "Init to zero address");
     require(l1Messenger != address(0), "Init to zero address");
-    require(l1ERC20 != address(0), "Init to zero address");
 
-    s_l1ERC20 = IERC20(l1ERC20);
-    // Init parent contracts
     l2DepositedToken = l2ERC20Gateway;
     messenger = l1Messenger;
+
+    // Default gas value which should be modified if more complex logic runs on L2.
+    // NOTICE: this is not a constant, but a storage var, so we need to explicitly
+    // init here if using the contract in a delegatecall context.
+    DEFAULT_FINALIZE_DEPOSIT_L2_GAS = 1200000;
+
+
+    __OVM_L1ERC20Gateway_init_unchained(l1ERC20);
+  }
+
+  /**
+   * @param l1ERC20 L1 ERC20 address this contract stores deposits for
+   */
+  function __OVM_L1ERC20Gateway_init_unchained(
+    address l1ERC20
+  )
+    internal
+    initializer()
+  {
+    require(l1ERC20 != address(0), "Init to zero address");
+    s_l1ERC20 = IERC20(l1ERC20);
   }
 
   /// @dev Modifier requiring the contract to be initialized
@@ -86,7 +122,7 @@ contract OVM_L1ERC20Gateway is ERC677Receiver, OpUnsafe, Initializable, Abs_L1To
 
   /**
    * @dev Hook on successful token transfer that initializes deposit
-   * @notice Avoids two step approve/transferFrom, and only works for EOA.
+   * @notice Avoids two step approve/transferFrom, only accessible by EOA sender via ERC677 transferAndCall.
    * @inheritdoc ERC677Receiver
    */
   function onTokenTransfer(

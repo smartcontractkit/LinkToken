@@ -43,21 +43,39 @@ export const getContractFactory = (
   return new ContractFactory(contractInterface, definition.bytecode, signer)
 }
 
+const CONTRACT_PROXY = 'TransparentUpgradeableProxy'
+const CONTRACT_PROXY_ADMIN = 'ProxyAdmin'
+
 export const deployProxy = async (
   signer: Signer,
   target: Targets = Targets.EVM,
   logic: Contract,
-  admin: string,
+  admin: string | undefined = undefined,
   data: Buffer = Buffer.from(''),
 ) => {
-  const contractName = 'TransparentUpgradeableProxy'
-  const proxyFactory = getContractFactory(contractName, signer, Versions.v0_7, target)
+  console.log()
+  if (!admin) {
+    console.log('Admin not specified, deploying ProxyAdmin helper contract...')
+    const proxyAdmin = await deploy(
+      getContractFactory(CONTRACT_PROXY_ADMIN, signer, Versions.v0_7, target),
+      CONTRACT_PROXY_ADMIN,
+    )
+    admin = proxyAdmin.address
+  }
 
+  const proxyFactory = getContractFactory(CONTRACT_PROXY, signer, Versions.v0_7, target)
   // Merge proxy + logic ABI
   const abi = uniqBy([...proxyFactory.interface.fragments, ...logic.interface.fragments], 'name')
 
   const payload = [logic.address, admin, data]
-  return deploy(new ContractFactory(abi, proxyFactory.bytecode, signer), contractName, payload)
+  return {
+    admin,
+    proxy: await deploy(
+      new ContractFactory(abi, proxyFactory.bytecode, signer),
+      CONTRACT_PROXY,
+      payload,
+    ),
+  }
 }
 
 export const deploy = async (
@@ -68,7 +86,7 @@ export const deploy = async (
   const contract = await factory.deploy(...payload)
   await contract.deployTransaction.wait()
   await assertDeployed(contract)
-  console.log(`${name} deployed to:`, contract.address)
+  console.log(`${contract.address} - '${name}' deployed with payload:`, payload)
   return contract
 }
 

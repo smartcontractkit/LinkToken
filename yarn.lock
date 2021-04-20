@@ -48,10 +48,10 @@
     ganache-core "^2.13.2"
     glob "^7.1.6"
 
-"@eth-optimism/core-utils@^0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@eth-optimism/core-utils/-/core-utils-0.2.1.tgz#95965ed76ec80c694d5b24375619b9b43ade6962"
-  integrity sha512-OYLb3mZ47yupGSLfPirbtu3N0od7qIk8sqSA5r+fdtNURHJCzl2dw25jNu3QhbtHePNGE7ACXTaT+YXoii/Uhg==
+"@eth-optimism/core-utils@^0.2.1", "@eth-optimism/core-utils@^0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@eth-optimism/core-utils/-/core-utils-0.2.3.tgz#67e4137e11288f7cb03b8f4268c76356c296c7f7"
+  integrity sha512-1+D+wFo73Wm58DbLzQT2SGAvCyHi43vRKFdz5es5jBfgxhBf4TKYSiqEdESo6XaG8kyWNXS6SKrkq/hXETEQYw==
   dependencies:
     "@ethersproject/abstract-provider" "^5.0.9"
     ethers "^5.0.31"
@@ -584,7 +584,17 @@
     "@types/sinon-chai" "^3.2.3"
     "@types/web3" "1.0.19"
 
-"@openzeppelin/contracts@^3.3.0", "@openzeppelin/contracts@^3.4.0":
+"@openzeppelin/contracts-upgradeable@3.4.0":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts-upgradeable/-/contracts-upgradeable-3.4.0.tgz#7674c73c643a509f1b90c509e3e72fe9aae02aeb"
+  integrity sha512-7wBcbukDqWZt/B1zjb7zyeWq+AC7rx7nGln7/hPxHdKd8PAiiteXd51Cp2KmGP8qaY0/TXh/fQLsA082LWp8Zw==
+
+"@openzeppelin/contracts@3.4.0":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.4.0.tgz#9a1669ad5f9fdfb6e273bb5a4fed10cb4cc35eb0"
+  integrity sha512-qh+EiHWzfY/9CORr+eRUkeEUP1WiFUcq3974bLHwyYzLBUtK6HPaMkIUHi74S1rDTZ0sNz42DwPc5A4IJvN3rg==
+
+"@openzeppelin/contracts@^3.3.0":
   version "3.4.1"
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.4.1.tgz#03c891fec7f93be0ae44ed74e57a122a38732ce7"
   integrity sha512-cUriqMauq1ylzP2TxePNdPqkwI7Le3Annh4K9rrpvKfSBB/bdW+Iu1ihBaTIABTAAJ85LmKL5SSPPL9ry8d1gQ==
