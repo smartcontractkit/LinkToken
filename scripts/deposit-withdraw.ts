@@ -1,4 +1,5 @@
-import { Wallet, Contract, BigNumberish } from 'ethers'
+import { Wallet, Contract } from 'ethers'
+import { BigNumberish } from '@ethersproject/bignumber'
 import { parseEther } from '@ethersproject/units'
 import { Direction, waitForXDomainTransaction } from '@chainlink/optimism-utils/dist/watcher-utils'
 import { argv, getContractFactory, deploy, optimism, Targets, Versions } from '../src'
@@ -206,7 +207,7 @@ const _run = async () => {
   const targetNetwork = (argv.network as string) || 'local'
   const oe = await optimism.loadEnv(targetNetwork)
   // Fund L2 wallet
-  await oe.depositL2(parseEther('1'))
+  await oe.depositL2(parseEther('1') as BigNumberish)
   // Start scripts
   await depositAndWithdraw(
     oe,

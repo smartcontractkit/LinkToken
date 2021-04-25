@@ -17,7 +17,6 @@
     "contracts/*"
   ],
   "scripts": {
-    "postinstall": "patch-package",
     "prepack": "yarn setup",
     "clean": "tsc -b --clean tsconfig.json && rm -rf build/",
     "setup": "yarn build:contracts && yarn build",
@@ -38,18 +37,20 @@
   "dependencies": {
     "@chainlink/contracts": "^0.1.6",
     "@chainlink/optimism-utils": "https://github.com/smartcontractkit/optimism-utils.git",
-    "@eth-optimism/contracts": "^0.2.4",
+    "@eth-optimism/contracts": "^0.2.7",
+    "@ethersproject/bignumber": "^5.1.1",
+    "@ethersproject/units": "^5.1.0",
     "@openzeppelin/contracts": "3.4.0",
     "@openzeppelin/contracts-upgradeable": "3.4.0",
     "dotenv": "^8.2.0",
-    "ethers": "^5.1.0",
+    "ethers": "^5.1.3",
     "glob": "^7.1.6",
     "hardhat": "^2.2.0",
     "lodash": "^4.17.21",
     "yargs": "^16.2.0"
   },
   "devDependencies": {
-    "@eth-optimism/hardhat-ovm": "^0.0.2",
+    "@eth-optimism/hardhat-ovm": "^0.0.3",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@typechain/ethers-v5": "^6.0.5",
@@ -63,15 +64,10 @@
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.3.0",
     "moment": "^2.15.2",
-    "patch-package": "^6.4.7",
-    "postinstall-postinstall": "^2.1.0",
     "prettier": "^2.2.1",
     "ts-generator": "^0.1.1",
     "ts-node": "^9.1.1",
     "typechain": "^4.0.3",
     "typescript": "^4.2.3"
-  },
-  "resolutions": {
-    "@eth-optimism/core-utils": "^0.2.3"
   }
 }
