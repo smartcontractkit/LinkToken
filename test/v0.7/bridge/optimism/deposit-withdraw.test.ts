@@ -1,3 +1,4 @@
+import { BigNumberish } from '@ethersproject/bignumber'
 import { parseEther } from '@ethersproject/units'
 import { expect } from 'chai'
 import { depositAndWithdraw, CheckBalances } from '../../../../scripts/deposit-withdraw'
@@ -14,7 +15,7 @@ import * as h from '../../../helpers'
     // Load the configuration from environment
     oe = await optimism.loadEnv()
     // Fund L2 wallet
-    await oe.depositL2(parseEther('1'))
+    await oe.depositL2(parseEther('1') as BigNumberish)
   })
 
   const checkBalances = (step = 0): CheckBalances => async (

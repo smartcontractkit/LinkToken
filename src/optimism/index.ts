@@ -34,7 +34,7 @@ export const loadEnv = async (envName: string = 'local'): Promise<optimism.env.O
 }
 
 // TODO: Fix ERROR { "reason":"cannot estimate gas; transaction may fail or may require manual gas limit","code":"UNPREDICTABLE_GAS_LIMIT" }
-export const TX_OVERRIDES_OE_BUG = {
+export const TX_OVERRIDES_OE_BUG: any = {
   gasPrice: utils.parseUnits('1', 'gwei'),
   gasLimit: 2_000_000,
 }

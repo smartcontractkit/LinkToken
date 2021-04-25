@@ -78,12 +78,6 @@ contract OVM_L1ERC20Gateway is ERC677Receiver, Initializable, Abs_L1TokenGateway
     l2DepositedToken = l2ERC20Gateway;
     messenger = l1Messenger;
 
-    // Default gas value which should be modified if more complex logic runs on L2.
-    // NOTICE: this is not a constant, but a storage var, so we need to explicitly
-    // init here if using the contract in a delegatecall context.
-    DEFAULT_FINALIZE_DEPOSIT_L2_GAS = 1200000;
-
-
     __OVM_L1ERC20Gateway_init_unchained(l1ERC20);
   }
 

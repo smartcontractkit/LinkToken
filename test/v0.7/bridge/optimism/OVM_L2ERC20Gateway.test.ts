@@ -1,5 +1,5 @@
 import { expect } from 'chai'
-import { Wallet, Contract } from 'ethers'
+import { Wallet, Contract, BigNumberish } from 'ethers'
 import { getContractFactory, deploy, Targets, Versions, optimism } from '../../../../src'
 import * as h from '../../../helpers'
 
@@ -19,7 +19,7 @@ describe(`OVM_L2ERC20Gateway ${Versions.v0_7}`, () => {
 
         // Load the configuration from environment
         oe = await optimism.loadEnv()
-        await oe.depositL2(parseEther('1'))
+        await oe.depositL2(parseEther('1') as BigNumberish)
 
         // Deploy LinkTokenChild contract
         l2Token = await deploy(
