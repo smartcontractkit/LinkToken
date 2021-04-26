@@ -27,7 +27,7 @@ Initial @chainlink/token release!
 
 ### Added
 
-- Solidity v0.6 support
+- Solidity 0.6 support
 - Simple token swapping contract
 
 ## [1.0.6] - Sep 2018

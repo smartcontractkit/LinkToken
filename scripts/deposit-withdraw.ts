@@ -2,7 +2,7 @@ import { Wallet, Contract } from 'ethers'
 import { BigNumberish } from '@ethersproject/bignumber'
 import { parseEther } from '@ethersproject/units'
 import { Direction, waitForXDomainTransaction } from '@chainlink/optimism-utils/dist/watcher-utils'
-import { argv, getContractFactory, deploy, optimism, Targets, Versions } from '../src'
+import { hardhat, getContractFactory, deploy, optimism, Targets, Versions } from '../src'
 
 export type ConfiguredBridge = {
   l1ERC20: Contract
@@ -136,15 +136,14 @@ export const depositAndWithdraw = async (
   const _checkBalances = () =>
     checkBalances(oe.l1Wallet, bridge.l1ERC20, oe.l2Wallet, bridge.l2ERC20)
 
+  const { watcher } = oe
+
   await _checkBalances()
 
   // Approve L1 Gateway
   await _approve(bridge.l1ERC20, bridge.l1ERC20Gateway.address, amount)
 
-  const { watcher } = oe
-
-  // Deposit
-
+  // Deposit to L1 Gateway
   console.log('Depositing into L1 gateway contract...')
   const depositTx = transferAndCall
     ? bridge.l1ERC20.transferAndCall(bridge.l1ERC20Gateway.address, amount, Buffer.from(''))
@@ -158,7 +157,7 @@ export const depositAndWithdraw = async (
   // Approve L2 Gateway
   await _approve(bridge.l2ERC20, bridge.l2ERC20Gateway.address, amount)
 
-  // Withdraw
+  // Withdraw from L2 Gateway
   console.log('Withdrawing from L2 gateway contract...')
   const withdrawTx = transferAndCall
     ? bridge.l2ERC20.transferAndCall(bridge.l2ERC20Gateway.address, amount, Buffer.from(''))
@@ -203,18 +202,19 @@ const logBridge = async (bridge: ConfiguredBridge) => {
 }
 
 const _run = async () => {
+  // Load CLI arguments
+  const { argv } = hardhat.yargs
+    .env(false)
+    .string('network')
+    .number('amount')
+    .boolean('transferAndCall')
   // Load the configuration from environment
-  const targetNetwork = (argv.network as string) || 'local'
+  const targetNetwork = argv.network || 'local'
   const oe = await optimism.loadEnv(targetNetwork)
   // Fund L2 wallet
   await oe.depositL2(parseEther('1') as BigNumberish)
   // Start scripts
-  await depositAndWithdraw(
-    oe,
-    logBalances,
-    (argv.amount as number) || 1,
-    (argv.transferAndCall as boolean) || false,
-  )
+  await depositAndWithdraw(oe, logBalances, argv.amount || 1, argv.transferAndCall)
 }
 
 if (require.main === module) {

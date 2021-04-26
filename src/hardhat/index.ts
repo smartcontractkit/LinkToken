@@ -1,5 +1,13 @@
 import * as glob from 'glob'
 import { SolcConfig } from 'hardhat/types'
+import _yargs from 'yargs/yargs'
+import { hideBin } from 'yargs/helpers'
+
+// Parse CLI arguments
+export const yargs = _yargs(hideBin(process.argv))
+
+// Load defult CLI arguments
+export const { argv } = yargs.env(false).string('contracts').string('network')
 
 // Glob files matching the pattern and generate Hardhat overrides for them
 export const generateOverrides = (

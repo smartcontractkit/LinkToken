@@ -1,16 +1,14 @@
 import { expect } from 'chai'
 import { Wallet, Contract, BigNumberish } from 'ethers'
+import { parseEther } from '@ethersproject/units'
 import { getContractFactory, deploy, Targets, Versions, optimism } from '../../../../src'
 import * as h from '../../../helpers'
-
-import { parseEther } from '@ethersproject/units'
 
 // short alias
 const _getFactory = getContractFactory
 
 describe(`OVM_L2ERC20Gateway ${Versions.v0_7}`, () => {
-  // Skip if not OVM integration test
-  ;(h.isIntegration() ? describe : describe.skip)(`@integration`, () => {
+  h.describes.OE(`@integration`, () => {
     describe('withdrawal safety', () => {
       let oe: optimism.env.OptimismEnv, l2Token: Contract, l2Gateway: Contract
 

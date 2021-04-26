@@ -1,13 +1,11 @@
-import yargs from 'yargs/yargs'
-import { hideBin } from 'yargs/helpers'
 export * as hardhat from './hardhat'
 export * as optimism from './optimism'
 export * from './contract-defs'
 
 export const enum Versions {
-  v0_4 = 'v0.4',
-  v0_6 = 'v0.6',
-  v0_7 = 'v0.7',
+  v0_4 = '0.4',
+  v0_6 = '0.6',
+  v0_7 = '0.7',
 }
 
 export const enum Targets {
@@ -15,5 +13,8 @@ export const enum Targets {
   OVM = 'ovm',
 }
 
-// Parse CLI arguments
-export const argv = yargs(hideBin(process.argv)).argv
+export const enum Networks {
+  HARDHAT = 'hardhat',
+  OPTIMISM = 'optimism', // AKA 'hardhat-optimism'
+  KOVAN_OPTIMISM = 'kovan-optimism',
+}

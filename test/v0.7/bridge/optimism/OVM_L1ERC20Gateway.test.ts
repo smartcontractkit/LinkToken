@@ -3,8 +3,9 @@ import { expect } from 'chai'
 import { Contract } from 'ethers'
 import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 import { Versions, getContractFactory, Targets, optimism } from '../../../../src'
+import * as h from '../../../helpers'
 
-describe(`OVM_L1ERC20Gateway ${Versions.v0_7}`, () => {
+h.describes.HH(`OVM_L1ERC20Gateway ${Versions.v0_7}`, () => {
   describe('deposit safety', () => {
     let wallet: SignerWithAddress, walletOther: SignerWithAddress
 

@@ -5,8 +5,7 @@ import { depositAndWithdraw, CheckBalances } from '../../../../scripts/deposit-w
 import { optimism } from '../../../../src'
 import * as h from '../../../helpers'
 
-// Skip if not OVM integration test
-;(h.isIntegration() ? describe : describe.skip)('Optimism deposit-withdraw @integration', () => {
+h.describes.OE('Optimism deposit-withdraw @integration', () => {
   let oe: optimism.env.OptimismEnv
 
   before(async function () {
@@ -44,13 +43,15 @@ import * as h from '../../../helpers'
     }
   }
 
-  it('deposit L1->L2, withdraw L2->L1', async () => {
-    await depositAndWithdraw(oe, checkBalances())
-  }).timeout(60000)
+  describe('deposit L1->L2, withdraw L2->L1', () => {
+    it('approve/transferFrom ', async () => {
+      await depositAndWithdraw(oe, checkBalances())
+    }).timeout(60000)
 
-  it('deposit L1->L2, withdraw L2->L1 (transferAndCall)', async () => {
-    const amount = 1
-    const transferAndCall = true
-    await depositAndWithdraw(oe, checkBalances(), amount, transferAndCall)
-  }).timeout(60000)
+    it('transferAndCall', async () => {
+      const amount = 1
+      const transferAndCall = true
+      await depositAndWithdraw(oe, checkBalances(), amount, transferAndCall)
+    }).timeout(60000)
+  })
 })

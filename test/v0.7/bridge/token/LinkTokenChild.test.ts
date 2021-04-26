@@ -3,6 +3,7 @@ import { getContractFactory, Targets, Versions } from '../../../../src'
 
 import { shouldBehaveLikeERC677Token } from '../../../behavior/ERC677Token'
 import { shouldBehaveLikeLinkToken } from '../../../behavior/LinkToken'
+import * as h from '../../../helpers'
 
 export class LinkTokenChildTest__factory {
   readonly signer: Signer
@@ -61,17 +62,16 @@ const EXTRA_PUBLIC_ABI = [
   ...LinkTokenChild_PUBLIC_ABI,
 ]
 
-describe(`LinkTokenChild ${Versions.v0_7}`, () => {
+h.describes.HH(`LinkTokenChild ${Versions.v0_7}`, () => {
   const _getContractFactory = (name: string, signer?: Signer) => {
     if (name === 'LinkToken' || name === 'Token677') {
       return LinkTokenChildTest__factory.new(signer)
     }
     return getContractFactory(name, signer, Versions.v0_6)
   }
-  const _getReasonStr = (reason: string) => reason
 
-  shouldBehaveLikeERC677Token(_getContractFactory, _getReasonStr)
-  shouldBehaveLikeLinkToken(_getContractFactory, _getReasonStr, EXTRA_PUBLIC_ABI)
+  shouldBehaveLikeERC677Token(_getContractFactory, h.revertShim())
+  shouldBehaveLikeLinkToken(_getContractFactory, h.revertShim(), EXTRA_PUBLIC_ABI)
 
   // TODO: LinkTokenChild specific tests
 })

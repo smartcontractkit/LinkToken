@@ -19,7 +19,7 @@ import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/O
  * As the OVM_ProxyEOA.sol contract source could potentially change in the future (i.e., due to a fork),
  * here we actually track a set of possible EOA proxy contracts.
  */
-abstract contract OVM_EOACodeHashSet is /* Initializable ,*/ OwnableUpgradeable {
+abstract contract OVM_EOACodeHashSet is /* Initializable, */ OwnableUpgradeable {
   // Add the EnumerableSet library
   using EnumerableSet for EnumerableSet.Bytes32Set;
 

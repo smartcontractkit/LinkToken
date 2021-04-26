@@ -13,7 +13,7 @@ export const getContractDefinition = (
   const match = glob.sync(
     path.resolve(__dirname, '../build') +
       `/artifacts${target ? `-${target}` : ''}` +
-      `/contracts${version ? `/${version}` : ''}` +
+      `/contracts${version ? `/v${version}` : ''}` +
       `/**/${name}.json`,
   )
 

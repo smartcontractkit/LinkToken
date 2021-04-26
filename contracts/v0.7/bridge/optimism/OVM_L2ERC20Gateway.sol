@@ -24,7 +24,7 @@ import { OVM_EOACodeHashSet } from "./OVM_EOACodeHashSet.sol";
  * Compiler used: optimistic-solc
  * Runtime target: OVM
  */
-contract OVM_L2ERC20Gateway is ERC677Receiver, /* Initializable ,*/ OVM_EOACodeHashSet, Abs_L2DepositedToken {
+contract OVM_L2ERC20Gateway is ERC677Receiver, /* Initializable, */ OVM_EOACodeHashSet, Abs_L2DepositedToken {
   // Bridged L2 token
   IERC20Child public s_l2ERC20;
 
