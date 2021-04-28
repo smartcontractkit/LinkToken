@@ -78,6 +78,7 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
     shouldBehaveLikeERC677Token(_getContractFactory, h.revertShim())
     shouldBehaveLikeLinkToken(_getContractFactory, h.revertShim(), EXTRA_PUBLIC_ABI)
 
+    // TODO: refactor as a behavior that we can test both on Hardhat and Optimism networks
     describe(`Child token functionality`, () => {
       let l2Token: Contract
 
@@ -92,56 +93,102 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
 
       it('can NOT deposit without BRIDGE_GATEWAY_ROLE', async () => {
         const [_admin, recipient] = await ethers.getSigners()
+        // Deposit fails without the BRIDGE_GATEWAY_ROLE
+        const depositTx = l2Token.connect(recipient).deposit(recipient.address, 100)
+        await expect(depositTx).to.be.revertedWith('LinkTokenChild: missing role')
+      })
 
-        await expect(l2Token.connect(recipient).deposit(recipient.address, 100)).to.be.revertedWith(
-          'LinkTokenChild: missing role',
+      it('only admin can grant BRIDGE_GATEWAY_ROLE', async () => {
+        const [admin, fakeAdmin, gateway] = await ethers.getSigners()
+        // Get the required gateway role
+        const gatewayRole = await l2Token.BRIDGE_GATEWAY_ROLE()
+        // Fake admin fails
+        const grantRoleTx = l2Token.connect(fakeAdmin).grantRole(gatewayRole, gateway.address)
+        await expect(grantRoleTx).to.be.revertedWith(
+          'AccessControl: sender must be an admin to grant',
         )
+        // Admin succeeds
+        await l2Token.connect(admin).grantRole(gatewayRole, gateway.address)
       })
 
       it('can deposit with BRIDGE_GATEWAY_ROLE', async () => {
         const [_admin, gateway, recipient] = await ethers.getSigners()
-
-        // Get the required gateway role
+        // Grant the required gateway role
         const gatewayRole = await l2Token.BRIDGE_GATEWAY_ROLE()
-
-        const grantRoleTx = await l2Token.grantRole(
-          gatewayRole,
-          gateway.address,
-          optimism.TX_OVERRIDES_OE_BUG,
-        )
-        await grantRoleTx.wait()
-
+        await l2Token.grantRole(gatewayRole, gateway.address)
         // Admin deposit still fails
-        await expect(l2Token.deposit(recipient.address, 100)).to.be.revertedWith(
-          'LinkTokenChild: missing role',
-        )
-
+        const depositTx = l2Token.deposit(recipient.address, 100)
+        await expect(depositTx).to.be.revertedWith('LinkTokenChild: missing role')
+        // Gateway deposit succeeds
         await l2Token.connect(gateway).deposit(recipient.address, 100)
-
-        const balance = await l2Token.balanceOf(recipient.address)
-        expect(balance).to.be.equal(100)
-
-        const totalSupply = await l2Token.totalSupply()
-        expect(totalSupply).to.be.equal(100)
+        // Assert state
+        expect(await l2Token.balanceOf(recipient.address)).to.be.equal(100)
+        expect(await l2Token.totalSupply()).to.be.equal(100)
       })
 
       it('admin can give out multiple BRIDGE_GATEWAY_ROLE', async () => {
         const [_, gateway1, gateway2, recipient] = await ethers.getSigners()
-
-        // Get the required gateway role
+        // Grant the required gateway role
         const gatewayRole = await l2Token.BRIDGE_GATEWAY_ROLE()
-
         await l2Token.grantRole(gatewayRole, gateway1.address)
         await l2Token.grantRole(gatewayRole, gateway2.address)
-
+        // Gateway deposit succeeds
         await l2Token.connect(gateway1).deposit(recipient.address, 100)
         await l2Token.connect(gateway2).deposit(recipient.address, 100)
+        // Assert state
+        expect(await l2Token.balanceOf(recipient.address)).to.be.equal(200)
+        expect(await l2Token.totalSupply()).to.be.equal(200)
+      })
 
-        const balance = await l2Token.balanceOf(recipient.address)
-        expect(balance).to.be.equal(200)
+      it('admin can give out and revoke BRIDGE_GATEWAY_ROLE', async () => {
+        const [_, gateway, recipient] = await ethers.getSigners()
+        // Grant the required gateway role
+        const gatewayRole = await l2Token.BRIDGE_GATEWAY_ROLE()
+        await l2Token.grantRole(gatewayRole, gateway.address)
+        // Gateway deposit succeeds
+        await l2Token.connect(gateway).deposit(recipient.address, 100)
+        // Revoke gateway role
+        await l2Token.revokeRole(gatewayRole, gateway.address)
+        // Deposits now fail
+        const depositTx = l2Token.connect(gateway).deposit(recipient.address, 100)
+        await expect(depositTx).to.be.revertedWith('LinkTokenChild: missing role')
+        // Assert state
+        expect(await l2Token.balanceOf(recipient.address)).to.be.equal(100)
+        expect(await l2Token.totalSupply()).to.be.equal(100)
+      })
 
-        const totalSupply = await l2Token.totalSupply()
-        expect(totalSupply).to.be.equal(200)
+      it('only gateway can withdraw', async () => {
+        const [_, gateway, recipient] = await ethers.getSigners()
+        // Grant the required gateway role
+        const gatewayRole = await l2Token.BRIDGE_GATEWAY_ROLE()
+        await l2Token.grantRole(gatewayRole, gateway.address)
+        // Gateway deposit succeeds
+        await l2Token.connect(gateway).deposit(recipient.address, 100)
+        // Recipients direct withdraw fails
+        const withdrawTx1 = l2Token.connect(recipient).withdraw(69)
+        await expect(withdrawTx1).to.be.revertedWith('LinkTokenChild: missing role')
+        // Gateway can withdraw on behalf of the user
+        await l2Token.connect(recipient).transfer(gateway.address, 69)
+        await l2Token.connect(gateway).withdraw(69)
+        // Gateway can NOT withdraw more
+        const withdrawTx3 = l2Token.connect(gateway).withdraw(10)
+        await expect(withdrawTx3).to.be.revertedWith('ERC20: burn amount exceeds balance')
+        // Assert state
+        expect(await l2Token.balanceOf(recipient.address)).to.be.equal(31)
+        expect(await l2Token.totalSupply()).to.be.equal(31)
+      })
+
+      it('admin can renounce DEFAULT_ADMIN_ROLE', async () => {
+        const [admin, gateway] = await ethers.getSigners()
+        // Renounce the admin role
+        const adminRole = await l2Token.DEFAULT_ADMIN_ROLE()
+        await l2Token.renounceRole(adminRole, admin.address)
+        // Reverts on grantRole
+        const gatewayRole = await l2Token.BRIDGE_GATEWAY_ROLE()
+        const grantRoleTx = l2Token.grantRole(gatewayRole, gateway.address)
+        await expect(grantRoleTx).to.be.revertedWith(
+          'AccessControl: sender must be an admin to grant',
+        )
       })
     })
   })
@@ -153,7 +200,7 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
       this.timeout(10000)
 
       // Load the configuration from environment
-      oe = await optimism.loadEnv()
+      oe = await h.optimism.loadEnv()
       // Fund L2 wallet
       await oe.depositL2(parseEther('10') as BigNumberish)
 
@@ -161,7 +208,6 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
       l2Token = await deploy(
         getContractFactory('LinkTokenChild', oe.l2Wallet, Versions.v0_7, Targets.OVM),
         'LinkTokenChild',
-        [optimism.TX_OVERRIDES_OE_BUG],
       )
     })
 
@@ -174,11 +220,47 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
       const depositTx = await l2Token.deposit(
         oe.l2Wallet.address,
         100,
-        optimism.TX_OVERRIDES_OE_BUG,
+        h.optimism.TX_OVERRIDES_OE_BUG,
       )
       // TODO: fetch revert reason
       // revert: LinkTokenChild: missing role
       await h.txRevert(depositTx.wait())
+    })
+
+    it('admin can migrate to a new gateway', async () => {
+      const admin = oe.l2Wallet
+      const gateway = oe.l2Wallet // TODO: generate acc
+      // Grant the required gateway role
+      const gatewayRole = await l2Token.BRIDGE_GATEWAY_ROLE()
+      const grantRoleTx1 = await l2Token.grantRole(gatewayRole, admin.address)
+      await grantRoleTx1.wait()
+      // Deposit some tokens as admin/gateway
+      const depositTx1 = await l2Token.deposit(admin.address, 100, h.optimism.TX_OVERRIDES_OE_BUG)
+      await depositTx1.wait()
+      // Assert state
+      expect(await l2Token.balanceOf(admin.address)).to.be.equal(100)
+      expect(await l2Token.totalSupply()).to.be.equal(100)
+      // Admin can withdraw directly as it has a gateway role
+      const withdrawTx = await l2Token.withdraw(100)
+      await withdrawTx.wait()
+      // Assert state
+      expect(await l2Token.balanceOf(admin.address)).to.be.equal(0)
+      expect(await l2Token.totalSupply()).to.be.equal(0)
+      // Grant role to a new gateway
+      const grantRoleTx2 = await l2Token.grantRole(gatewayRole, gateway.address)
+      await grantRoleTx2.wait()
+      // Revoke gateway role from admin
+      const revokeRoleTx = await l2Token.revokeRole(gatewayRole, admin.address)
+      await revokeRoleTx.wait()
+      // Admin deposit fails
+      const depositTx = await l2Token.deposit(admin.address, 100, h.optimism.TX_OVERRIDES_OE_BUG)
+      // TODO: fetch revert reason
+      // revert: LinkTokenChild: missing role
+      await h.txRevert(depositTx.wait())
+      // Renounce the admin role
+      const adminRole = await l2Token.DEFAULT_ADMIN_ROLE()
+      const renounceRoleTx = await l2Token.renounceRole(adminRole, admin.address)
+      await renounceRoleTx.wait()
     })
   })
 })

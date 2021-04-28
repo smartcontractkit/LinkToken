@@ -19,22 +19,10 @@ task(TASK_COMPILE)
   .addOptionalParam('contracts', 'The contracts version to compile.', DEFAULT_VERSION)
   .setAction(async (_args, _hre, runSuper) => runSuper(_args))
 
-const _settings = (runs: number) => ({
-  optimizer: {
-    runs,
-    enabled: true,
-  },
-  metadata: {
-    // To support Go code generation from build artifacts
-    // we need to remove the metadata from the compiled bytecode.
-    bytecodeHash: 'none',
-  },
-})
-
 const versions: Record<Versions, SolcConfig> = {
-  [Versions.v0_4]: { version: '0.4.16', settings: _settings(200) },
-  [Versions.v0_6]: { version: '0.6.12', settings: _settings(200) },
-  [Versions.v0_7]: { version: '0.7.6', settings: _settings(1_000_000) },
+  [Versions.v0_4]: { version: '0.4.16', settings: hardhat.solcSettings(200) },
+  [Versions.v0_6]: { version: '0.6.12', settings: hardhat.solcSettings(200) },
+  [Versions.v0_7]: { version: '0.7.6', settings: hardhat.solcSettings(1_000_000) },
 }
 
 // Require version exists
@@ -66,6 +54,10 @@ const config: HardhatUserConfig = {
     overrides: {
       ...hardhat.generateOverrides(`./contracts/${versionDir}/**/*.sol`, {}, compiler),
     },
+  },
+  ovm: {
+    // Supported OVM versions: https://github.com/ethereum-optimism/solc-bin/tree/gh-pages/bin
+    solcVersion: compiler.version,
   },
   typechain: {
     outDir: `./build/${typesDir}/${versionDir}`,

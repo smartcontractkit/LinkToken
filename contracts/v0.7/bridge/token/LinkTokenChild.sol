@@ -10,7 +10,6 @@ import { LinkToken } from "../../../v0.6/LinkToken.sol";
 
 /// @dev Access controlled mintable & burnable LinkToken, for use on sidechains and L2 networks.
 contract LinkTokenChild is IERC20Child, AccessControl, LinkToken {
-
   // Using this role the bridge gateway can deposit/withdraw (mint/burn)
   bytes32 public constant BRIDGE_GATEWAY_ROLE = keccak256("BRIDGE_GATEWAY_ROLE");
 
