@@ -2,6 +2,8 @@ import { ethers } from 'ethers'
 import { assert } from 'chai'
 import { hardhat, Networks, Versions } from '../../src'
 
+export * as optimism from './optimism'
+
 export const describes = {
   // Only run if Hardhat unit test
   HH: !hardhat.argv.network || hardhat.argv.network === Networks.HARDHAT ? describe : describe.skip,

@@ -9,6 +9,18 @@ export const yargs = _yargs(hideBin(process.argv))
 // Load defult CLI arguments
 export const { argv } = yargs.env(false).string('contracts').string('network')
 
+export const solcSettings = (runs: number) => ({
+  optimizer: {
+    runs,
+    enabled: true,
+  },
+  metadata: {
+    // To support Go code generation from build artifacts
+    // we need to remove the metadata from the compiled bytecode.
+    bytecodeHash: 'none',
+  },
+})
+
 // Glob files matching the pattern and generate Hardhat overrides for them
 export const generateOverrides = (
   pattern: string,
