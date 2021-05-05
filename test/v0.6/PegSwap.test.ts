@@ -35,6 +35,7 @@ h.describes.HH('ERC677Token', () => {
 
   it('has a limited public ABI', () => {
     h.publicAbi(swap, [
+      'typeAndVersion',
       'addLiquidity',
       'getSwappableAmount',
       'onTokenTransfer',

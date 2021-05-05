@@ -62,6 +62,7 @@ const LinkTokenChild_PUBLIC_ABI = [
 const EXTRA_PUBLIC_ABI = [
   'decreaseAllowance',
   'increaseAllowance',
+  'typeAndVersion',
   ...OZ_AccessControl_PUBLIC_ABI,
   ...LinkTokenChild_PUBLIC_ABI,
 ]

@@ -7,7 +7,7 @@ import { getContractFactory, Versions } from '../../src'
 import { shouldBehaveLikeLinkToken } from '../behavior/LinkToken'
 import * as h from '../helpers'
 
-const v6_EXTRA_PUBLIC_ABI = ['decreaseAllowance', 'increaseAllowance']
+const v6_EXTRA_PUBLIC_ABI = ['decreaseAllowance', 'increaseAllowance', 'typeAndVersion']
 
 h.describes.HH(`LinkToken ${Versions.v0_6}`, () => {
   const overrides: Record<string, string> = { Token677: 'LinkToken' }
