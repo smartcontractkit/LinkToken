@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./token/ERC677Receiver.sol";
+import "./TypeAndVersionInterface.sol";
 
 /**
  * @notice This contract provides a one-to-one swap between pairs of tokens. It
@@ -12,7 +13,7 @@ import "./token/ERC677Receiver.sol";
  * users should only interact with the swap, onTokenTransfer, and
  * getSwappableAmount functions.
  */
-contract PegSwap is Owned, ReentrancyGuard {
+contract PegSwap is TypeAndVersionInterface, Owned, ReentrancyGuard {
   using SafeMath for uint256;
 
   event LiquidityUpdated(
@@ -32,6 +33,24 @@ contract PegSwap is Owned, ReentrancyGuard {
   );
 
   mapping(address => mapping(address => uint256)) private s_swappableAmount;
+
+  /**
+   * @notice versions:
+   *
+   * - PegSwap 0.0.2: added versioning
+   * - PegSwap 0.0.1: initial release
+   *
+   * @inheritdoc TypeAndVersionInterface
+   */
+  function typeAndVersion()
+    external
+    pure
+    override
+    virtual
+    returns (string memory)
+  {
+    return "PegSwap 0.0.2";
+  }
 
   /**
    * @dev Disallows direct send by setting a default function without the `payable` flag.

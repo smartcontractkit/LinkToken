@@ -13,7 +13,11 @@ interface IERC20Child is IERC20 {
    * @param recipient an address for whom deposit is being done
    * @param amount total amount to deposit/mint
    */
-  function deposit(address recipient, uint256 amount) external;
+  function deposit(
+    address recipient,
+    uint256 amount
+  )
+    external;
 
   /**
    * @notice called by bridge gateway when tokens are withdrawn back to root chain
@@ -21,5 +25,8 @@ interface IERC20Child is IERC20 {
    *
    * @param amount total amount to withdraw/burn
    */
-  function withdraw(uint256 amount) external;
+  function withdraw(
+    uint256 amount
+  )
+    external;
 }
