@@ -16,7 +16,14 @@ abstract contract LinkERC20 is ERC20 {
    *
    * - `spender` cannot be the zero address.
    */
-  function increaseApproval(address spender, uint256 addedValue) public virtual returns (bool) {
+  function increaseApproval(
+    address spender,
+    uint256 addedValue
+  )
+    public
+    virtual
+    returns (bool)
+  {
     return super.increaseAllowance(spender, addedValue);
   }
 
@@ -34,7 +41,14 @@ abstract contract LinkERC20 is ERC20 {
    * - `spender` must have allowance for the caller of at least
    * `subtractedValue`.
    */
-  function decreaseApproval(address spender, uint256 subtractedValue) public virtual returns (bool) {
+  function decreaseApproval(
+    address spender,
+    uint256 subtractedValue
+  )
+    public
+    virtual
+    returns (bool)
+  {
     return super.decreaseAllowance(spender, subtractedValue);
   }
 }
