@@ -8,23 +8,38 @@ contract LinkReceiver {
   bool public callDataCalled;
   uint public tokensReceived;
 
-  function onTokenTransfer(address _from, uint _amount, bytes memory _data) public returns (bool) {
+  function onTokenTransfer(
+    address /* from */,
+    uint /* amount */,
+    bytes memory data
+  )
+   public
+   returns (bool)
+  {
     fallbackCalled = true;
-    if (_data.length > 0) {
-      (bool success, bytes memory _returnData) = address(this).delegatecall(_data);
+    if (data.length > 0) {
+      (bool success, /* bytes memory returnData */) = address(this).delegatecall(data);
       require(success, "onTokenTransfer:delegatecall failed");
     }
     return true;
   }
 
-  function callbackWithoutWithdrawl() public {
+  function callbackWithoutWithdrawl()
+    public
+  {
     callDataCalled = true;
   }
 
-  function callbackWithWithdrawl(uint _value, address _from, address _token) public {
+  function callbackWithWithdrawl(
+    uint value,
+    address from,
+    address tokenAddr
+  )
+    public
+  {
     callDataCalled = true;
-    IERC20 token = IERC20(_token);
-    token.transferFrom(_from, address(this), _value);
-    tokensReceived = _value;
+    IERC20 token = IERC20(tokenAddr);
+    token.transferFrom(from, address(this), value);
+    tokensReceived = value;
   }
 }
