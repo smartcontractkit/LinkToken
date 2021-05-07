@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >0.6.0 <0.8.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../../vendor/@openzeppelin/contracts/3.4.1/contracts/token/ERC20/IERC20.sol";
 
 contract LinkReceiver {
   bool public fallbackCalled;

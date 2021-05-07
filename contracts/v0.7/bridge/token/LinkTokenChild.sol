@@ -6,7 +6,7 @@ import { TypeAndVersionInterface } from "../../../v0.6/TypeAndVersionInterface.s
 import { IERC20Child } from "./IERC20Child.sol";
 
 /* Contract Imports */
-import { AccessControl } from "@openzeppelin/contracts/access/AccessControl.sol";
+import { AccessControl } from "../../../vendor/@openzeppelin/contracts/3.4.1/contracts/access/AccessControl.sol";
 import { LinkToken } from "../../../v0.6/LinkToken.sol";
 
 /// @dev Access controlled mintable & burnable LinkToken, for use on sidechains and L2 networks.
