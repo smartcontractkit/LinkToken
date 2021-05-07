@@ -29,10 +29,7 @@
     "script:oe:down": "cd optimism/ops && docker-compose down -v",
     "script:oe:clean": "cd optimism/ops && docker-compose down -v --remove-orphan --rmi all"
   },
-  "dependencies": {
-    "@chainlink/contracts": "^0.1.6",
-    "@openzeppelin/contracts": "3.4.0"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@chainlink/optimism-utils": "https://github.com/smartcontractkit/optimism-utils.git",
     "@eth-optimism/hardhat-ovm": "^0.1.1",
