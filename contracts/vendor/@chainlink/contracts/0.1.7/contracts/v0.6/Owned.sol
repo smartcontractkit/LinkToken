@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
+// next-line updated from source
+pragma solidity >0.6.0 <0.8.0;
 
 /**
  * @title The Owned contract
