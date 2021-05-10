@@ -6,14 +6,11 @@ import { TypeAndVersionInterface } from "../../../v0.6/TypeAndVersionInterface.s
 import { IERC20Child } from "./IERC20Child.sol";
 
 /* Contract Imports */
-import { AccessControl } from "../../../vendor/@openzeppelin/contracts/3.4.1/contracts/access/AccessControl.sol";
+import { SimpleWriteAccessController } from "../../../vendor/@chainlink/contracts/0.1.7/contracts/v0.6/SimpleWriteAccessController.sol";
 import { LinkToken } from "../../../v0.6/LinkToken.sol";
 
 /// @dev Access controlled mintable & burnable LinkToken, for use on sidechains and L2 networks.
-contract LinkTokenChild is TypeAndVersionInterface, IERC20Child, AccessControl, LinkToken {
-  // Using this role the bridge gateway can deposit/withdraw (mint/burn)
-  bytes32 public constant BRIDGE_GATEWAY_ROLE = keccak256("BRIDGE_GATEWAY_ROLE");
-
+contract LinkTokenChild is TypeAndVersionInterface, IERC20Child, SimpleWriteAccessController, LinkToken {
   /**
    * @dev Overrides parent contract so no tokens are minted on deployment.
    * @inheritdoc LinkToken
@@ -21,9 +18,7 @@ contract LinkTokenChild is TypeAndVersionInterface, IERC20Child, AccessControl, 
   function _onCreate()
     internal
     override
-  {
-    _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-  }
+  {}
 
   /**
    * @notice versions:
@@ -43,7 +38,7 @@ contract LinkTokenChild is TypeAndVersionInterface, IERC20Child, AccessControl, 
   }
 
   /**
-   * @dev Only callable by account with BRIDGE_GATEWAY_ROLE
+   * @dev Only callable by account with access (gateway role)
    * @inheritdoc IERC20Child
    */
   function deposit(
@@ -53,13 +48,13 @@ contract LinkTokenChild is TypeAndVersionInterface, IERC20Child, AccessControl, 
     external
     override
     virtual
-    onlyRole(BRIDGE_GATEWAY_ROLE)
+    checkAccess()
   {
     _mint(recipient, amount);
   }
 
   /**
-   * @dev Only callable by account with BRIDGE_GATEWAY_ROLE
+   * @dev Only callable by account with access (gateway role)
    * @inheritdoc IERC20Child
    */
   function withdraw(
@@ -68,19 +63,8 @@ contract LinkTokenChild is TypeAndVersionInterface, IERC20Child, AccessControl, 
     external
     override
     virtual
-    onlyRole(BRIDGE_GATEWAY_ROLE)
+    checkAccess()
   {
     _burn(_msgSender(), amount);
-  }
-
-  /**
-   * @dev Modifier to check access by role.
-   * @param role the required role
-   */
-  modifier onlyRole(
-    bytes32 role
-  ) {
-    require(hasRole(role, _msgSender()), "LinkTokenChild: missing role");
-    _;
   }
 }
