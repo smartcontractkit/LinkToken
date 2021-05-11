@@ -161,8 +161,6 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
         expect(await l2Token.balanceOf(recipient.address)).to.be.equal(31)
         expect(await l2Token.totalSupply()).to.be.equal(31)
       })
-
-      // TODO: test 'owner can renounce ownership'
     })
   })
 
@@ -189,10 +187,10 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
       expect(totalSupply).to.equal('0')
     })
 
-    it('can NOT deposit without  access (gateway role)', async () => {
+    it('can NOT deposit without access (gateway role)', async () => {
       const depositTx = await l2Token.deposit(oe.l2Wallet.address, 100, h.optimism.TX_OVERRIDES_OE_BUG)
       // TODO: fetch revert reason
-      // revert: LinkTokenChild: missing role
+      // revert: 'No access'
       await h.txRevert(depositTx.wait())
     })
 
@@ -203,7 +201,7 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
       const addAccessTx1 = await l2Token.addAccess(owner.address)
       await addAccessTx1.wait()
       // Deposit some tokens as owner/gateway
-      const depositTx1 = await l2Token.deposit(owner.address, 100, h.optimism.TX_OVERRIDES_OE_BUG)
+      const depositTx1 = await l2Token.deposit(owner.address, 100)
       await depositTx1.wait()
       // Assert state
       expect(await l2Token.balanceOf(owner.address)).to.be.equal(100)
@@ -223,10 +221,8 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
       // Owner deposit fails
       const depositTx = await l2Token.deposit(owner.address, 100, h.optimism.TX_OVERRIDES_OE_BUG)
       // TODO: fetch revert reason
-      // revert: LinkTokenChild: missing role
+      // revert: 'No access'
       await h.txRevert(depositTx.wait())
-
-      // TODO: owner renounce ownership
     })
   })
 })
