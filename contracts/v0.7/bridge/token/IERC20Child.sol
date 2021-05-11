@@ -10,10 +10,10 @@ interface IERC20Child is IERC20 {
    * @notice called by bridge gateway when tokens are deposited on root chain
    * Should handle deposits by minting the required amount for the recipient
    *
-   * @param recipient an address for whom deposit is being done
-   * @param amount total amount to deposit/mint
+   * @param recipient an address for whom minting is being done
+   * @param amount total amount to mint
    */
-  function deposit(
+  function mint(
     address recipient,
     uint256 amount
   )
@@ -23,9 +23,22 @@ interface IERC20Child is IERC20 {
    * @notice called by bridge gateway when tokens are withdrawn back to root chain
    * @dev Should burn recipient's tokens.
    *
-   * @param amount total amount to withdraw/burn
+   * @param amount total amount to burn
    */
-  function withdraw(
+  function burn(
+    uint256 amount
+  )
+    external;
+
+  /**
+   * @notice called by bridge gateway when tokens are withdrawn back to root chain
+   * @dev Should burn recipient's tokens. Sender must have allowance for `accounts`'s tokens of at least `amount`.
+   *
+   * @param account an address for whom burning is being done
+   * @param amount total amount to burn
+   */
+  function burnFrom(
+    address account,
     uint256 amount
   )
     external;

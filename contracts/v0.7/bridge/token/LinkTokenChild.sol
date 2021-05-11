@@ -6,11 +6,13 @@ import { TypeAndVersionInterface } from "../../../v0.6/TypeAndVersionInterface.s
 import { IERC20Child } from "./IERC20Child.sol";
 
 /* Contract Imports */
+import { ERC20 } from "../../../vendor/@openzeppelin/contracts/3.4.1/contracts/token/ERC20/ERC20.sol";
+import { ERC20Burnable } from "../../../vendor/@openzeppelin/contracts/3.4.1/contracts/token/ERC20/ERC20Burnable.sol";
 import { SimpleWriteAccessController } from "../../../vendor/@chainlink/contracts/0.1.7/contracts/v0.6/SimpleWriteAccessController.sol";
 import { LinkToken } from "../../../v0.6/LinkToken.sol";
 
 /// @dev Access controlled mintable & burnable LinkToken, for use on sidechains and L2 networks.
-contract LinkTokenChild is TypeAndVersionInterface, IERC20Child, SimpleWriteAccessController, LinkToken {
+contract LinkTokenChild is TypeAndVersionInterface, IERC20Child, SimpleWriteAccessController, ERC20Burnable, LinkToken {
   /**
    * @dev Overrides parent contract so no tokens are minted on deployment.
    * @inheritdoc LinkToken
@@ -30,7 +32,7 @@ contract LinkTokenChild is TypeAndVersionInterface, IERC20Child, SimpleWriteAcce
   function typeAndVersion()
     external
     pure
-    override(LinkToken, TypeAndVersionInterface)
+    override(TypeAndVersionInterface, LinkToken)
     virtual
     returns (string memory)
   {
@@ -41,11 +43,11 @@ contract LinkTokenChild is TypeAndVersionInterface, IERC20Child, SimpleWriteAcce
    * @dev Only callable by account with access (gateway role)
    * @inheritdoc IERC20Child
    */
-  function deposit(
+  function mint(
     address recipient,
     uint256 amount
   )
-    external
+    public
     override
     virtual
     checkAccess()
@@ -55,16 +57,58 @@ contract LinkTokenChild is TypeAndVersionInterface, IERC20Child, SimpleWriteAcce
 
   /**
    * @dev Only callable by account with access (gateway role)
-   * @inheritdoc IERC20Child
+   * @inheritdoc ERC20Burnable
    */
-  function withdraw(
+  function burn(
     uint256 amount
   )
-    external
-    override
+    public
+    override(IERC20Child, ERC20Burnable)
     virtual
     checkAccess()
   {
-    _burn(_msgSender(), amount);
+    super.burn(amount);
+  }
+
+  /**
+   * @dev Only callable by account with access (gateway role)
+   * @inheritdoc ERC20Burnable
+   */
+  function burnFrom(
+    address account,
+    uint256 amount
+  )
+    public
+    override(IERC20Child, ERC20Burnable)
+    virtual
+    checkAccess()
+  {
+    super.burnFrom(account, amount);
+  }
+
+  /// @inheritdoc LinkToken
+  function _transfer(
+    address sender,
+    address recipient,
+    uint256 amount
+  )
+    internal
+    override(ERC20, LinkToken)
+    virtual
+  {
+    super._transfer(sender, recipient, amount);
+  }
+
+  /// @inheritdoc LinkToken
+  function _approve(
+    address owner,
+    address spender,
+    uint256 amount
+  )
+    internal
+    override(ERC20, LinkToken)
+    virtual
+  {
+    super._approve(owner, spender, amount);
   }
 }

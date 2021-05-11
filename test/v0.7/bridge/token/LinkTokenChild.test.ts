@@ -29,8 +29,8 @@ export class LinkTokenChildTest__factory {
       const signerAddr = await this.signer.getAddress()
       await token.addAccess(signerAddr)
 
-      // Deposit requested amount
-      await token.deposit(signerAddr, initBalance)
+      // Mint requested amount
+      await token.mint(signerAddr, initBalance)
       return token
     }
 
@@ -53,7 +53,7 @@ const SimpleWriteAccessController_PUBLIC_ABI = [
   'enableAccessCheck',
   'disableAccessCheck',
 ]
-const LinkTokenChild_PUBLIC_ABI = ['deposit', 'withdraw']
+const LinkTokenChild_PUBLIC_ABI = ['mint', 'burn', 'burnFrom']
 const EXTRA_PUBLIC_ABI = [
   'decreaseAllowance',
   'increaseAllowance',
@@ -87,11 +87,11 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
         )
       })
 
-      it('can NOT deposit without access (gateway role)', async () => {
+      it('can NOT mint without access (gateway role)', async () => {
         const [_owner, recipient] = await ethers.getSigners()
-        // Deposit fails without access (gateway role)
-        const depositTx = l2Token.connect(recipient).deposit(recipient.address, 100)
-        await expect(depositTx).to.be.revertedWith('No access')
+        // Mint fails without access (gateway role)
+        const mintTx = l2Token.connect(recipient).mint(recipient.address, 100)
+        await expect(mintTx).to.be.revertedWith('No access')
       })
 
       it('only owner can grant access (gateway role)', async () => {
@@ -103,14 +103,14 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
         await l2Token.connect(owner).addAccess(gateway.address)
       })
 
-      it('can deposit with access (gateway role)', async () => {
+      it('can mint with access (gateway role)', async () => {
         const [_owner, gateway, recipient] = await ethers.getSigners()
         await l2Token.addAccess(gateway.address)
-        // Owner deposit still fails
-        const depositTx = l2Token.deposit(recipient.address, 100)
-        await expect(depositTx).to.be.revertedWith('No access')
-        // Gateway deposit succeeds
-        await l2Token.connect(gateway).deposit(recipient.address, 100)
+        // Owner mint still fails
+        const mintTx = l2Token.mint(recipient.address, 100)
+        await expect(mintTx).to.be.revertedWith('No access')
+        // Gateway mint succeeds
+        await l2Token.connect(gateway).mint(recipient.address, 100)
         // Assert state
         expect(await l2Token.balanceOf(recipient.address)).to.be.equal(100)
         expect(await l2Token.totalSupply()).to.be.equal(100)
@@ -120,9 +120,9 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
         const [_, gateway1, gateway2, recipient] = await ethers.getSigners()
         await l2Token.addAccess(gateway1.address)
         await l2Token.addAccess(gateway2.address)
-        // Gateway deposit succeeds
-        await l2Token.connect(gateway1).deposit(recipient.address, 100)
-        await l2Token.connect(gateway2).deposit(recipient.address, 100)
+        // Gateway mint succeeds
+        await l2Token.connect(gateway1).mint(recipient.address, 100)
+        await l2Token.connect(gateway2).mint(recipient.address, 100)
         // Assert state
         expect(await l2Token.balanceOf(recipient.address)).to.be.equal(200)
         expect(await l2Token.totalSupply()).to.be.equal(200)
@@ -131,32 +131,32 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
       it('owner can give out and revoke access (gateway role)', async () => {
         const [_, gateway, recipient] = await ethers.getSigners()
         await l2Token.addAccess(gateway.address)
-        // Gateway deposit succeeds
-        await l2Token.connect(gateway).deposit(recipient.address, 100)
+        // Gateway mint succeeds
+        await l2Token.connect(gateway).mint(recipient.address, 100)
         // Revoke gateway role
         await l2Token.removeAccess(gateway.address)
-        // Deposits now fail
-        const depositTx = l2Token.connect(gateway).deposit(recipient.address, 100)
-        await expect(depositTx).to.be.revertedWith('No access')
+        // Mint now fail
+        const mintTx = l2Token.connect(gateway).mint(recipient.address, 100)
+        await expect(mintTx).to.be.revertedWith('No access')
         // Assert state
         expect(await l2Token.balanceOf(recipient.address)).to.be.equal(100)
         expect(await l2Token.totalSupply()).to.be.equal(100)
       })
 
-      it('only gateway can withdraw', async () => {
+      it('only gateway can burn', async () => {
         const [_, gateway, recipient] = await ethers.getSigners()
         await l2Token.addAccess(gateway.address)
-        // Gateway deposit succeeds
-        await l2Token.connect(gateway).deposit(recipient.address, 100)
-        // Recipients direct withdraw fails
-        const withdrawTx1 = l2Token.connect(recipient).withdraw(69)
-        await expect(withdrawTx1).to.be.revertedWith('No access')
-        // Gateway can withdraw on behalf of the user
+        // Gateway mint succeeds
+        await l2Token.connect(gateway).mint(recipient.address, 100)
+        // Recipients direct burn fails
+        const burnTx1 = l2Token.connect(recipient).burn(69)
+        await expect(burnTx1).to.be.revertedWith('No access')
+        // Gateway can burn on behalf of the user
         await l2Token.connect(recipient).transfer(gateway.address, 69)
-        await l2Token.connect(gateway).withdraw(69)
-        // Gateway can NOT withdraw more
-        const withdrawTx3 = l2Token.connect(gateway).withdraw(10)
-        await expect(withdrawTx3).to.be.revertedWith('ERC20: burn amount exceeds balance')
+        await l2Token.connect(gateway).burn(69)
+        // Gateway can NOT burn more
+        const burnTx3 = l2Token.connect(gateway).burn(10)
+        await expect(burnTx3).to.be.revertedWith('ERC20: burn amount exceeds balance')
         // Assert state
         expect(await l2Token.balanceOf(recipient.address)).to.be.equal(31)
         expect(await l2Token.totalSupply()).to.be.equal(31)
@@ -187,11 +187,11 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
       expect(totalSupply).to.equal('0')
     })
 
-    it('can NOT deposit without access (gateway role)', async () => {
-      const depositTx = await l2Token.deposit(oe.l2Wallet.address, 100, h.optimism.TX_OVERRIDES_OE_BUG)
+    it('can NOT mint without access (gateway role)', async () => {
+      const mintTx = await l2Token.mint(oe.l2Wallet.address, 100, h.optimism.TX_OVERRIDES_OE_BUG)
       // TODO: fetch revert reason
       // revert: 'No access'
-      await h.txRevert(depositTx.wait())
+      await h.txRevert(mintTx.wait())
     })
 
     it('owner can migrate to a new gateway', async () => {
@@ -200,15 +200,15 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
       // Grant the required gateway role
       const addAccessTx1 = await l2Token.addAccess(owner.address)
       await addAccessTx1.wait()
-      // Deposit some tokens as owner/gateway
-      const depositTx1 = await l2Token.deposit(owner.address, 100)
-      await depositTx1.wait()
+      // Mint some tokens as owner/gateway
+      const mintTx1 = await l2Token.mint(owner.address, 100)
+      await mintTx1.wait()
       // Assert state
       expect(await l2Token.balanceOf(owner.address)).to.be.equal(100)
       expect(await l2Token.totalSupply()).to.be.equal(100)
-      // Owner can withdraw directly as it has a gateway role
-      const withdrawTx = await l2Token.withdraw(100)
-      await withdrawTx.wait()
+      // Owner can burn directly as it has a gateway role
+      const burnTx = await l2Token.burn(100)
+      await burnTx.wait()
       // Assert state
       expect(await l2Token.balanceOf(owner.address)).to.be.equal(0)
       expect(await l2Token.totalSupply()).to.be.equal(0)
@@ -218,11 +218,11 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
       // Revoke gateway role from owner
       const removeAccessTx = await l2Token.removeAccess(owner.address)
       await removeAccessTx.wait()
-      // Owner deposit fails
-      const depositTx = await l2Token.deposit(owner.address, 100, h.optimism.TX_OVERRIDES_OE_BUG)
+      // Owner mint fails
+      const mintTx = await l2Token.mint(owner.address, 100, h.optimism.TX_OVERRIDES_OE_BUG)
       // TODO: fetch revert reason
       // revert: 'No access'
-      await h.txRevert(depositTx.wait())
+      await h.txRevert(mintTx.wait())
     })
   })
 })
