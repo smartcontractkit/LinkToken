@@ -2,7 +2,7 @@
 pragma solidity >0.6.0 <0.8.0;
 
 /* Interface Imports */
-import { IERC20 } from "../../../vendor/@openzeppelin/contracts/3.4.1/contracts/token/ERC20/IERC20.sol";
+import { IERC20 } from "../../../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 /// @dev Interface of the child ERC20 token, for use on sidechains and L2 networks.
 interface IERC20Child is IERC20 {
