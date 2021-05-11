@@ -6,9 +6,9 @@ import { TypeAndVersionInterface } from "../../../v0.6/TypeAndVersionInterface.s
 import { IERC20Child } from "./IERC20Child.sol";
 
 /* Contract Imports */
-import { ERC20 } from "../../../vendor/@openzeppelin/contracts/3.4.1/contracts/token/ERC20/ERC20.sol";
-import { ERC20Burnable } from "../../../vendor/@openzeppelin/contracts/3.4.1/contracts/token/ERC20/ERC20Burnable.sol";
-import { SimpleWriteAccessController } from "../../../vendor/@chainlink/contracts/0.1.7/contracts/v0.6/SimpleWriteAccessController.sol";
+import { ERC20 } from "../../../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import { ERC20Burnable } from "../../../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/ERC20Burnable.sol";
+import { SimpleWriteAccessController } from "../../../../vendor/smartcontractkit/chainlink/evm-contracts/src/v0.6/SimpleWriteAccessController.sol";
 import { LinkToken } from "../../../v0.6/LinkToken.sol";
 
 /// @dev Access controlled mintable & burnable LinkToken, for use on sidechains and L2 networks.
