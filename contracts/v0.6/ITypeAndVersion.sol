@@ -2,7 +2,7 @@
 pragma solidity >0.6.0;
 
 /// @dev Interface contracts should use to report its type and version.
-interface TypeAndVersionInterface {
+interface ITypeAndVersion {
   /**
    * @dev Returns type and version for the contract.
    *

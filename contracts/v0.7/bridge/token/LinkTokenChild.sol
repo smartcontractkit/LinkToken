@@ -2,7 +2,7 @@
 pragma solidity >0.6.0 <0.8.0;
 
 /* Interface Imports */
-import { TypeAndVersionInterface } from "../../../v0.6/TypeAndVersionInterface.sol";
+import { ITypeAndVersion } from "../../../v0.6/ITypeAndVersion.sol";
 import { IERC20Child } from "./IERC20Child.sol";
 
 /* Contract Imports */
@@ -12,7 +12,7 @@ import { SimpleWriteAccessController } from "../../../../vendor/smartcontractkit
 import { LinkToken } from "../../../v0.6/LinkToken.sol";
 
 /// @dev Access controlled mintable & burnable LinkToken, for use on sidechains and L2 networks.
-contract LinkTokenChild is TypeAndVersionInterface, IERC20Child, SimpleWriteAccessController, ERC20Burnable, LinkToken {
+contract LinkTokenChild is ITypeAndVersion, IERC20Child, SimpleWriteAccessController, ERC20Burnable, LinkToken {
   /**
    * @dev Overrides parent contract so no tokens are minted on deployment.
    * @inheritdoc LinkToken
@@ -27,12 +27,12 @@ contract LinkTokenChild is TypeAndVersionInterface, IERC20Child, SimpleWriteAcce
    *
    * - LinkTokenChild 0.0.1: initial release
    *
-   * @inheritdoc TypeAndVersionInterface
+   * @inheritdoc ITypeAndVersion
    */
   function typeAndVersion()
     external
     pure
-    override(TypeAndVersionInterface, LinkToken)
+    override(ITypeAndVersion, LinkToken)
     virtual
     returns (string memory)
   {

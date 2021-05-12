@@ -1,34 +1,26 @@
-// Sources flattened with hardhat v2.1.2 https://hardhat.org
+// Sources flattened with hardhat v2.2.1 https://hardhat.org
 
-// File @openzeppelin/contracts/utils/Context.sol@v3.4.1
+// File contracts/v0.6/ITypeAndVersion.sol
 
 // SPDX-License-Identifier: MIT
+pragma solidity >0.6.0;
 
-pragma solidity >=0.6.0 <0.8.0;
-
-/*
- * @dev Provides information about the current execution context, including the
- * sender of the transaction and its data. While these are generally available
- * via msg.sender and msg.data, they should not be accessed in such a direct
- * manner, since when dealing with GSN meta-transactions the account sending and
- * paying for execution may not be the actual sender (as far as an application
- * is concerned).
- *
- * This contract is only required for intermediate, library-like contracts.
- */
-abstract contract Context {
-    function _msgSender() internal view virtual returns (address payable) {
-        return msg.sender;
-    }
-
-    function _msgData() internal view virtual returns (bytes memory) {
-        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
-        return msg.data;
-    }
+/// @dev Interface contracts should use to report its type and version.
+interface ITypeAndVersion {
+  /**
+   * @dev Returns type and version for the contract.
+   *
+   * The returned string has the following format: <contract name><SPACE><semver>
+   * Try to keep its length less than 32 to take up less contract space.
+   */
+  function typeAndVersion()
+    external
+    pure
+    returns (string memory);
 }
 
 
-// File @openzeppelin/contracts/token/ERC20/IERC20.sol@v3.4.1
+// File vendor/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol
 
 // SPDX-License-Identifier: MIT
 
@@ -109,7 +101,83 @@ interface IERC20 {
 }
 
 
-// File @openzeppelin/contracts/math/SafeMath.sol@v3.4.1
+// File contracts/v0.7/bridge/token/IERC20Child.sol
+
+// SPDX-License-Identifier: MIT
+pragma solidity >0.6.0 <0.8.0;
+
+/* Interface Imports */
+
+/// @dev Interface of the child ERC20 token, for use on sidechains and L2 networks.
+interface IERC20Child is IERC20 {
+  /**
+   * @notice called by bridge gateway when tokens are deposited on root chain
+   * Should handle deposits by minting the required amount for the recipient
+   *
+   * @param recipient an address for whom minting is being done
+   * @param amount total amount to mint
+   */
+  function mint(
+    address recipient,
+    uint256 amount
+  )
+    external;
+
+  /**
+   * @notice called by bridge gateway when tokens are withdrawn back to root chain
+   * @dev Should burn recipient's tokens.
+   *
+   * @param amount total amount to burn
+   */
+  function burn(
+    uint256 amount
+  )
+    external;
+
+  /**
+   * @notice called by bridge gateway when tokens are withdrawn back to root chain
+   * @dev Should burn recipient's tokens. Sender must have allowance for `accounts`'s tokens of at least `amount`.
+   *
+   * @param account an address for whom burning is being done
+   * @param amount total amount to burn
+   */
+  function burnFrom(
+    address account,
+    uint256 amount
+  )
+    external;
+}
+
+
+// File vendor/OpenZeppelin/openzeppelin-contracts/contracts/utils/Context.sol
+
+// SPDX-License-Identifier: MIT
+
+pragma solidity >=0.6.0 <0.8.0;
+
+/*
+ * @dev Provides information about the current execution context, including the
+ * sender of the transaction and its data. While these are generally available
+ * via msg.sender and msg.data, they should not be accessed in such a direct
+ * manner, since when dealing with GSN meta-transactions the account sending and
+ * paying for execution may not be the actual sender (as far as an application
+ * is concerned).
+ *
+ * This contract is only required for intermediate, library-like contracts.
+ */
+abstract contract Context {
+    function _msgSender() internal view virtual returns (address payable) {
+        return msg.sender;
+    }
+
+    function _msgData() internal view virtual returns (bytes memory) {
+        this; // silence state mutability warning without generating bytecode - see https://github.com/ethereum/solidity/issues/2691
+        return msg.data;
+    }
+}
+
+
+// File vendor/OpenZeppelin/openzeppelin-contracts/contracts/math/SafeMath.sol
 
 // SPDX-License-Identifier: MIT
 
@@ -327,7 +395,7 @@ library SafeMath {
 }
 
 
-// File @openzeppelin/contracts/token/ERC20/ERC20.sol@v3.4.1
+// File vendor/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol
 
 // SPDX-License-Identifier: MIT
 
@@ -635,6 +703,240 @@ contract ERC20 is Context, IERC20 {
 }
 
 
+// File vendor/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/ERC20Burnable.sol
+
+// SPDX-License-Identifier: MIT
+
+pragma solidity >=0.6.0 <0.8.0;
+
+
+/**
+ * @dev Extension of {ERC20} that allows token holders to destroy both their own
+ * tokens and those that they have an allowance for, in a way that can be
+ * recognized off-chain (via event analysis).
+ */
+abstract contract ERC20Burnable is Context, ERC20 {
+    using SafeMath for uint256;
+
+    /**
+     * @dev Destroys `amount` tokens from the caller.
+     *
+     * See {ERC20-_burn}.
+     */
+    function burn(uint256 amount) public virtual {
+        _burn(_msgSender(), amount);
+    }
+
+    /**
+     * @dev Destroys `amount` tokens from `account`, deducting from the caller's
+     * allowance.
+     *
+     * See {ERC20-_burn} and {ERC20-allowance}.
+     *
+     * Requirements:
+     *
+     * - the caller must have allowance for ``accounts``'s tokens of at least
+     * `amount`.
+     */
+    function burnFrom(address account, uint256 amount) public virtual {
+        uint256 decreasedAllowance = allowance(account, _msgSender()).sub(amount, "ERC20: burn amount exceeds allowance");
+
+        _approve(account, _msgSender(), decreasedAllowance);
+        _burn(account, amount);
+    }
+}
+
+
+// File vendor/smartcontractkit/chainlink/evm-contracts/src/v0.6/Owned.sol
+
+// SPDX-License-Identifier: MIT
+pragma solidity >0.6.0 <0.8.0;
+
+/**
+ * @title The Owned contract
+ * @notice A contract with helpers for basic contract ownership.
+ */
+contract Owned {
+
+  address public owner;
+  address private pendingOwner;
+
+  event OwnershipTransferRequested(
+    address indexed from,
+    address indexed to
+  );
+  event OwnershipTransferred(
+    address indexed from,
+    address indexed to
+  );
+
+  constructor() public {
+    owner = msg.sender;
+  }
+
+  /**
+   * @dev Allows an owner to begin transferring ownership to a new address,
+   * pending.
+   */
+  function transferOwnership(address _to)
+    external
+    onlyOwner()
+  {
+    pendingOwner = _to;
+
+    emit OwnershipTransferRequested(owner, _to);
+  }
+
+  /**
+   * @dev Allows an ownership transfer to be completed by the recipient.
+   */
+  function acceptOwnership()
+    external
+  {
+    require(msg.sender == pendingOwner, "Must be proposed owner");
+
+    address oldOwner = owner;
+    owner = msg.sender;
+    pendingOwner = address(0);
+
+    emit OwnershipTransferred(oldOwner, msg.sender);
+  }
+
+  /**
+   * @dev Reverts if called by anyone other than the contract owner.
+   */
+  modifier onlyOwner() {
+    require(msg.sender == owner, "Only callable by owner");
+    _;
+  }
+
+}
+
+
+// File vendor/smartcontractkit/chainlink/evm-contracts/src/v0.6/interfaces/AccessControllerInterface.sol
+
+// SPDX-License-Identifier: MIT
+pragma solidity >0.6.0 <0.8.0;
+
+interface AccessControllerInterface {
+  function hasAccess(address user, bytes calldata data) external view returns (bool);
+}
+
+
+// File vendor/smartcontractkit/chainlink/evm-contracts/src/v0.6/SimpleWriteAccessController.sol
+
+// SPDX-License-Identifier: MIT
+pragma solidity >0.6.0 <0.8.0;
+
+
+/**
+ * @title SimpleWriteAccessController
+ * @notice Gives access to accounts explicitly added to an access list by the
+ * controller's owner.
+ * @dev does not make any special permissions for externally, see
+ * SimpleReadAccessController for that.
+ */
+contract SimpleWriteAccessController is AccessControllerInterface, Owned {
+
+  bool public checkEnabled;
+  mapping(address => bool) internal accessList;
+
+  event AddedAccess(address user);
+  event RemovedAccess(address user);
+  event CheckAccessEnabled();
+  event CheckAccessDisabled();
+
+  constructor()
+    public
+  {
+    checkEnabled = true;
+  }
+
+  /**
+   * @notice Returns the access of an address
+   * @param _user The address to query
+   */
+  function hasAccess(
+    address _user,
+    bytes memory
+  )
+    public
+    view
+    virtual
+    override
+    returns (bool)
+  {
+    return accessList[_user] || !checkEnabled;
+  }
+
+  /**
+   * @notice Adds an address to the access list
+   * @param _user The address to add
+   */
+  function addAccess(address _user)
+    external
+    onlyOwner()
+  {
+    if (!accessList[_user]) {
+      accessList[_user] = true;
+
+      emit AddedAccess(_user);
+    }
+  }
+
+  /**
+   * @notice Removes an address from the access list
+   * @param _user The address to remove
+   */
+  function removeAccess(address _user)
+    external
+    onlyOwner()
+  {
+    if (accessList[_user]) {
+      accessList[_user] = false;
+
+      emit RemovedAccess(_user);
+    }
+  }
+
+  /**
+   * @notice makes the access check enforced
+   */
+  function enableAccessCheck()
+    external
+    onlyOwner()
+  {
+    if (!checkEnabled) {
+      checkEnabled = true;
+
+      emit CheckAccessEnabled();
+    }
+  }
+
+  /**
+   * @notice makes the access check unenforced
+   */
+  function disableAccessCheck()
+    external
+    onlyOwner()
+  {
+    if (checkEnabled) {
+      checkEnabled = false;
+
+      emit CheckAccessDisabled();
+    }
+  }
+
+  /**
+   * @dev reverts if the caller does not have access
+   */
+  modifier checkAccess() {
+    require(hasAccess(msg.sender, msg.data), "No access");
+    _;
+  }
+}
+
+
 // File contracts/v0.6/token/LinkERC20.sol
 
 // SPDX-License-Identifier: MIT
@@ -653,7 +955,14 @@ abstract contract LinkERC20 is ERC20 {
    *
    * - `spender` cannot be the zero address.
    */
-  function increaseApproval(address spender, uint256 addedValue) public virtual returns (bool) {
+  function increaseApproval(
+    address spender,
+    uint256 addedValue
+  )
+    public
+    virtual
+    returns (bool)
+  {
     return super.increaseAllowance(spender, addedValue);
   }
 
@@ -671,58 +980,85 @@ abstract contract LinkERC20 is ERC20 {
    * - `spender` must have allowance for the caller of at least
    * `subtractedValue`.
    */
-  function decreaseApproval(address spender, uint256 subtractedValue) public virtual returns (bool) {
+  function decreaseApproval(
+    address spender,
+    uint256 subtractedValue
+  )
+    public
+    virtual
+    returns (bool)
+  {
     return super.decreaseAllowance(spender, subtractedValue);
   }
 }
 
 
-// File contracts/v0.6/token/ERC677.sol
+// File contracts/v0.6/token/IERC677.sol
 
 // SPDX-License-Identifier: MIT
 pragma solidity >0.6.0 <0.8.0;
 
-interface ERC677 is IERC20 {
-  function transferAndCall(address to, uint value, bytes memory data) external returns (bool success);
+interface IERC677 is IERC20 {
+  function transferAndCall(
+    address to,
+    uint value,
+    bytes memory data
+  )
+    external
+    returns (bool success);
 
-  event Transfer(address indexed from, address indexed to, uint value, bytes data);
+  event Transfer(
+    address indexed from,
+    address indexed to,
+    uint value,
+    bytes data
+  );
 }
 
 
-// File contracts/v0.6/token/ERC677Receiver.sol
+// File contracts/v0.6/token/IERC677Receiver.sol
 
 // SPDX-License-Identifier: MIT
 pragma solidity >0.6.0 <0.8.0;
 
-interface ERC677Receiver {
-  function onTokenTransfer(address _sender, uint _value, bytes memory _data) external;
+interface IERC677Receiver {
+  function onTokenTransfer(
+    address sender,
+    uint value,
+    bytes memory data
+  )
+    external;
 }
 
 
-// File contracts/v0.6/ERC677Token.sol
+// File contracts/v0.6/ERC677.sol
 
 // SPDX-License-Identifier: MIT
 pragma solidity >0.6.0 <0.8.0;
 
 
 
-abstract contract ERC677Token is ERC20, ERC677 {
+abstract contract ERC677 is IERC677, ERC20 {
   /**
    * @dev transfer token to a contract address with additional data if the recipient is a contact.
-   * @param _to The address to transfer to.
-   * @param _value The amount to be transferred.
-   * @param _data The extra data to be passed to the receiving contract.
+   * @param to The address to transfer to.
+   * @param value The amount to be transferred.
+   * @param data The extra data to be passed to the receiving contract.
    */
-  function transferAndCall(address _to, uint _value, bytes memory _data)
+  function transferAndCall(
+    address to,
+    uint value,
+    bytes memory data
+  )
     public
     override
     virtual
     returns (bool success)
   {
-    super.transfer(_to, _value);
-    emit Transfer(msg.sender, _to, _value, _data);
-    if (isContract(_to)) {
-      contractFallback(_to, _value, _data);
+    super.transfer(to, value);
+    emit Transfer(msg.sender, to, value, data);
+    if (isContract(to)) {
+      contractFallback(to, value, data);
     }
     return true;
   }
@@ -730,20 +1066,26 @@ abstract contract ERC677Token is ERC20, ERC677 {
 
   // PRIVATE
 
-  function contractFallback(address _to, uint _value, bytes memory _data)
+  function contractFallback(
+    address to,
+    uint value,
+    bytes memory data
+  )
     private
   {
-    ERC677Receiver receiver = ERC677Receiver(_to);
-    receiver.onTokenTransfer(msg.sender, _value, _data);
+    IERC677Receiver receiver = IERC677Receiver(to);
+    receiver.onTokenTransfer(msg.sender, value, data);
   }
 
-  function isContract(address _addr)
+  function isContract(
+    address addr
+  )
     private
     view
     returns (bool hasCode)
   {
     uint length;
-    assembly { length := extcodesize(_addr) }
+    assembly { length := extcodesize(addr) }
     return length > 0;
   }
 }
@@ -755,15 +1097,37 @@ abstract contract ERC677Token is ERC20, ERC677 {
 pragma solidity >0.6.0 <0.8.0;
 
 
-contract LinkToken is LinkERC20, ERC677Token {
+
+/// @dev LinkToken, an ERC20/ERC677 Chainlink token with 1 billion supply
+contract LinkToken is ITypeAndVersion, LinkERC20, ERC677 {
   uint private constant TOTAL_SUPPLY = 10**27;
-  string private constant NAME = 'ChainLink Token';
+  string private constant NAME = 'Chainlink Token';
   string private constant SYMBOL = 'LINK';
 
-  constructor() ERC20(NAME, SYMBOL)
+  constructor()
+    ERC20(NAME, SYMBOL)
     public
   {
     _onCreate();
+  }
+
+  /**
+   * @notice versions:
+   *
+   * - LinkToken 0.0.3: added versioning, update name
+   * - LinkToken 0.0.2: upgraded to solc 0.6
+   * - LinkToken 0.0.1: initial release solc 0.4
+   *
+   * @inheritdoc ITypeAndVersion
+   */
+  function typeAndVersion()
+    external
+    pure
+    override
+    virtual
+    returns (string memory)
+  {
+    return "LinkToken 0.0.3";
   }
 
   /**
@@ -782,7 +1146,11 @@ contract LinkToken is LinkERC20, ERC677Token {
    * @dev Check if recepient is a valid address before transfer
    * @inheritdoc ERC20
    */
-  function _transfer(address sender, address recipient, uint256 amount)
+  function _transfer(
+    address sender,
+    address recipient,
+    uint256 amount
+  )
     internal
     override
     virtual
@@ -795,7 +1163,11 @@ contract LinkToken is LinkERC20, ERC677Token {
    * @dev Check if spender is a valid address before approval
    * @inheritdoc ERC20
    */
-  function _approve(address owner, address spender, uint256 amount)
+  function _approve(
+    address owner,
+    address spender,
+    uint256 amount
+  )
     internal
     override
     virtual
@@ -804,13 +1176,132 @@ contract LinkToken is LinkERC20, ERC677Token {
     super._approve(owner, spender, amount);
   }
 
-
-  // MODIFIERS
-
-  modifier validAddress(address _recipient)
+  /**
+   * @dev Check if recipient is valid (not this contract address)
+   * @param recipient the account we transfer/approve to
+   */
+  modifier validAddress(
+    address recipient
+  )
     virtual
   {
-    require(_recipient != address(this), "LinkToken: transfer/approve to this contract address");
+    require(recipient != address(this), "LinkToken: transfer/approve to this contract address");
     _;
+  }
+}
+
+
+// File contracts/v0.7/bridge/token/LinkTokenChild.sol
+
+// SPDX-License-Identifier: MIT
+pragma solidity >0.6.0 <0.8.0;
+
+/* Interface Imports */
+
+
+/* Contract Imports */
+
+
+
+
+/// @dev Access controlled mintable & burnable LinkToken, for use on sidechains and L2 networks.
+contract LinkTokenChild is ITypeAndVersion, IERC20Child, SimpleWriteAccessController, ERC20Burnable, LinkToken {
+  /**
+   * @dev Overrides parent contract so no tokens are minted on deployment.
+   * @inheritdoc LinkToken
+   */
+  function _onCreate()
+    internal
+    override
+  {}
+
+  /**
+   * @notice versions:
+   *
+   * - LinkTokenChild 0.0.1: initial release
+   *
+   * @inheritdoc ITypeAndVersion
+   */
+  function typeAndVersion()
+    external
+    pure
+    override(ITypeAndVersion, LinkToken)
+    virtual
+    returns (string memory)
+  {
+    return "LinkTokenChild 0.0.1";
+  }
+
+  /**
+   * @dev Only callable by account with access (gateway role)
+   * @inheritdoc IERC20Child
+   */
+  function mint(
+    address recipient,
+    uint256 amount
+  )
+    public
+    override
+    virtual
+    checkAccess()
+  {
+    _mint(recipient, amount);
+  }
+
+  /**
+   * @dev Only callable by account with access (gateway role)
+   * @inheritdoc ERC20Burnable
+   */
+  function burn(
+    uint256 amount
+  )
+    public
+    override(IERC20Child, ERC20Burnable)
+    virtual
+    checkAccess()
+  {
+    super.burn(amount);
+  }
+
+  /**
+   * @dev Only callable by account with access (gateway role)
+   * @inheritdoc ERC20Burnable
+   */
+  function burnFrom(
+    address account,
+    uint256 amount
+  )
+    public
+    override(IERC20Child, ERC20Burnable)
+    virtual
+    checkAccess()
+  {
+    super.burnFrom(account, amount);
+  }
+
+  /// @inheritdoc LinkToken
+  function _transfer(
+    address sender,
+    address recipient,
+    uint256 amount
+  )
+    internal
+    override(ERC20, LinkToken)
+    virtual
+  {
+    super._transfer(sender, recipient, amount);
+  }
+
+  /// @inheritdoc LinkToken
+  function _approve(
+    address owner,
+    address spender,
+    uint256 amount
+  )
+    internal
+    override(ERC20, LinkToken)
+    virtual
+  {
+    super._approve(owner, spender, amount);
   }
 }

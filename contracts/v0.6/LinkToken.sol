@@ -2,11 +2,11 @@
 pragma solidity >0.6.0 <0.8.0;
 
 import "./token/LinkERC20.sol";
-import "./ERC677Token.sol";
-import "./TypeAndVersionInterface.sol";
+import "./ERC677.sol";
+import "./ITypeAndVersion.sol";
 
 /// @dev LinkToken, an ERC20/ERC677 Chainlink token with 1 billion supply
-contract LinkToken is TypeAndVersionInterface, LinkERC20, ERC677Token {
+contract LinkToken is ITypeAndVersion, LinkERC20, ERC677 {
   uint private constant TOTAL_SUPPLY = 10**27;
   string private constant NAME = 'Chainlink Token';
   string private constant SYMBOL = 'LINK';
@@ -25,7 +25,7 @@ contract LinkToken is TypeAndVersionInterface, LinkERC20, ERC677Token {
    * - LinkToken 0.0.2: upgraded to solc 0.6
    * - LinkToken 0.0.1: initial release solc 0.4
    *
-   * @inheritdoc TypeAndVersionInterface
+   * @inheritdoc ITypeAndVersion
    */
   function typeAndVersion()
     external

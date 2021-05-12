@@ -2,10 +2,10 @@
 pragma solidity >0.6.0 <0.8.0;
 
 import "../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import "./token/ERC677.sol";
-import "./token/ERC677Receiver.sol";
+import "./token/IERC677.sol";
+import "./token/IERC677Receiver.sol";
 
-abstract contract ERC677Token is ERC20, ERC677 {
+abstract contract ERC677 is IERC677, ERC20 {
   /**
    * @dev transfer token to a contract address with additional data if the recipient is a contact.
    * @param to The address to transfer to.
@@ -40,7 +40,7 @@ abstract contract ERC677Token is ERC20, ERC677 {
   )
     private
   {
-    ERC677Receiver receiver = ERC677Receiver(to);
+    IERC677Receiver receiver = IERC677Receiver(to);
     receiver.onTokenTransfer(msg.sender, value, data);
   }
 

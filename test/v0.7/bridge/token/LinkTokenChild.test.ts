@@ -5,7 +5,7 @@ import { parseEther } from '@ethersproject/units'
 import { Contract, ContractFactory, Signer } from 'ethers'
 import { getContractFactory, deploy, Targets, Versions, optimism } from '../../../../src'
 
-import { shouldBehaveLikeERC677Token } from '../../../behavior/ERC677Token'
+import { shouldBehaveLikeERC677 } from '../../../behavior/ERC677'
 import { shouldBehaveLikeLinkToken } from '../../../behavior/LinkToken'
 import * as h from '../../../helpers'
 
@@ -71,7 +71,7 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
       return getContractFactory(name, signer, Versions.v0_6)
     }
 
-    shouldBehaveLikeERC677Token(_getContractFactory, h.revertShim())
+    shouldBehaveLikeERC677(_getContractFactory, h.revertShim())
     shouldBehaveLikeLinkToken(_getContractFactory, h.revertShim(), EXTRA_PUBLIC_ABI)
 
     // TODO: refactor as a behavior that we can test both on Hardhat and Optimism networks
