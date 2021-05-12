@@ -188,7 +188,7 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
     })
 
     it('can NOT mint without access (gateway role)', async () => {
-      const mintTx = await l2Token.mint(oe.l2Wallet.address, 100, h.optimism.TX_OVERRIDES_OE_BUG)
+      const mintTx = await l2Token.mint(oe.l2Wallet.address, 100, optimism.TX_OVERRIDES_BUG)
       // TODO: fetch revert reason
       // revert: 'No access'
       await h.txRevert(mintTx.wait())
@@ -201,7 +201,7 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
       const addAccessTx1 = await l2Token.addAccess(owner.address)
       await addAccessTx1.wait()
       // Mint some tokens as owner/gateway
-      const mintTx1 = await l2Token.mint(owner.address, 100)
+      const mintTx1 = await l2Token.mint(owner.address, 100, optimism.TX_OVERRIDES_BUG)
       await mintTx1.wait()
       // Assert state
       expect(await l2Token.balanceOf(owner.address)).to.be.equal(100)
@@ -219,7 +219,7 @@ describe(`LinkTokenChild ${Versions.v0_7}`, () => {
       const removeAccessTx = await l2Token.removeAccess(owner.address)
       await removeAccessTx.wait()
       // Owner mint fails
-      const mintTx = await l2Token.mint(owner.address, 100, h.optimism.TX_OVERRIDES_OE_BUG)
+      const mintTx = await l2Token.mint(owner.address, 100, optimism.TX_OVERRIDES_BUG)
       // TODO: fetch revert reason
       // revert: 'No access'
       await h.txRevert(mintTx.wait())
