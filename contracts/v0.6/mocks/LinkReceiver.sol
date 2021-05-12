@@ -2,8 +2,9 @@
 pragma solidity >0.6.0 <0.8.0;
 
 import "../../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
+import "../token/IERC677Receiver.sol";
 
-contract LinkReceiver {
+contract LinkReceiver is IERC677Receiver {
   bool public fallbackCalled;
   bool public callDataCalled;
   uint public tokensReceived;
@@ -14,14 +15,13 @@ contract LinkReceiver {
     bytes memory data
   )
    public
-   returns (bool)
+   override
   {
     fallbackCalled = true;
     if (data.length > 0) {
       (bool success, /* bytes memory returnData */) = address(this).delegatecall(data);
       require(success, "onTokenTransfer:delegatecall failed");
     }
-    return true;
   }
 
   function callbackWithoutWithdrawl()

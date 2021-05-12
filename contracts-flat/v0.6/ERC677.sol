@@ -1,6 +1,6 @@
-// Sources flattened with hardhat v2.1.2 https://hardhat.org
+// Sources flattened with hardhat v2.2.1 https://hardhat.org
 
-// File @openzeppelin/contracts/utils/Context.sol@v3.4.1
+// File vendor/OpenZeppelin/openzeppelin-contracts/contracts/utils/Context.sol
 
 // SPDX-License-Identifier: MIT
 
@@ -28,7 +28,7 @@ abstract contract Context {
 }
 
 
-// File @openzeppelin/contracts/token/ERC20/IERC20.sol@v3.4.1
+// File vendor/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol
 
 // SPDX-License-Identifier: MIT
 
@@ -109,7 +109,7 @@ interface IERC20 {
 }
 
 
-// File @openzeppelin/contracts/math/SafeMath.sol@v3.4.1
+// File vendor/OpenZeppelin/openzeppelin-contracts/contracts/math/SafeMath.sol
 
 // SPDX-License-Identifier: MIT
 
@@ -327,7 +327,7 @@ library SafeMath {
 }
 
 
-// File @openzeppelin/contracts/token/ERC20/ERC20.sol@v3.4.1
+// File vendor/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol
 
 // SPDX-License-Identifier: MIT
 
@@ -635,52 +635,72 @@ contract ERC20 is Context, IERC20 {
 }
 
 
-// File contracts/v0.6/token/ERC677.sol
+// File contracts/v0.6/token/IERC677.sol
 
 // SPDX-License-Identifier: MIT
 pragma solidity >0.6.0 <0.8.0;
 
-interface ERC677 is IERC20 {
-  function transferAndCall(address to, uint value, bytes memory data) external returns (bool success);
+interface IERC677 is IERC20 {
+  function transferAndCall(
+    address to,
+    uint value,
+    bytes memory data
+  )
+    external
+    returns (bool success);
 
-  event Transfer(address indexed from, address indexed to, uint value, bytes data);
+  event Transfer(
+    address indexed from,
+    address indexed to,
+    uint value,
+    bytes data
+  );
 }
 
 
-// File contracts/v0.6/token/ERC677Receiver.sol
+// File contracts/v0.6/token/IERC677Receiver.sol
 
 // SPDX-License-Identifier: MIT
 pragma solidity >0.6.0 <0.8.0;
 
-interface ERC677Receiver {
-  function onTokenTransfer(address _sender, uint _value, bytes memory _data) external;
+interface IERC677Receiver {
+  function onTokenTransfer(
+    address sender,
+    uint value,
+    bytes memory data
+  )
+    external;
 }
 
 
-// File contracts/v0.6/ERC677Token.sol
+// File contracts/v0.6/ERC677.sol
 
 // SPDX-License-Identifier: MIT
 pragma solidity >0.6.0 <0.8.0;
 
 
 
-abstract contract ERC677Token is ERC20, ERC677 {
+abstract contract ERC677 is IERC677, ERC20 {
   /**
    * @dev transfer token to a contract address with additional data if the recipient is a contact.
-   * @param _to The address to transfer to.
-   * @param _value The amount to be transferred.
-   * @param _data The extra data to be passed to the receiving contract.
+   * @param to The address to transfer to.
+   * @param value The amount to be transferred.
+   * @param data The extra data to be passed to the receiving contract.
    */
-  function transferAndCall(address _to, uint _value, bytes memory _data)
+  function transferAndCall(
+    address to,
+    uint value,
+    bytes memory data
+  )
     public
     override
     virtual
     returns (bool success)
   {
-    super.transfer(_to, _value);
-    emit Transfer(msg.sender, _to, _value, _data);
-    if (isContract(_to)) {
-      contractFallback(_to, _value, _data);
+    super.transfer(to, value);
+    emit Transfer(msg.sender, to, value, data);
+    if (isContract(to)) {
+      contractFallback(to, value, data);
     }
     return true;
   }
@@ -688,20 +708,26 @@ abstract contract ERC677Token is ERC20, ERC677 {
 
   // PRIVATE
 
-  function contractFallback(address _to, uint _value, bytes memory _data)
+  function contractFallback(
+    address to,
+    uint value,
+    bytes memory data
+  )
     private
   {
-    ERC677Receiver receiver = ERC677Receiver(_to);
-    receiver.onTokenTransfer(msg.sender, _value, _data);
+    IERC677Receiver receiver = IERC677Receiver(to);
+    receiver.onTokenTransfer(msg.sender, value, data);
   }
 
-  function isContract(address _addr)
+  function isContract(
+    address addr
+  )
     private
     view
     returns (bool hasCode)
   {
     uint length;
-    assembly { length := extcodesize(_addr) }
+    assembly { length := extcodesize(addr) }
     return length > 0;
   }
 }

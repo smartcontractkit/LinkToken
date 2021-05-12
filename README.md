@@ -11,7 +11,7 @@ Security audit for [0.4 version of the contracts](./contracts/v0.4/) is availabl
 ## Details
 
 - Deployments:
-  - Ethereum Mainnet [LinkToken 0.4](./flat/v0.4/LinkToken.sol): [0x514910771AF9Ca656af840dff83E8264EcF986CA](https://etherscan.io/address/0x514910771af9ca656af840dff83e8264ecf986ca)
+  - Ethereum Mainnet [LinkToken 0.4](./contracts-flat/v0.4/LinkToken.sol): [0x514910771AF9Ca656af840dff83E8264EcF986CA](https://etherscan.io/address/0x514910771af9ca656af840dff83e8264ecf986ca)
 - Decimals: 18
 - Name: ChainLink Token
 - Symbol: LINK

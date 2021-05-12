@@ -5,8 +5,8 @@ import "../../vendor/smartcontractkit/chainlink/evm-contracts/src/v0.6/Owned.sol
 import "../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import "../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
 import "../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/math/SafeMath.sol";
-import "./token/ERC677Receiver.sol";
-import "./TypeAndVersionInterface.sol";
+import "./token/IERC677Receiver.sol";
+import "./ITypeAndVersion.sol";
 
 /**
  * @notice This contract provides a one-to-one swap between pairs of tokens. It
@@ -14,7 +14,7 @@ import "./TypeAndVersionInterface.sol";
  * users should only interact with the swap, onTokenTransfer, and
  * getSwappableAmount functions.
  */
-contract PegSwap is TypeAndVersionInterface, Owned, ReentrancyGuard {
+contract PegSwap is ITypeAndVersion, Owned, ReentrancyGuard {
   using SafeMath for uint256;
 
   event LiquidityUpdated(
@@ -41,7 +41,7 @@ contract PegSwap is TypeAndVersionInterface, Owned, ReentrancyGuard {
    * - PegSwap 0.0.2: added versioning
    * - PegSwap 0.0.1: initial release
    *
-   * @inheritdoc TypeAndVersionInterface
+   * @inheritdoc ITypeAndVersion
    */
   function typeAndVersion()
     external

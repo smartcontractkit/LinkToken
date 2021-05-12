@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >0.6.0 <0.8.0;
 
-contract Token677ReceiverMock {
+import "../token/IERC677Receiver.sol";
+
+contract Token677ReceiverMock is IERC677Receiver {
   address public tokenSender;
   uint public sentValue;
   bytes public tokenData;
@@ -13,6 +15,7 @@ contract Token677ReceiverMock {
     bytes memory data
   )
     public
+    override
   {
     calledFallback = true;
 
