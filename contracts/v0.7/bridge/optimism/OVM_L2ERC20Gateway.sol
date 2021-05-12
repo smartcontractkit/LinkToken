@@ -3,6 +3,7 @@ pragma solidity >0.6.0 <0.8.0;
 pragma experimental ABIEncoderV2;
 
 /* Interface Imports */
+import { ITypeAndVersion } from "../../../v0.6/ITypeAndVersion.sol";
 import { IERC20Child } from "../token/IERC20Child.sol";
 import { IERC677Receiver } from "../../../v0.6/token/IERC677Receiver.sol";
 
@@ -24,7 +25,7 @@ import { OVM_EOACodeHashSet } from "./OVM_EOACodeHashSet.sol";
  * Compiler used: optimistic-solc
  * Runtime target: OVM
  */
-contract OVM_L2ERC20Gateway is IERC677Receiver, /* Initializable, */ OVM_EOACodeHashSet, Abs_L2DepositedToken {
+contract OVM_L2ERC20Gateway is ITypeAndVersion, IERC677Receiver, /* Initializable, */ OVM_EOACodeHashSet, Abs_L2DepositedToken {
   // Bridged L2 token
   IERC20Child public s_l2ERC20;
 
@@ -35,6 +36,23 @@ contract OVM_L2ERC20Gateway is IERC677Receiver, /* Initializable, */ OVM_EOACode
     )
     public
   {}
+
+  /**
+   * @notice versions:
+   *
+   * - OVM_L2ERC20Gateway 0.0.1: initial release
+   *
+   * @inheritdoc ITypeAndVersion
+   */
+  function typeAndVersion()
+    external
+    pure
+    override(ITypeAndVersion, OVM_EOACodeHashSet)
+    virtual
+    returns (string memory)
+  {
+    return "OVM_L2ERC20Gateway 0.0.1";
+  }
 
   /**
    * @param l1ERC20Gateway L1 Gateway address on the chain being withdrawn into

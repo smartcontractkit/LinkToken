@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >0.6.0 <0.8.0;
 
+/* Interface Imports */
+import { ITypeAndVersion } from "../../../v0.6/ITypeAndVersion.sol";
+
 /* Library Imports */
 import { EnumerableSet } from "../../../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/utils/EnumerableSet.sol";
 
@@ -19,7 +22,7 @@ import { OwnableUpgradeable } from "../../../../vendor/OpenZeppelin/openzeppelin
  * As the OVM_ProxyEOA.sol contract source could potentially change in the future (i.e., due to a fork),
  * here we actually track a set of possible EOA proxy contracts.
  */
-abstract contract OVM_EOACodeHashSet is /* Initializable, */ OwnableUpgradeable {
+abstract contract OVM_EOACodeHashSet is ITypeAndVersion, /* Initializable, */ OwnableUpgradeable {
   // Add the EnumerableSet library
   using EnumerableSet for EnumerableSet.Bytes32Set;
 
@@ -34,13 +37,30 @@ abstract contract OVM_EOACodeHashSet is /* Initializable, */ OwnableUpgradeable 
   // Optimism v0.3.0-rc
   bytes32 constant OVM_EOA_CODE_HASH_V4 = 0xef2ab076db773ffc554c9f287134123439a5228e92f5b3194a28fec0a0afafe3;
 
+  /**
+   * @notice versions:
+   *
+   * - OVM_EOACodeHashSet 0.0.1: initial release
+   *
+   * @inheritdoc ITypeAndVersion
+   */
+  function typeAndVersion()
+    external
+    pure
+    override
+    virtual
+    returns (string memory)
+  {
+    return "OVM_EOACodeHashSet 0.0.1";
+  }
+
   function __OVM_EOACodeHashSet_init()
     internal
     initializer()
   {
-      __Context_init_unchained();
-      __Ownable_init_unchained();
-      __OVM_EOACodeHashSet_init_unchained();
+    __Context_init_unchained();
+    __Ownable_init_unchained();
+    __OVM_EOACodeHashSet_init_unchained();
   }
 
   /// @notice Adds genesis OVM_ProxyEOA.sol EXTCODEHASH to the default set.

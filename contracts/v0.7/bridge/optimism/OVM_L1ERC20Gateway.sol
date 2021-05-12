@@ -4,6 +4,7 @@ pragma solidity >0.6.0 <0.8.0;
 pragma experimental ABIEncoderV2;
 
 /* Interface Imports */
+import { ITypeAndVersion } from "../../../v0.6/ITypeAndVersion.sol";
 import { IERC20 } from "../../../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import { IERC677Receiver } from "../../../v0.6/token/IERC677Receiver.sol";
 
@@ -28,7 +29,7 @@ import { Abs_L1TokenGateway } from "../../../../vendor/ethereum-optimism/optimis
  * Compiler used: solc
  * Runtime target: EVM
  */
-contract OVM_L1ERC20Gateway is IERC677Receiver, Initializable, Abs_L1TokenGateway {
+contract OVM_L1ERC20Gateway is ITypeAndVersion, IERC677Receiver, Initializable, Abs_L1TokenGateway {
   // L1 token we are bridging to L2
   IERC20 public s_l1ERC20;
 
@@ -40,6 +41,23 @@ contract OVM_L1ERC20Gateway is IERC677Receiver, Initializable, Abs_L1TokenGatewa
     )
     public
   {}
+
+  /**
+   * @notice versions:
+   *
+   * - OVM_L1ERC20Gateway 0.0.1: initial release
+   *
+   * @inheritdoc ITypeAndVersion
+   */
+  function typeAndVersion()
+    external
+    pure
+    override
+    virtual
+    returns (string memory)
+  {
+    return "OVM_L1ERC20Gateway 0.0.1";
+  }
 
   /**
    * @param l2ERC20Gateway L2 Gateway address on the chain being deposited into
