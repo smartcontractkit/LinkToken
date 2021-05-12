@@ -2,12 +2,6 @@ import * as dotenv from 'dotenv'
 import { Wallet, providers, utils } from 'ethers'
 import { optimism } from '../../../src'
 
-// TODO: Fix ERROR { "reason":"cannot estimate gas; transaction may fail or may require manual gas limit","code":"UNPREDICTABLE_GAS_LIMIT" }
-export const TX_OVERRIDES_OE_BUG: any = {
-  gasPrice: utils.parseUnits('1', 'gwei'),
-  gasLimit: 8_999_999,
-}
-
 export const loadEnv = async (envName: string = 'local'): Promise<optimism.env.OptimismEnv> => {
   // Load env configuration by name
   dotenv.config({ path: __dirname + `/../../../env/.env.${envName}` })
@@ -24,6 +18,8 @@ export const loadEnv = async (envName: string = 'local'): Promise<optimism.env.O
 
   const l1Provider = new providers.JsonRpcProvider(process.env.L1_WEB3_URL)
   const l2Provider = new providers.JsonRpcProvider(process.env.L2_WEB3_URL)
+  // Fix L2 gasPrice to 1 gwei
+  l2Provider.getGasPrice = () => Promise.resolve(utils.parseUnits('1', 'gwei'))
 
   l1Provider.pollingInterval = 10
   l2Provider.pollingInterval = 10
