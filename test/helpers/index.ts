@@ -43,10 +43,7 @@ export const functionID = (fnSignature: string) => {
  * @param contract The contract with the actual abi to check the expected exposed methods and getters against.
  * @param expectedPublic The expected public exposed methods and getters to match against the actual abi.
  */
-export function publicAbi(
-  contract: ethers.Contract | ethers.ContractFactory,
-  expectedPublic: string[],
-) {
+export function publicAbi(contract: ethers.Contract | ethers.ContractFactory, expectedPublic: string[]) {
   const actualPublic = []
   for (const method of contract.interface.fragments) {
     if (method.type === 'function') {
@@ -63,35 +60,4 @@ export function publicAbi(
     const index = actualPublic.indexOf(method)
     assert.isAtLeast(index, 0, `#${method} is expected to be public`)
   }
-}
-
-/**
- * Check that an evm transaction fails
- *
- * @param action The asynchronous action to execute, which should cause an evm revert.
- */
-export async function txRevert(action: (() => Promise<any>) | Promise<any>) {
-  try {
-    if (typeof action === 'function') {
-      await action()
-    } else {
-      await action
-    }
-  } catch (e) {
-    assert(e.message, 'Expected an error to contain a message')
-
-    const ERROR_MESSAGES = ['transaction failed']
-    const hasErrored = ERROR_MESSAGES.some((msg) => e.message.includes(msg))
-
-    assert(
-      hasErrored,
-      `expected following error message to include ${ERROR_MESSAGES.join(' or ')}. Got: "${
-        e.message
-      }"`,
-    )
-    return
-  }
-
-  const err = undefined
-  assert.exists(err, 'Expected an error to be raised')
 }
