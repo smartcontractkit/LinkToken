@@ -1101,7 +1101,7 @@ pragma solidity >0.6.0 <0.8.0;
 /// @dev LinkToken, an ERC20/ERC677 Chainlink token with 1 billion supply
 contract LinkToken is ITypeAndVersion, LinkERC20, ERC677 {
   uint private constant TOTAL_SUPPLY = 10**27;
-  string private constant NAME = 'Chainlink Token';
+  string private constant NAME = 'ChainLink Token';
   string private constant SYMBOL = 'LINK';
 
   constructor()
