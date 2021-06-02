@@ -14,7 +14,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Changed
 
 - Migrated to Hardhat and Waffle
-- Changed LinkToken v0.6 name from 'ChainLink Token' to 'Chainlink Token'
 
 ### Fixed
 
