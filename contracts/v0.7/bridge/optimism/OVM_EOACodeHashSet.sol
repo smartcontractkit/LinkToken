@@ -22,9 +22,12 @@ import { OwnableUpgradeable } from "../../../../vendor/OpenZeppelin/openzeppelin
  * As the OVM_ProxyEOA.sol contract source could potentially change in the future (i.e., due to a fork),
  * here we actually track a set of possible EOA proxy contracts.
  */
-abstract contract OVM_EOACodeHashSet is ITypeAndVersion, /* Initializable, */ OwnableUpgradeable {
+abstract contract OVM_EOACodeHashSet is ITypeAndVersion, Initializable, OwnableUpgradeable {
   // Add the EnumerableSet library
   using EnumerableSet for EnumerableSet.Bytes32Set;
+
+  event OVM_EOACodeHashAdded(bytes32 indexed value);
+  event OVM_EOACodeHashRemoved(bytes32 indexed value);
 
   // Declare a Bytes32Set of code hashes
   EnumerableSet.Bytes32Set private s_codeHasheSet;
@@ -68,11 +71,11 @@ abstract contract OVM_EOACodeHashSet is ITypeAndVersion, /* Initializable, */ Ow
     internal
     initializer()
   {
-    s_codeHasheSet.add(OVM_EOA_CODE_HASH_V0);
-    s_codeHasheSet.add(OVM_EOA_CODE_HASH_V1);
-    s_codeHasheSet.add(OVM_EOA_CODE_HASH_V2);
-    s_codeHasheSet.add(OVM_EOA_CODE_HASH_V3);
-    s_codeHasheSet.add(OVM_EOA_CODE_HASH_V4);
+    addEOACodeHash(OVM_EOA_CODE_HASH_V0);
+    addEOACodeHash(OVM_EOA_CODE_HASH_V1);
+    addEOACodeHash(OVM_EOA_CODE_HASH_V2);
+    addEOACodeHash(OVM_EOA_CODE_HASH_V3);
+    addEOACodeHash(OVM_EOA_CODE_HASH_V4);
   }
 
   /// @notice Reverts if called by anyone other than whitelisted EOA contracts.
@@ -109,6 +112,7 @@ abstract contract OVM_EOACodeHashSet is ITypeAndVersion, /* Initializable, */ Ow
     onlyOwner()
     returns (bool)
   {
+    emit OVM_EOACodeHashAdded(value);
     return s_codeHasheSet.add(value);
   }
 
@@ -125,6 +129,7 @@ abstract contract OVM_EOACodeHashSet is ITypeAndVersion, /* Initializable, */ Ow
     onlyOwner()
     returns (bool)
   {
+    emit OVM_EOACodeHashRemoved(value);
     return s_codeHasheSet.remove(value);
   }
 

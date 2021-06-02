@@ -25,7 +25,7 @@ import { OVM_EOACodeHashSet } from "./OVM_EOACodeHashSet.sol";
  * Compiler used: optimistic-solc
  * Runtime target: OVM
  */
-contract OVM_L2ERC20Gateway is ITypeAndVersion, IERC677Receiver, /* Initializable, */ OVM_EOACodeHashSet, Abs_L2DepositedToken {
+contract OVM_L2ERC20Gateway is ITypeAndVersion, IERC677Receiver, Initializable, OVM_EOACodeHashSet, Abs_L2DepositedToken {
   // Bridged L2 token
   IERC20Child public s_l2ERC20;
 
@@ -112,7 +112,18 @@ contract OVM_L2ERC20Gateway is ITypeAndVersion, IERC677Receiver, /* Initializabl
     s_l2ERC20 = IERC20Child(l2ERC20);
   }
 
-  /// @dev Modifier requiring sender to be EOA
+  /**
+   * Modifier requiring sender to be EOA
+   *
+   * @notice This method relies on extcodesize, whichreturns 0 for contracts in construction,
+   * since the code is only storedat the end of the constructor execution.
+   *
+   * It is unsafe to assume that an address for which this function returns true is an
+   * externally-owned account (EOA) and not a contract, but for this usecase there is no incentive
+   * to fool this fn as by doing so the user/contract can get its tokens locked.
+   *
+   * @param acc address to check if EOA
+   */
   modifier onlyEOA(address acc) {
     // Used to stop withdrawals to contracts (avoid accidentally lost tokens)
     require(!AddressUpgradeable.isContract(acc) || _isEOAContract(acc), "Account not EOA");
@@ -198,11 +209,13 @@ contract OVM_L2ERC20Gateway is ITypeAndVersion, IERC677Receiver, /* Initializabl
     // Check if funds already transfered via trasferAndCall (skipping)
     if (msg.sender != address(s_l2ERC20)) {
       // Take the newly deposited funds (must be approved)
-      s_l2ERC20.transferFrom(
+      bool success = s_l2ERC20.transferFrom(
         msg.sender,
         address(this),
         _amount
       );
+      // We check for success manually as OZ SafeERC20.sol is not supported on OVM
+      require(success, "SafeERC20: ERC20 operation did not succeed");
     }
 
     // And withdraw them to L1 (burn on L2)

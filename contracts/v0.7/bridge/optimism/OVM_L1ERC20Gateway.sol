@@ -9,6 +9,7 @@ import { IERC20 } from "../../../../vendor/OpenZeppelin/openzeppelin-contracts/c
 import { IERC677Receiver } from "../../../v0.6/token/IERC677Receiver.sol";
 
 /* Library Imports */
+import { SafeERC20 } from "../../../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/SafeERC20.sol";
 import { AddressUpgradeable } from "../../../../vendor/OpenZeppelin/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol";
 
 /* Contract Imports */
@@ -30,6 +31,7 @@ import { Abs_L1TokenGateway } from "../../../../vendor/ethereum-optimism/optimis
  * Runtime target: EVM
  */
 contract OVM_L1ERC20Gateway is ITypeAndVersion, IERC677Receiver, Initializable, Abs_L1TokenGateway {
+  using SafeERC20 for IERC20;
   // L1 token we are bridging to L2
   IERC20 public s_l1ERC20;
 
@@ -118,7 +120,18 @@ contract OVM_L1ERC20Gateway is ITypeAndVersion, IERC677Receiver, Initializable, 
     _;
   }
 
-  /// @dev Modifier requiring sender to be EOA
+  /**
+   * Modifier requiring sender to be EOA
+   *
+   * @notice This method relies on extcodesize, whichreturns 0 for contracts in construction,
+   * since the code is only storedat the end of the constructor execution.
+   *
+   * It is unsafe to assume that an address for which this function returns true is an
+   * externally-owned account (EOA) and not a contract, but for this usecase there is no incentive
+   * to fool this fn as by doing so the user/contract can get its tokens locked.
+   *
+   * @param acc address to check if EOA
+   */
   modifier onlyEOA(address acc) {
     // Used to stop withdrawals to contracts (avoid accidentally lost tokens)
     require(!AddressUpgradeable.isContract(acc), "Account not EOA");
@@ -223,7 +236,7 @@ contract OVM_L1ERC20Gateway is ITypeAndVersion, IERC677Receiver, Initializable, 
     if (msg.sender == address(s_l1ERC20)) return;
 
     // Hold on to the newly deposited funds (must be approved)
-    s_l1ERC20.transferFrom(
+    s_l1ERC20.safeTransferFrom(
       _from,
       address(this),
       _amount
@@ -246,6 +259,6 @@ contract OVM_L1ERC20Gateway is ITypeAndVersion, IERC677Receiver, Initializable, 
     onlyInitialized()
   {
     // Transfer withdrawn funds out to withdrawer
-    s_l1ERC20.transfer(_to, _amount);
+    s_l1ERC20.safeTransfer(_to, _amount);
   }
 }
