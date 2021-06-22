@@ -174,6 +174,39 @@ contract LinkTokenAvalanche is ITypeAndVersion, IERC20Avalanche, ERC20Burnable, 
   }
 
   /**
+   * @notice WARNING: Will burn tokens, without withdrawing them to the origin chain!
+   * To withdraw tokens use the `unwrap` method, which is monitored by the bridge
+   *
+   * @inheritdoc ERC20Burnable
+   */
+  function burn(
+    uint256 amount
+  )
+    public
+    override
+    virtual
+  {
+    super.burn(amount);
+  }
+
+  /**
+   * @notice WARNING: Will burn tokens, without withdrawing them to the origin chain!
+   * To withdraw tokens use the `unwrap` method, which is monitored by the bridge
+   *
+   * @inheritdoc ERC20Burnable
+   */
+  function burnFrom(
+    address account,
+    uint256 amount
+  )
+    public
+    override
+    virtual
+  {
+    super.burnFrom(account, amount);
+  }
+
+  /**
    * @dev Overrides parent contract so no tokens are minted on deployment.
    * @inheritdoc LinkToken
    */

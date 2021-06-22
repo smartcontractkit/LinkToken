@@ -4,6 +4,7 @@ pragma solidity >0.6.0 <0.8.0;
 /* Interface Imports */
 import { IERC20 } from "../../../../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
+/// @dev Interface for the bridged ERC20 token expected by the Avalanche standard bridge.
 interface IERC20Avalanche is IERC20 {
 
   function mint(
@@ -25,12 +26,22 @@ interface IERC20Avalanche is IERC20 {
   )
     external;
 
+  /**
+   * @dev Destroys `amount` tokens from `msg.sender. This function is monitored by the Avalanche bridge.
+   * @notice Call this when withdrawing tokens from Avalanche (NOT the direct `burn/burnFrom` method!).
+   * @param amount Number of tokens to unwrap.
+   * @param chain_id Id of the chain/network where to withdraw tokens.
+   */
   function unwrap(
     uint256 amount,
     uint256 chain_id
   )
     external;
 
+  /**
+   * @dev Transfers bridge role from `msg.sender` to `new_bridge_role_address`.
+   * @param new_bridge_role_address Address of the new bridge operator.
+   */
   function migrate_bridge_role(
     address new_bridge_role_address
   )
@@ -48,6 +59,11 @@ interface IERC20Avalanche is IERC20 {
   )
     external;
 
+  /**
+   * @dev Creates an L2 token connected to a specific L2 bridge gateway & L1 token
+   * @param token Address of the token to swap.
+   * @param amount Number of tokens to swap.
+   */
   function swap(
     address token,
     uint256 amount
