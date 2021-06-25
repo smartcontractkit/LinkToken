@@ -45,7 +45,9 @@ contract LinkTokenAvalanche is ITypeAndVersion, IERC20Avalanche, ERC20Burnable, 
   }
 
   /// @inheritdoc IERC20Avalanche
-  function chain_ids(uint256 id)
+  function chain_ids(
+    uint256 id
+  )
     public
     view
     override
@@ -125,7 +127,8 @@ contract LinkTokenAvalanche is ITypeAndVersion, IERC20Avalanche, ERC20Burnable, 
           supply: supply_increment
       });
     } else {
-      s_swapTokens[contract_address].supply = s_swapTokens[contract_address].supply.add(supply_increment);
+      s_swapTokens[contract_address].supply =
+        s_swapTokens[contract_address].supply.add(supply_increment);
     }
   }
 
@@ -144,7 +147,8 @@ contract LinkTokenAvalanche is ITypeAndVersion, IERC20Avalanche, ERC20Burnable, 
     // If the decrement is less than the current supply, decrement it from the current supply.
     // Otherwise, if the decrement is greater than or equal to the current supply, delete the mapping value.
     if (s_swapTokens[contract_address].supply > supply_decrement) {
-      s_swapTokens[contract_address].supply = s_swapTokens[contract_address].supply.sub(supply_decrement);
+      s_swapTokens[contract_address].supply =
+        s_swapTokens[contract_address].supply.sub(supply_decrement);
     } else {
       delete s_swapTokens[contract_address];
     }

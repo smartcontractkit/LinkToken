@@ -74,28 +74,28 @@ contract LinkTokenOptimism is ITypeAndVersion, IERC20Optimism, LinkToken {
 
   /// @inheritdoc IERC20Optimism
   function mint(
-    address recipient,
-    uint256 amount
+    address _to,
+    uint256 _amount
   )
     public
     override
     onlyL2Bridge()
   {
-    _mint(recipient, amount);
-    emit Mint(recipient, amount);
+    _mint(_to, _amount);
+    emit Mint(_to, _amount);
   }
 
   /// @inheritdoc IERC20Optimism
   function burn(
-    address from,
-    uint256 amount
+    address _from,
+    uint256 _amount
   )
     public
     override
     onlyL2Bridge()
   {
-    _burn(from, amount);
-    emit Burn(from, amount);
+    _burn(_from, _amount);
+    emit Burn(_from, _amount);
   }
 
   /**

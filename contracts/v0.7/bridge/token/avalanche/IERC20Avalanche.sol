@@ -16,7 +16,9 @@ interface IERC20Avalanche is IERC20 {
   )
     external;
 
-  function chain_ids(uint256 id)
+  function chain_ids(
+    uint256 id
+  )
     external
     view
     returns (bool);

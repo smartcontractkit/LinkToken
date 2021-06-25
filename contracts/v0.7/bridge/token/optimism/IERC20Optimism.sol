@@ -13,38 +13,38 @@ interface IERC20Optimism is IERC20, IERC165 {
     returns (address);
 
   /**
-   * @dev Creates `amount` tokens `to` account.
+   * @dev Creates `_amount` tokens `_to` account.
    * @notice Called by L2 gateway to deposit tokens.
-   * @param to Address of the recipient.
-   * @param amount Number of tokens to mint.
+   * @param _to Address of the recipient.
+   * @param _amount Number of tokens to mint.
    */
   function mint(
-    address to,
-    uint256 amount
+    address _to,
+    uint256 _amount
   )
     external;
 
   /**
-   * @dev Destroys `amount` tokens `from` account.
+   * @dev Destroys `_amount` tokens `_from` account.
    * @notice Called by L2 gateway to withdraw tokens.
-   * @param from Address of the account holding the tokens to be burnt.
-   * @param amount Number of tokens to burn.
+   * @param _from Address of the account holding the tokens to be burnt.
+   * @param _amount Number of tokens to burn.
    */
   function burn(
-    address from,
-    uint256 amount
+    address _from,
+    uint256 _amount
   )
     external;
 
-  /// @dev Emitted when `amount` tokens are deposited from L1 to L2.
+  /// @dev Emitted when `_amount` tokens are deposited from L1 to L2.
   event Mint(
-    address indexed account,
-    uint256 amount
+    address indexed _account,
+    uint256 _amount
   );
 
-  /// @dev Emitted when `amount` tokens are withdrawn from L2 to L1.
+  /// @dev Emitted when `_amount` tokens are withdrawn from L2 to L1.
   event Burn(
-    address indexed account,
-    uint256 amount
+    address indexed _account,
+    uint256 _amount
   );
 }
