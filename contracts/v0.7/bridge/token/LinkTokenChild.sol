@@ -11,17 +11,8 @@ import { ERC20Burnable } from "../../../../vendor/OpenZeppelin/openzeppelin-cont
 import { SimpleWriteAccessController } from "../../../../vendor/smartcontractkit/chainlink/evm-contracts/src/v0.6/SimpleWriteAccessController.sol";
 import { LinkToken } from "../../../v0.6/LinkToken.sol";
 
-/// @dev Access controlled mintable & burnable LinkToken, for use on sidechains and L2 networks.
+/// @dev A generalized mintable & burnable child LinkToken contract to be used on child networks.
 contract LinkTokenChild is ITypeAndVersion, IERC20Child, SimpleWriteAccessController, ERC20Burnable, LinkToken {
-  /**
-   * @dev Overrides parent contract so no tokens are minted on deployment.
-   * @inheritdoc LinkToken
-   */
-  function _onCreate()
-    internal
-    override
-  {}
-
   /**
    * @notice versions:
    *
@@ -85,6 +76,15 @@ contract LinkTokenChild is ITypeAndVersion, IERC20Child, SimpleWriteAccessContro
   {
     super.burnFrom(account, amount);
   }
+
+  /**
+   * @dev Overrides parent contract so no tokens are minted on deployment.
+   * @inheritdoc LinkToken
+   */
+  function _onCreate()
+    internal
+    override
+  {}
 
   /// @inheritdoc LinkToken
   function _transfer(

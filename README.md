@@ -20,8 +20,16 @@ Security audit for [0.4 version of the contracts](./contracts/v0.4/) is availabl
 
 The project contains [0.4 contracts](./contracts/v0.4/) that were used for LINK Ethereum Mainnet deployment in 2017. For deployments moving forward, we use the updated [0.6 contracts](./contracts/v0.6/) which use a more recent version of solc and the OpenZeppelin token standards. These updates include a minor ABI change around approval/allowance naming.
 
+To mitigate supply chain attack type of risk, we currently avoid using NPM modules to pull Solidity vendor code, but instead use git submodules. Make sure you pull submodules explicitly:
+
 ```bash
-yarn install
+git submodule update --init --recursive
+```
+
+After submodules are updated, we can run:
+
+```bash
+yarn
 ```
 
 Setup contracts:
@@ -30,7 +38,13 @@ Setup contracts:
 yarn setup
 ```
 
-This will compile all versions of the contracts.
+**NOTICE:** This will compile all versions of the contracts, but as Hardhat doesn't have robust support for multiple Solidity versions the resulting artifacts will include only final (latest) compiler output. To make sure you compile the specific version please use the specific command:
+
+Setup v0.6 contracts using Solidity 0.6 compiler:
+
+```bash
+build:contracts:0.6
+```
 
 ## Testing
 
