@@ -52,7 +52,7 @@ const config: HardhatUserConfig = {
   solidity: {
     compilers: Object.values(versions),
     overrides: {
-      ...hardhat.generateOverrides(`./contracts/${versionDir}/**/*.sol`, {}, compiler),
+      ...hardhat.generateOverrides(`contracts/${versionDir}/**/*.sol`, {}, compiler),
     },
   },
   ovm: {
