@@ -1,7 +1,6 @@
 import * as path from 'path'
 import * as glob from 'glob'
-import { ethers, ContractFactory, Signer, Contract } from 'ethers'
-import { Interface } from 'ethers/lib/utils'
+import { ContractFactory, ContractInterface, Signer, Contract } from 'ethers'
 import { Targets, Versions } from '.'
 
 export const getContractDefinition = (
@@ -26,9 +25,9 @@ export const getContractInterface = (
   name: string,
   version?: Versions,
   target: Targets = Targets.EVM,
-): Interface => {
+): ContractInterface => {
   const definition = getContractDefinition(name, version, target)
-  return new ethers.utils.Interface(definition.abi)
+  return definition.abi
 }
 
 export const getContractFactory = (
