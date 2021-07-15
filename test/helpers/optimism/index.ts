@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv'
-import { Wallet, providers, utils } from 'ethers'
+import { Wallet, providers } from 'ethers'
 import { optimism } from '../../../src'
 
 export const loadEnv = async (envName: string = 'local'): Promise<optimism.env.OptimismEnv> => {
@@ -18,8 +18,6 @@ export const loadEnv = async (envName: string = 'local'): Promise<optimism.env.O
 
   const l1Provider = new providers.JsonRpcProvider(process.env.L1_WEB3_URL)
   const l2Provider = new providers.JsonRpcProvider(process.env.L2_WEB3_URL)
-  // Fix L2 gasPrice to 1 gwei
-  l2Provider.getGasPrice = () => Promise.resolve(utils.parseUnits('1', 'gwei'))
 
   l1Provider.pollingInterval = 10
   l2Provider.pollingInterval = 10
