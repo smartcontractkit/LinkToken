@@ -2,18 +2,19 @@
 pragma solidity >0.6.0 <0.8.0;
 
 import "../../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import "../ERC677.sol";
+import "../token/LinkERC20.sol";
 
-contract Token677 is ERC20, ERC677 {
-  string private constant NAME = "Example ERC677 Token";
-  string private constant SYMBOL = "ERC677";
+contract Token20 is LinkERC20 {
+  string private constant NAME = "Example ERC20 Token";
+  string private constant SYMBOL = "ERC20";
 
   constructor(
+    address initialAccount,
     uint initialBalance
   )
     ERC20(NAME, SYMBOL)
     public
   {
-    _mint(msg.sender, initialBalance);
+    _mint(initialAccount, initialBalance);
   }
 }

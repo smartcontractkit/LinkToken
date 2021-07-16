@@ -5,11 +5,11 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 import * as h from '../helpers'
 
-export const shouldBehaveLikeERC677Token = (
+export const shouldBehaveLikeERC677 = (
   getContractFactory: (name: string, signer?: Signer) => ContractFactory,
   getReasonStr: (reason: string) => string,
 ) => {
-  describe('ERC677Token', () => {
+  describe('ERC677', () => {
     let defaultAccount: SignerWithAddress
 
     before(async () => {

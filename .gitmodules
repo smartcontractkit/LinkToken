@@ -1,0 +1,6 @@
+[submodule "vendor/smartcontractkit/chainlink"]
+	path = vendor/smartcontractkit/chainlink
+	url = git@github.com:smartcontractkit/chainlink.git
+[submodule "vendor/OpenZeppelin/openzeppelin-contracts"]
+	path = vendor/OpenZeppelin/openzeppelin-contracts
+	url = git@github.com:OpenZeppelin/openzeppelin-contracts.git

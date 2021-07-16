@@ -2,18 +2,15 @@ import { ethers } from 'ethers'
 ethers.utils.Logger.setLogLevel(ethers.utils.Logger.levels.ERROR)
 
 import { Signer } from '@ethersproject/abstract-signer'
-import { getContractFactory } from '../../../src'
+import { getContractFactory, Versions } from '../../../src'
 
 import { shouldBehaveLikeBasicToken } from '../../behavior/token/BasicToken'
+import * as h from '../../helpers'
 
-const VERSION = 'v0.6'
-
-describe(`BasicToken ${VERSION}`, () => {
-  const overrides: Record<string, string> = { BasicTokenMock: 'StandardTokenMock' }
+h.describes.HH(`BasicToken ${Versions.v0_6}`, () => {
+  const overrides: Record<string, string> = { BasicTokenMock: 'Token20' }
   const _getContractFactory = (name: string, signer?: Signer) =>
-    getContractFactory(overrides[name] || name, signer, VERSION)
+    getContractFactory(overrides[name] || name, signer, Versions.v0_6)
 
-  const _getReasonStr = (reason: string) => reason
-
-  shouldBehaveLikeBasicToken(_getContractFactory, _getReasonStr)
+  shouldBehaveLikeBasicToken(_getContractFactory, h.revertShim())
 })

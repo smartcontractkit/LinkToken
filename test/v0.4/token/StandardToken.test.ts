@@ -1,18 +1,15 @@
 import { Signer } from '@ethersproject/abstract-signer'
-import { getContractFactory } from '../../../src'
+import { getContractFactory, Versions } from '../../../src'
 
 import { shouldBehaveLikeBasicToken } from '../../behavior/token/BasicToken'
 import { shouldBehaveLikeStandardToken } from '../../behavior/token/StandardToken'
-import { REVERT_REASON_EMPTY } from '../../helpers'
+import * as h from '../../helpers'
 
-const VERSION = 'v0.4'
-
-describe(`StandardToken ${VERSION}`, () => {
+h.describes.HH(`StandardToken ${Versions.v0_4}`, () => {
   const overrides: Record<string, string> = { BasicTokenMock: 'StandardTokenMock' }
   const _getContractFactory = (name: string, signer?: Signer) =>
-    getContractFactory(overrides[name] || name, signer, VERSION)
-  const _getReasonStr = (_: string) => REVERT_REASON_EMPTY
+    getContractFactory(overrides[name] || name, signer, Versions.v0_4)
 
-  shouldBehaveLikeBasicToken(_getContractFactory, _getReasonStr)
-  shouldBehaveLikeStandardToken(_getContractFactory, _getReasonStr)
+  shouldBehaveLikeBasicToken(_getContractFactory, h.revertShim(Versions.v0_4))
+  shouldBehaveLikeStandardToken(_getContractFactory, h.revertShim(Versions.v0_4))
 })
