@@ -23,3 +23,5 @@ NOTICE: Current implementation of LinkTokenChild contract requires some addition
   gets defined, and once online transfer the ownership (bridge gateway role) to the new bridge.
 
 TODO: Potentially create an upgradeable `LinkTokenChild.sol` and limit gateway support to only one (owner)!
+
+- `./token/optimism/`: Documentation and token implementation for the Optimism bridge v2.
