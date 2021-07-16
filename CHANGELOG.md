@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 ### Added
 
 - Access controlled mintable & burnable LinkToken, for use on sidechains and L2 networks.
+- Add Arbitrum bridge documentation
 - Added versioning to v0.6 & v0.7 contracts
 
 ### Changed
