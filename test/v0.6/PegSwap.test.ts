@@ -5,11 +5,11 @@ import { SignerWithAddress } from '@nomiclabs/hardhat-ethers/signers'
 
 import { PegSwap__factory } from '../../build/types/v0.6/factories/PegSwap__factory'
 import { Token677__factory } from '../../build/types/v0.6/factories/Token677__factory'
-import { StandardTokenMock__factory } from '../../build/types/v0.6/factories/StandardTokenMock__factory'
+import { Token20__factory } from '../../build/types/v0.6/factories/Token20__factory'
 
 import * as h from '../helpers'
 
-describe('ERC677Token', () => {
+h.describes.HH('PegSwap', () => {
   let swap: Contract,
     owner: SignerWithAddress,
     base: Contract,
@@ -26,7 +26,7 @@ describe('ERC677Token', () => {
   })
 
   beforeEach(async () => {
-    base = await new StandardTokenMock__factory(owner).deploy(owner.address, totalIssuance)
+    base = await new Token20__factory(owner).deploy(owner.address, totalIssuance)
     wrapped = await new Token677__factory(owner).deploy(totalIssuance)
     swap = await new PegSwap__factory(owner).deploy()
 
@@ -35,6 +35,7 @@ describe('ERC677Token', () => {
 
   it('has a limited public ABI', () => {
     h.publicAbi(swap, [
+      'typeAndVersion',
       'addLiquidity',
       'getSwappableAmount',
       'onTokenTransfer',

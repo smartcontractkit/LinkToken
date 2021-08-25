@@ -1,10 +1,12 @@
+// SPDX-License-Identifier: MIT
 pragma solidity >=0.6.0 <0.8.0;
 
-import "@chainlink/contracts/src/v0.6/Owned.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/math/SafeMath.sol";
-import "./token/ERC677Receiver.sol";
+import "../../vendor/smartcontractkit/chainlink/evm-contracts/src/v0.6/Owned.sol";
+import "../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
+import "../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
+import "../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/math/SafeMath.sol";
+import "./token/IERC677Receiver.sol";
+import "./ITypeAndVersion.sol";
 
 /**
  * @notice This contract provides a one-to-one swap between pairs of tokens. It
@@ -12,7 +14,7 @@ import "./token/ERC677Receiver.sol";
  * users should only interact with the swap, onTokenTransfer, and
  * getSwappableAmount functions.
  */
-contract PegSwap is Owned, ReentrancyGuard {
+contract PegSwap is ITypeAndVersion, Owned, ReentrancyGuard {
   using SafeMath for uint256;
 
   event LiquidityUpdated(
@@ -32,6 +34,24 @@ contract PegSwap is Owned, ReentrancyGuard {
   );
 
   mapping(address => mapping(address => uint256)) private s_swappableAmount;
+
+  /**
+   * @notice versions:
+   *
+   * - PegSwap 0.0.2: added versioning
+   * - PegSwap 0.0.1: initial release
+   *
+   * @inheritdoc ITypeAndVersion
+   */
+  function typeAndVersion()
+    external
+    pure
+    override
+    virtual
+    returns (string memory)
+  {
+    return "PegSwap 0.0.2";
+  }
 
   /**
    * @dev Disallows direct send by setting a default function without the `payable` flag.
@@ -207,6 +227,7 @@ contract PegSwap is Owned, ReentrancyGuard {
     address target
   )
     private
+    view
     returns (
       bool hasLiquidity
     )
@@ -215,5 +236,4 @@ contract PegSwap is Owned, ReentrancyGuard {
     if (getSwappableAmount(target, source) > 0) return true;
     return false;
   }
-
 }
