@@ -32,9 +32,8 @@ if (!compiler) throw Error(`Compiler for ${versionLabel} could not be found!`)
 
 // Setup networks
 const networks: { [key: string]: any } = {
-  [Networks.OPTIMISM]: {
-    url: 'http://127.0.0.1:8545',
-    ovm: true, // ensures contracts will be compiled to OVM target.
+  [Networks.NAHMII]: {
+    url: 'https://ngeth.n3g0.nahmii.net',
   },
 }
 const targetNetwork = hardhat.argv.network || DEFAULT_NETWORK
