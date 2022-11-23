@@ -17,4 +17,5 @@ export const enum Networks {
   HARDHAT = 'hardhat',
   OPTIMISM = 'optimism', // AKA 'hardhat-optimism'
   KOVAN_OPTIMISM = 'kovan-optimism',
+  NAHMII = 'nahmii'
 }
