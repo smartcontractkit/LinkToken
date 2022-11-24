@@ -23,6 +23,7 @@
     "test": "hardhat test --no-compile --show-stack-traces"
   },
   "dependencies": {
+    "@chainlink/contracts": "^0.5.1",
     "@openzeppelin/contracts": "^3.4.0-solc-0.7"
   },
   "devDependencies": {
