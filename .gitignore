@@ -11,3 +11,4 @@ coverage.json
 
 # Optimism monorepo used for integration tests
 /optimism
+.env
