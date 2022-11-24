@@ -18,16 +18,9 @@
     "setup": "yarn build:contracts && yarn build",
     "lint": "echo \"Please set up linter\"",
     "build": "tsc -p tsconfig.json",
-    "build:contracts": "yarn build:contracts:0.4 && yarn build:contracts:0.6 && yarn build:contracts:0.6:ovm && yarn build:contracts:0.7 && yarn build:contracts:0.7:ovm",
-    "build:contracts:0.4": "hardhat compile --contracts 0.4 --show-stack-traces",
+    "build:contracts": "yarn build:contracts:0.4 && yarn build:contracts:0.6",
     "build:contracts:0.6": "hardhat compile --contracts 0.6 --show-stack-traces",
-    "build:contracts:0.6:ovm": "hardhat compile --contracts 0.6 --network optimism --show-stack-traces",
-    "build:contracts:0.7": "hardhat compile --contracts 0.7 --show-stack-traces",
-    "build:contracts:0.7:ovm": "hardhat compile --contracts 0.7 --network optimism --show-stack-traces",
-    "test": "hardhat test --no-compile --show-stack-traces",
-    "script:oe:up": "./node_modules/@chainlink/optimism-utils/scripts/run-ci.sh",
-    "script:oe:down": "cd optimism/ops && docker-compose down -v",
-    "script:oe:clean": "cd optimism/ops && docker-compose down -v --remove-orphan --rmi all"
+    "test": "hardhat test --no-compile --show-stack-traces"
   },
   "dependencies": {},
   "devDependencies": {
