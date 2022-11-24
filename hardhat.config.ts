@@ -20,9 +20,7 @@ task(TASK_COMPILE)
   .setAction(async (_args, _hre, runSuper) => runSuper(_args))
 
 const versions: Record<Versions, SolcConfig> = {
-  [Versions.v0_4]: { version: '0.4.16', settings: hardhat.solcSettings(200) },
-  [Versions.v0_6]: { version: '0.6.12', settings: hardhat.solcSettings(200) },
-  [Versions.v0_7]: { version: '0.7.6', settings: hardhat.solcSettings(1_000_000) },
+  [Versions.v0_6]: { version: '0.7.2', settings: hardhat.solcSettings(200) }
 }
 
 // Require version exists
