@@ -20,6 +20,8 @@
     "build": "tsc -p tsconfig.json",
     "build:contracts": "yarn build:contracts:0.6",
     "build:contracts:0.6": "hardhat compile --contracts 0.6 --show-stack-traces",
+    "deploy": "npx hardhat run scripts/deploy.js",
+    "deploy:nahmii":"npx hardhat run scripts/deploy.js --network nahmii",
     "test": "hardhat test --no-compile --show-stack-traces"
   },
   "dependencies": {
