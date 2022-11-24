@@ -18,11 +18,13 @@
     "setup": "yarn build:contracts && yarn build",
     "lint": "echo \"Please set up linter\"",
     "build": "tsc -p tsconfig.json",
-    "build:contracts": "yarn build:contracts:0.4 && yarn build:contracts:0.6",
+    "build:contracts": "yarn build:contracts:0.6",
     "build:contracts:0.6": "hardhat compile --contracts 0.6 --show-stack-traces",
     "test": "hardhat test --no-compile --show-stack-traces"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@openzeppelin/contracts": "^3.4.0-solc-0.7"
+  },
   "devDependencies": {
     "@chainlink/optimism-utils": "https://github.com/smartcontractkit/optimism-utils.git",
     "@eth-optimism/hardhat-ovm": "^0.2.2",
