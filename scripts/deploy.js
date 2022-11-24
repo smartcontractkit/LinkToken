@@ -1,6 +1,4 @@
 async function deployLinkToken () {
-  const accounts = await ethers.getSigners()
-  const contractOwner = accounts[0]
 
   // deploy LinkToken
   const LinkToken = await ethers.getContractFactory('LinkToken')
