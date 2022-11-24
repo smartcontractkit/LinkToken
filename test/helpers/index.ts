@@ -2,17 +2,17 @@ import { ethers } from 'ethers'
 import { assert } from 'chai'
 import { hardhat, Networks, Versions } from '../../src'
 
-export * as optimism from './optimism'
+// export * as optimism from './optimism'
 
 export const describes = {
   // Only run if Hardhat unit test
   HH: !hardhat.argv.network || hardhat.argv.network === Networks.HARDHAT ? describe : describe.skip,
   // Only run if OE integration test
-  OE: hardhat.argv.network === Networks.OPTIMISM ? describe : describe.skip,
+  OE: hardhat.argv.network === Networks.NAHMII ? describe : describe.skip,
 }
 
 export const revertShim = (v?: Versions) =>
-  v && v === Versions.v0_4 // reason string not supported on versions <= 0.4
+  v && v === Versions.v0_6 // reason string not supported on versions <= 0.4
     ? (_: string) => REVERT_REASON_EMPTY
     : (reason: string) => reason
 

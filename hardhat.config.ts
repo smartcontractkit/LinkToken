@@ -7,9 +7,10 @@ import { hardhat, Networks, Versions } from './src'
 import '@nomiclabs/hardhat-waffle'
 import '@typechain/hardhat'
 import '@nomiclabs/hardhat-waffle'
-import '@eth-optimism/hardhat-ovm'
 import 'hardhat-contract-sizer'
 import 'hardhat-gas-reporter'
+import * as dotenv from 'dotenv'
+dotenv.config()
 
 const DEFAULT_NETWORK = Networks.HARDHAT
 const DEFAULT_VERSION = Versions.v0_6
@@ -20,9 +21,7 @@ task(TASK_COMPILE)
   .setAction(async (_args, _hre, runSuper) => runSuper(_args))
 
 const versions: Record<Versions, SolcConfig> = {
-  [Versions.v0_4]: { version: '0.4.16', settings: hardhat.solcSettings(200) },
-  [Versions.v0_6]: { version: '0.6.12', settings: hardhat.solcSettings(200) },
-  [Versions.v0_7]: { version: '0.7.6', settings: hardhat.solcSettings(1_000_000) },
+  [Versions.v0_6]: { version: '0.7.2', settings: hardhat.solcSettings(200) }
 }
 
 // Require version exists
@@ -32,9 +31,9 @@ if (!compiler) throw Error(`Compiler for ${versionLabel} could not be found!`)
 
 // Setup networks
 const networks: { [key: string]: any } = {
-  [Networks.OPTIMISM]: {
-    url: 'http://127.0.0.1:8545',
-    ovm: true, // ensures contracts will be compiled to OVM target.
+  [Networks.NAHMII]: {
+    url: process.env.RPC_URL || 'https://ngeth.n3g0.nahmii.net',
+    accounts: [process.env.PRIVATE_KEY]
   },
 }
 const targetNetwork = hardhat.argv.network || DEFAULT_NETWORK
@@ -54,10 +53,6 @@ const config: HardhatUserConfig = {
     overrides: {
       ...hardhat.generateOverrides(`contracts/${versionDir}/**/*.sol`, {}, compiler),
     },
-  },
-  ovm: {
-    // Supported OVM versions: https://github.com/ethereum-optimism/solc-bin/tree/gh-pages/bin
-    solcVersion: compiler.version,
   },
   typechain: {
     outDir: `./build/${typesDir}/${versionDir}`,

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.6.0 <0.8.0;
 
-import "../../vendor/smartcontractkit/chainlink/evm-contracts/src/v0.6/Owned.sol";
-import "../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
-import "../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/utils/ReentrancyGuard.sol";
-import "../../vendor/OpenZeppelin/openzeppelin-contracts/contracts/math/SafeMath.sol";
+import "@chainlink/contracts/src/v0.6/Owned.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
 import "./token/IERC677Receiver.sol";
 import "./ITypeAndVersion.sol";
 
